@@ -1,0 +1,689 @@
+<title>Three Gifts for You</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one stage at a time — a locked envelope, then a night sky with three wrapped boxes on a shelf, then candles. */
+:root {
+  --night: #16112a;
+  --night-2: #241c45;
+  --text: #f1ecff;
+  --muted: #ada3cf;
+  --gold: #f4c55a;
+  --paper: #fbf3e6;
+  --ink: #2b2242;
+  --ink-soft: #6a5f86;
+  --danger: #ff8b8b;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --body: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(60rem 40rem at 85% -10%, #3b2a6e 0%, transparent 60%),
+    radial-gradient(50rem 30rem at -10% 110%, #3a1f4d 0%, transparent 60%),
+    var(--night);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  overflow-x: hidden;
+}
+#stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 50; pointer-events: none; }
+main { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Lock screen ---------- */
+#lock {
+  min-height: 100vh; min-height: 100dvh;
+  display: grid; place-items: center; padding-block: 40px;
+}
+.envelope {
+  width: 100%; max-width: 440px;
+  background: var(--paper); color: var(--ink);
+  border-radius: 20px;
+  padding: 36px 28px 30px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+  position: relative;
+  text-align: center;
+}
+.seal {
+  width: 64px; height: 64px; margin: -68px auto 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff9a8b, #c8403c 70%);
+  display: grid; place-items: center;
+  box-shadow: 0 6px 18px rgba(200,64,60,.45), inset 0 -4px 0 rgba(0,0,0,.15);
+  color: #fff3e8; font-family: var(--hand); font-size: 30px; font-weight: 700;
+}
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin: 0; }
+.envelope h1 {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(28px, 7vw, 36px); line-height: 1.08; letter-spacing: -.02em;
+  margin: 8px 0 10px; text-wrap: balance;
+}
+.envelope p.lead { margin: 0 auto 22px; color: var(--ink-soft); max-width: 32ch; }
+.date-row { display: flex; justify-content: center; align-items: end; gap: 8px; }
+.date-field { display: grid; gap: 4px; }
+.date-field label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+.date-field input {
+  width: 64px; height: 58px; text-align: center;
+  font-family: var(--display); font-size: 26px; font-weight: 800; color: var(--ink);
+  background: #fff; border: 2px solid #e2d6c3; border-radius: 12px;
+  font-variant-numeric: tabular-nums;
+  color-scheme: light;
+}
+.date-field input#yyyy { width: 96px; }
+.date-field input:focus { outline: none; border-color: #c8403c; box-shadow: 0 0 0 4px rgba(200,64,60,.15); }
+.slash { font-family: var(--display); font-size: 28px; color: #d3c4ad; padding-bottom: 10px; }
+.unlock-btn {
+  margin-top: 22px; width: 100%;
+  background: var(--ink); color: var(--paper);
+  border: 0; border-radius: 12px; padding: 14px 18px;
+  font-weight: 700; font-size: 16px;
+  transition: transform .15s ease, background .2s;
+}
+.unlock-btn:hover { background: #3c2f5c; }
+.unlock-btn:active { transform: scale(.98); }
+.msg { min-height: 1.6em; margin: 14px 0 0; font-weight: 500; color: #b8322e; }
+.hint {
+  margin: 12px 0 0; font-family: var(--hand); font-size: 22px; color: var(--ink-soft); line-height: 1.2;
+}
+.envelope.shake { animation: shake .45s ease; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px) rotate(-1deg); }
+  40% { transform: translateX(9px) rotate(1deg); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+.envelope.opening { animation: liftAway .8s cubic-bezier(.6,-0.2,.7,.4) forwards; }
+@keyframes liftAway { to { transform: translateY(-40px) scale(.92); opacity: 0; } }
+
+/* ---------- Party ---------- */
+#party { padding-block: 56px 80px; display: grid; gap: 56px; }
+.hero { text-align: center; display: grid; gap: 10px; justify-items: center; }
+.hero .eyebrow { color: var(--gold); }
+.hero h2 {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(40px, 10vw, 84px); line-height: .95; letter-spacing: -.035em;
+  margin: 0; text-wrap: balance;
+}
+.hero h2 .name { color: var(--gold); display: inline-block; }
+.hero p { margin: 0; color: var(--muted); max-width: 46ch; }
+.since {
+  margin-top: 8px;
+  display: inline-flex; align-items: baseline; gap: 8px; flex-wrap: wrap; justify-content: center;
+  font-family: var(--hand); font-size: 24px; color: var(--text);
+}
+.since b { font-family: var(--display); font-size: 22px; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+.shelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 4vw, 48px); align-items: end; }
+.gift-slot { display: grid; gap: 14px; justify-items: center; text-align: center; }
+.gift {
+  --wrap: #ef6f6c; --wrap-dark: #c94f4c; --ribbon: #f4c55a;
+  position: relative; width: 100%; max-width: 200px; aspect-ratio: 1 / 1.05;
+  background: none; border: 0; padding: 0;
+  transition: transform .25s ease;
+}
+.gift:hover:not(.opened) { transform: translateY(-6px) rotate(-1.5deg); }
+.gift .body {
+  position: absolute; left: 6%; right: 6%; bottom: 0; height: 70%;
+  background:
+    linear-gradient(90deg, transparent 42%, var(--ribbon) 42%, var(--ribbon) 58%, transparent 58%),
+    repeating-linear-gradient(135deg, var(--wrap) 0 14px, var(--wrap-dark) 14px 16px);
+  border-radius: 6px 6px 10px 10px;
+  box-shadow: inset 0 -10px 0 rgba(0,0,0,.12), 0 18px 30px rgba(0,0,0,.35);
+}
+.gift .lid {
+  position: absolute; left: 0; right: 0; top: 22%; height: 18%;
+  background:
+    linear-gradient(90deg, transparent 42%, var(--ribbon) 42%, var(--ribbon) 58%, transparent 58%),
+    var(--wrap);
+  border-radius: 8px;
+  box-shadow: 0 6px 0 rgba(0,0,0,.15);
+  transform-origin: 20% 100%;
+  z-index: 2;
+}
+.gift .bow {
+  position: absolute; left: 50%; top: -72%; width: 70%; height: 90%;
+  transform: translateX(-50%);
+}
+.gift .bow::before, .gift .bow::after {
+  content: ""; position: absolute; bottom: 0; width: 48%; height: 100%;
+  border: 9px solid var(--ribbon); border-radius: 50% 50% 10% 50%;
+  background: transparent;
+}
+.gift .bow::before { left: 2%; transform: rotate(-28deg); transform-origin: bottom right; }
+.gift .bow::after { right: 2%; transform: rotate(28deg) scaleX(-1); transform-origin: bottom left; }
+.gift .glow {
+  position: absolute; left: 50%; top: 45%; width: 10%; aspect-ratio: 1;
+  border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,233,160,.95), rgba(255,200,90,0) 70%);
+  opacity: 0; z-index: 1;
+}
+.gift.wiggle { animation: wiggle .7s ease; }
+@keyframes wiggle {
+  0%,100% { transform: rotate(0); }
+  15% { transform: rotate(-6deg) scale(1.03); }
+  30% { transform: rotate(5deg) scale(1.03); }
+  45% { transform: rotate(-4deg); }
+  60% { transform: rotate(3deg); }
+  75% { transform: rotate(-2deg); }
+}
+.gift.opened .lid { animation: lidOff .8s cubic-bezier(.2,.8,.3,1) forwards; }
+.gift.opened .glow { animation: glow 1.4s ease-out forwards; }
+@keyframes lidOff {
+  0% { transform: translateY(0) rotate(0); }
+  100% { transform: translateY(-150%) translateX(-18%) rotate(-32deg); opacity: .0; }
+}
+@keyframes glow {
+  0% { opacity: 0; width: 10%; }
+  40% { opacity: 1; width: 160%; }
+  100% { opacity: .55; width: 90%; }
+}
+.gift.locked { filter: saturate(.55) brightness(.8); }
+.gift.locked:hover { transform: none; }
+.gift-1 { --wrap: #ef6f6c; --wrap-dark: #d65956; --ribbon: #f4c55a; }
+.gift-2 { --wrap: #2bb3a3; --wrap-dark: #23998b; --ribbon: #f7a8c4; }
+.gift-3 { --wrap: #f2a541; --wrap-dark: #db8f2e; --ribbon: #7a52c7; }
+.tag {
+  font-family: var(--hand); font-size: clamp(18px, 4.6vw, 24px); line-height: 1.1; color: var(--text);
+}
+.tag small { display: block; font-family: var(--body); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.reopen {
+  background: transparent; border: 1px solid rgba(255,255,255,.2); color: var(--muted);
+  border-radius: 999px; padding: 4px 12px; font-size: 13px;
+}
+.reopen:hover { color: var(--text); border-color: var(--gold); }
+.shelf-note { text-align: center; color: var(--muted); margin: -24px 0 0; font-size: 15px; }
+
+/* ---------- Reveal card ---------- */
+#reveal {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center;
+  padding: max(20px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(10,7,22,.72);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+}
+.card {
+  width: 100%; max-width: 520px;
+  background: var(--paper); color: var(--ink);
+  border-radius: 20px; padding: 32px 28px 26px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  animation: cardIn .6s cubic-bezier(.2,.9,.3,1.2);
+  display: grid; gap: 14px;
+}
+@keyframes cardIn { from { transform: translateY(40px) scale(.9) rotate(-2deg); opacity: 0; } }
+.card .eyebrow { color: #c8403c; }
+.card h3 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 6vw, 34px); line-height: 1.05; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.card p { margin: 0; }
+.card .letter { font-family: var(--hand); font-size: 24px; line-height: 1.3; color: var(--ink); white-space: pre-line; }
+.card .sign { font-family: var(--hand); font-size: 24px; text-align: right; color: var(--ink-soft); }
+.card img { border-radius: 12px; width: 100%; max-height: 320px; object-fit: cover; }
+.coupon {
+  border: 2px dashed #d7c7ae; border-radius: 14px; padding: 18px;
+  display: grid; gap: 6px; text-align: center; background: #fffaf2;
+}
+.coupon .big { font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1.15; }
+.coupon .terms { font-size: 13px; color: var(--ink-soft); }
+.coupon .code { font-family: var(--display); letter-spacing: .2em; font-size: 14px; color: #c8403c; }
+.big-reveal { text-align: center; display: grid; gap: 8px; padding: 10px 0; }
+.big-reveal .item { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8vw, 44px); line-height: 1; color: #7a52c7; letter-spacing: -.02em; }
+.card .close {
+  justify-self: center; margin-top: 6px;
+  background: var(--ink); color: var(--paper); border: 0; border-radius: 999px; padding: 11px 26px; font-weight: 700;
+}
+
+/* ---------- Finale ---------- */
+#finale { text-align: center; display: grid; gap: 18px; justify-items: center; padding-top: 10px; }
+#finale h3 { font-family: var(--display); font-weight: 800; font-size: clamp(28px, 6vw, 44px); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+#finale p { margin: 0; color: var(--muted); max-width: 44ch; }
+.cake { position: relative; width: min(300px, 100%); height: 200px; margin-top: 30px; }
+.cake .tier { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 12px 12px 8px 8px; }
+.cake .t1 { bottom: 0; width: 100%; height: 80px; background: linear-gradient(#f7a8c4 0 18%, #6b3f8f 18%); }
+.cake .t2 { bottom: 76px; width: 72%; height: 64px; background: linear-gradient(#fbf3e6 0 22%, #ef6f6c 22%); }
+.cake .plate { position: absolute; bottom: -10px; left: -6%; width: 112%; height: 14px; background: #3a2f5e; border-radius: 50%; }
+.candles { position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%); display: flex; gap: 22px; }
+.candle {
+  position: relative; width: 12px; height: 46px; border: 0; padding: 0;
+  background: repeating-linear-gradient(160deg, #fbf3e6 0 6px, #2bb3a3 6px 10px);
+  border-radius: 3px;
+}
+.candle .flame {
+  position: absolute; left: 50%; bottom: 100%; width: 14px; height: 22px; margin-left: -7px; margin-bottom: 3px;
+  background: radial-gradient(ellipse at 50% 70%, #fff6c9 0%, #f4c55a 45%, #ef6f6c 80%, transparent 82%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: flicker .25s ease-in-out infinite alternate;
+  box-shadow: 0 0 22px 6px rgba(244,197,90,.45);
+}
+.candle.out .flame { animation: none; opacity: 0; transform: scale(.2); transition: all .35s; box-shadow: none; }
+.candle.out::after {
+  content: ""; position: absolute; left: 50%; bottom: 100%; width: 6px; height: 30px; margin-left: -3px;
+  background: linear-gradient(transparent, rgba(220,220,240,.5));
+  border-radius: 50%; animation: smoke 1.6s ease-out forwards;
+}
+@keyframes flicker { from { transform: rotate(-3deg) scaleY(1); } to { transform: rotate(3deg) scaleY(1.12); } }
+@keyframes smoke { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-30px) scaleX(2); } }
+.wish {
+  font-family: var(--hand); font-size: 30px; color: var(--gold); line-height: 1.2; max-width: 22ch;
+}
+
+.sound {
+  position: fixed; z-index: 30;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255,255,255,.08); color: var(--text);
+  border: 1px solid rgba(255,255,255,.18); border-radius: 999px;
+  padding: 8px 14px; font-size: 14px; backdrop-filter: blur(6px);
+}
+.sound:hover { border-color: var(--gold); }
+
+.fade-in { animation: fadeUp .9s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } }
+
+@media (max-width: 480px) {
+  .envelope { padding: 32px 18px 24px; }
+  .date-field input { width: 56px; height: 54px; font-size: 22px; }
+  .date-field input#yyyy { width: 84px; }
+  .card { padding: 26px 20px 22px; }
+  .card .letter { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+</style>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main>
+  <!-- Stage 1: the lock -->
+  <section id="lock" aria-labelledby="lock-title">
+    <form class="envelope" id="lockForm" autocomplete="off" novalidate>
+      <div class="seal" aria-hidden="true" id="sealInitial">A</div>
+      <p class="eyebrow" id="lockEyebrow">Sealed, for one person only</p>
+      <h1 id="lock-title">Something is wrapped and waiting for you</h1>
+      <p class="lead" id="lockLead">To open it, enter the date that matters most to us.</p>
+      <div class="date-row">
+        <div class="date-field"><label for="dd">Day</label><input id="dd" inputmode="numeric" maxlength="2" placeholder="DD" aria-label="Day"></div>
+        <span class="slash" aria-hidden="true">/</span>
+        <div class="date-field"><label for="mm">Month</label><input id="mm" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="Month"></div>
+        <span class="slash" aria-hidden="true">/</span>
+        <div class="date-field"><label for="yyyy">Year</label><input id="yyyy" inputmode="numeric" maxlength="4" placeholder="YYYY" aria-label="Year"></div>
+      </div>
+      <button class="unlock-btn" type="submit" id="unlockBtn">Unwrap my surprise</button>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      <p class="hint" id="hint" hidden></p>
+    </form>
+  </section>
+
+  <!-- Stage 2: the party -->
+  <section id="party" hidden>
+    <header class="hero fade-in">
+      <p class="eyebrow">It's your day</p>
+      <h2>Happy Birthday, <span class="name" id="friendName">Friend</span></h2>
+      <p id="heroLine">Three boxes. Three surprises. Tap each one to open it.</p>
+      <div class="since"><span>Friends for</span><b id="daysCount">0</b><span>days and counting</span></div>
+    </header>
+
+    <div class="shelf" id="shelf"></div>
+    <p class="shelf-note" id="shelfNote">Start with the first box. The last one stays locked until the first two are open.</p>
+
+    <section id="finale" hidden aria-labelledby="finale-title">
+      <h3 id="finale-title">One more thing. Make a wish.</h3>
+      <p>Close your eyes, think of it, then tap each candle to blow it out.</p>
+      <div class="cake" aria-label="Birthday cake with candles">
+        <div class="candles" id="candles"></div>
+        <div class="tier t2"></div>
+        <div class="tier t1"></div>
+        <div class="plate"></div>
+      </div>
+      <p class="wish" id="wishLine" hidden></p>
+    </section>
+  </section>
+</main>
+
+<button class="sound" id="soundBtn" type="button" hidden>Play the song</button>
+
+<!-- Stage 3: the reveal card -->
+<div id="reveal" hidden role="dialog" aria-modal="true" aria-labelledby="revealTitle">
+  <article class="card" id="revealCard"></article>
+</div>
+
+<script>
+/* ======================================================================
+   EDIT EVERYTHING HERE. This is the only part you need to change.
+   ====================================================================== */
+const CONFIG = {
+  friendName: "Friend",          // your friend's name
+  fromName: "Me",                // your name (used in the signatures and the seal)
+  friendsSince: "2023-09-15",    // used for the "Friends for N days" counter
+  hint: "Think back to September 2023. The day it all started.",
+
+  gifts: [
+    {
+      tag: "Open me first",
+      kind: "letter",
+      eyebrow: "Gift one · A memory",
+      title: "The day we met",
+      // Optional photo: paste a data:image/... URI or leave empty
+      photo: "",
+      text: "15 September 2023.\nI had no idea that day would hand me one of my best friends.\nThanks for every laugh, every late-night talk, and every time you showed up.",
+    },
+    {
+      tag: "Then me",
+      kind: "coupon",
+      eyebrow: "Gift two · A promise",
+      title: "One day, fully planned by me",
+      big: "Good for one full day of whatever you want",
+      terms: "Food, movie, road trip, gaming marathon. You pick, I pay. No expiry date.",
+      code: "BDAY-ONE-DAY",
+    },
+    {
+      tag: "Save me for last",
+      kind: "big",
+      eyebrow: "Gift three · The real one",
+      title: "Your actual present is…",
+      item: "A surprise in person",
+      text: "Look up. I'm bringing it to you today.",
+    },
+  ],
+
+  finaleWish: "Happy birthday. Here's to many more years of us.",
+};
+/* ====================================================================== */
+
+const PASS_HASH = "1balq996ykm"; // hash of the secret date, so it isn't readable in the page source
+
+function cyrb53(s, seed = 7) {
+  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0, ch; i < s.length; i++) {
+    ch = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- Personalise text ---------- */
+$("friendName").textContent = CONFIG.friendName;
+$("sealInitial").textContent = (CONFIG.fromName || "A").trim().charAt(0).toUpperCase();
+$("lockEyebrow").textContent = `Sealed, for ${CONFIG.friendName} only`;
+$("hint").textContent = CONFIG.hint;
+(() => {
+  const start = new Date(CONFIG.friendsSince + "T00:00:00");
+  const days = Math.max(0, Math.floor((Date.now() - start.getTime()) / 86400000));
+  $("daysCount").textContent = days.toLocaleString();
+})();
+
+/* ---------- Star field ---------- */
+(() => {
+  const c = $("stars"), ctx = c.getContext("2d");
+  let stars = [];
+  function size() {
+    c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio;
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 9000) }, () => ({
+      x: Math.random() * c.width, y: Math.random() * c.height,
+      r: (Math.random() * 1.2 + .3) * devicePixelRatio, p: Math.random() * Math.PI * 2,
+    }));
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (const s of stars) {
+      ctx.globalAlpha = .35 + .35 * Math.sin(t / 900 + s.p);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  size(); addEventListener("resize", size); requestAnimationFrame(draw);
+})();
+
+/* ---------- Confetti ---------- */
+const confetti = (() => {
+  const c = $("confetti"), ctx = c.getContext("2d");
+  const colors = ["#f4c55a", "#ef6f6c", "#2bb3a3", "#f7a8c4", "#7a52c7", "#fbf3e6"];
+  let bits = [], running = false;
+  function size() { c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio; }
+  size(); addEventListener("resize", size);
+  function burst(x = innerWidth / 2, y = innerHeight / 3, n = 160) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 4 + Math.random() * 9;
+      bits.push({
+        x: x * devicePixelRatio, y: y * devicePixelRatio,
+        vx: Math.cos(a) * v * devicePixelRatio, vy: (Math.sin(a) * v - 6) * devicePixelRatio,
+        w: (6 + Math.random() * 6) * devicePixelRatio, h: (3 + Math.random() * 4) * devicePixelRatio,
+        r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+        c: colors[(Math.random() * colors.length) | 0], life: 0,
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }
+  function tick() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (const b of bits) {
+      b.vy += .25 * devicePixelRatio; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.life++;
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r);
+      ctx.fillStyle = b.c; ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); ctx.restore();
+    }
+    bits = bits.filter((b) => b.y < c.height + 40 && b.life < 400);
+    if (bits.length) requestAnimationFrame(tick); else { running = false; ctx.clearRect(0, 0, c.width, c.height); }
+  }
+  return burst;
+})();
+
+/* ---------- Happy Birthday tune (Web Audio, no files) ---------- */
+const music = (() => {
+  let ac = null, playing = false;
+  const N = { G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+  const song = [
+    ["G4",.75],["G4",.25],["A4",1],["G4",1],["C5",1],["B4",2],
+    ["G4",.75],["G4",.25],["A4",1],["G4",1],["D5",1],["C5",2],
+    ["G4",.75],["G4",.25],["G5",1],["E5",1],["C5",1],["B4",1],["A4",2],
+    ["F5",.75],["F5",.25],["E5",1],["C5",1],["D5",1],["C5",3],
+  ];
+  function play() {
+    if (playing) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      ac.resume();
+    } catch (e) { return; }
+    playing = true;
+    const beat = .42; let t = ac.currentTime + .1;
+    for (const [n, d] of song) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "triangle"; o.frequency.value = N[n];
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.18, t + .03);
+      g.gain.exponentialRampToValueAtTime(.001, t + d * beat * .95);
+      o.connect(g).connect(ac.destination);
+      o.start(t); o.stop(t + d * beat);
+      t += d * beat;
+    }
+    setTimeout(() => { playing = false; }, (t - ac.currentTime) * 1000);
+  }
+  return play;
+})();
+$("soundBtn").addEventListener("click", music);
+
+/* ---------- Lock screen ---------- */
+const dd = $("dd"), mm = $("mm"), yyyy = $("yyyy");
+const fields = [dd, mm, yyyy];
+fields.forEach((f, i) => {
+  f.addEventListener("input", () => {
+    f.value = f.value.replace(/\D/g, "");
+    if (f.value.length === +f.maxLength && fields[i + 1]) fields[i + 1].focus();
+  });
+  f.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && !f.value && fields[i - 1]) fields[i - 1].focus();
+  });
+  f.addEventListener("paste", (e) => {
+    const cb = e.clipboardData || window.clipboardData; const t = (cb && cb.getData("text")) || "";
+    const m = t.match(/(\d{1,2})\D+(\d{1,2})\D+(\d{4})/);
+    if (m) { e.preventDefault(); dd.value = m[1]; mm.value = m[2]; yyyy.value = m[3]; yyyy.focus(); }
+  });
+});
+
+const wrongLines = [
+  "Not that one. Try again.",
+  "Nope. Think harder, it's an important one.",
+  "Still no. Here's a hint below.",
+  "So close to forgetting us… try once more.",
+];
+let tries = 0;
+$("lockForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const d = dd.value.padStart(2, "0"), m = mm.value.padStart(2, "0"), y = yyyy.value;
+  const env = $("lockForm");
+  if (!dd.value || !mm.value || y.length !== 4) {
+    $("msg").textContent = "Fill in the day, month and a four-digit year.";
+    return;
+  }
+  if (cyrb53(d + m + y) === PASS_HASH) {
+    $("msg").textContent = "";
+    env.classList.add("opening");
+    music();
+    setTimeout(openParty, 750);
+  } else {
+    $("msg").textContent = wrongLines[Math.min(tries, wrongLines.length - 1)];
+    tries++;
+    if (tries >= 2) $("hint").hidden = false;
+    env.classList.remove("shake"); void env.offsetWidth; env.classList.add("shake");
+  }
+});
+
+function openParty() {
+  $("lock").hidden = true;
+  $("party").hidden = false;
+  $("soundBtn").hidden = false;
+  scrollTo(0, 0);
+  confetti(innerWidth / 2, innerHeight * .25, 220);
+  setTimeout(() => confetti(innerWidth * .2, innerHeight * .4, 90), 350);
+  setTimeout(() => confetti(innerWidth * .8, innerHeight * .4, 90), 600);
+}
+
+/* ---------- Gifts ---------- */
+const opened = new Set();
+const shelf = $("shelf");
+CONFIG.gifts.forEach((g, i) => {
+  const slot = document.createElement("div");
+  slot.className = "gift-slot fade-in";
+  slot.style.animationDelay = (0.25 + i * 0.15) + "s";
+  slot.innerHTML = `
+    <button class="gift gift-${i + 1}" type="button" aria-label="Gift ${i + 1}: ${esc(g.tag)}">
+      <span class="glow"></span>
+      <span class="lid"><span class="bow"></span></span>
+      <span class="body"></span>
+    </button>
+    <div class="tag"><small>Box ${i + 1}</small>${esc(g.tag)}</div>
+    <button class="reopen" type="button" hidden>Read again</button>`;
+  shelf.appendChild(slot);
+  const box = slot.querySelector(".gift"), again = slot.querySelector(".reopen");
+  box.addEventListener("click", () => tapGift(i, box, again));
+  again.addEventListener("click", () => showCard(i));
+});
+updateLocks();
+
+function updateLocks() {
+  const last = shelf.querySelectorAll(".gift")[2];
+  if (!last) return;
+  const locked = !(opened.has(0) && opened.has(1)) && !opened.has(2);
+  last.classList.toggle("locked", locked);
+}
+
+function tapGift(i, box, again) {
+  if (opened.has(i)) { showCard(i); return; }
+  if (i === 2 && !(opened.has(0) && opened.has(1))) {
+    box.classList.remove("wiggle"); void box.offsetWidth; box.classList.add("wiggle");
+    $("shelfNote").textContent = "Patience. Open the other two first, the best one is saved for last.";
+    return;
+  }
+  box.classList.add("wiggle");
+  setTimeout(() => {
+    box.classList.remove("wiggle");
+    box.classList.add("opened");
+    const r = box.getBoundingClientRect();
+    confetti(r.left + r.width / 2, r.top + r.height * .3, 120);
+    opened.add(i);
+    again.hidden = false;
+    updateLocks();
+    const left = 3 - opened.size;
+    $("shelfNote").textContent = left ? `${left} more to go.` : "All three opened. Scroll down for one last thing.";
+    setTimeout(() => showCard(i), 650);
+  }, 700);
+}
+
+let lastFocus = null;
+function showCard(i) {
+  const g = CONFIG.gifts[i];
+  let inner = `<p class="eyebrow">${esc(g.eyebrow)}</p><h3 id="revealTitle">${esc(g.title)}</h3>`;
+  if (g.kind === "letter") {
+    if (g.photo) inner += `<img src="${esc(g.photo)}" alt="">`;
+    inner += `<p class="letter">${esc(g.text)}</p><p class="sign">— ${esc(CONFIG.fromName)}</p>`;
+  } else if (g.kind === "coupon") {
+    inner += `<div class="coupon"><p class="big">${esc(g.big)}</p><p class="terms">${esc(g.terms)}</p><p class="code">${esc(g.code)}</p></div>`;
+  } else {
+    inner += `<div class="big-reveal"><p class="item">${esc(g.item)}</p><p class="letter">${esc(g.text)}</p></div>`;
+  }
+  inner += `<button class="close" type="button" id="closeCard">${i === 2 ? "Thank you" : "Close"}</button>`;
+  $("revealCard").innerHTML = inner;
+  lastFocus = document.activeElement;
+  $("reveal").hidden = false;
+  $("closeCard").focus();
+  $("closeCard").addEventListener("click", closeCard);
+}
+function closeCard() {
+  $("reveal").hidden = true;
+  if (lastFocus) lastFocus.focus();
+  if (opened.size === 3 && $("finale").hidden) {
+    $("finale").hidden = false;
+    $("finale").classList.add("fade-in");
+    setTimeout(() => $("finale").scrollIntoView({ behavior: "smooth", block: "center" }), 150);
+  }
+}
+$("reveal").addEventListener("click", (e) => { if (e.target.id === "reveal") closeCard(); });
+addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("reveal").hidden) closeCard(); });
+
+/* ---------- Candles ---------- */
+(() => {
+  const wrap = $("candles");
+  let out = 0;
+  for (let i = 0; i < 3; i++) {
+    const c = document.createElement("button");
+    c.type = "button"; c.className = "candle"; c.setAttribute("aria-label", `Blow out candle ${i + 1}`);
+    c.innerHTML = `<span class="flame"></span>`;
+    c.addEventListener("click", () => {
+      if (c.classList.contains("out")) return;
+      c.classList.add("out"); out++;
+      if (out === 3) {
+        $("wishLine").textContent = CONFIG.finaleWish;
+        $("wishLine").hidden = false;
+        $("wishLine").classList.add("fade-in");
+        confetti(innerWidth / 2, innerHeight / 2, 260);
+        music();
+      }
+    });
+    wrap.appendChild(c);
+  }
+})();
+</script>
