@@ -811,7 +811,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .ride-dim.soft { opacity: .34; transition-duration: 2.2s; }
 #fireworks { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
 .sky-glow { position: absolute; inset: 0; z-index: 5; pointer-events: none; mix-blend-mode: screen; opacity: 0; animation: skyGlow 2.4s ease-out forwards; }
-@keyframes skyGlow { 0% { opacity: 0; } 6% { opacity: .95; } 30% { opacity: .55; } 100% { opacity: 0; } }
+@keyframes skyGlow { 0% { opacity: 0; } 6% { opacity: .6; } 30% { opacity: .35; } 100% { opacity: 0; } }
 /* The white heart she picked: floats in the sky above the bus, then becomes the moon over Old Bus Stand */
 .sky-moon { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
 .sky-moon[hidden] { display: none; }
@@ -884,6 +884,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 @keyframes tkStamp { from { opacity: 0; transform: rotate(-10deg) scale(2.6); } to { opacity: .92; transform: rotate(-10deg) scale(1); } }
 .ride-hint { margin: 2px 0 0; font-size: 14px; color: #fff4d2; text-shadow: 0 1px 6px rgba(20,10,30,.7); }
 .ride-hint[hidden], #blowMic[hidden] { display: none; }
+.ride-say.big::before { content: ""; position: absolute; left: 50%; top: -10px; width: min(560px, 100%); height: calc(100% + 34px); transform: translateX(-50%); z-index: -1;
+  background: radial-gradient(ellipse at 50% 45%, rgba(10,6,24,.55) 0%, rgba(10,6,24,.3) 45%, rgba(10,6,24,0) 72%); pointer-events: none; }
+.ride-say.big #rideLine, .ride-say.big .ride-hint { text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 18px rgba(10,6,24,.7); }
 .ride-say.big #rideLine { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8.5vw, 60px); line-height: 1; letter-spacing: -.02em; max-width: 14ch; }
 .ride-say.big .ride-hint { font-family: var(--hand); font-size: clamp(22px, 5.6vw, 28px); line-height: 1.15; color: #fff; max-width: 24ch; margin-top: 10px; }
 .ride .gift-slot.gone { opacity: 0; transition: opacity .8s ease; pointer-events: none; }
@@ -2612,7 +2615,7 @@ function allOut() {
     say("", rideText(RC.finalTitle), null);
     setTimeout(function () { var h = $("rideHint"); h.textContent = CONFIG.finaleWish; h.hidden = false; }, 400);
     if (songState !== "playing") synthTune();
-    fireworksShow();               // fireworks only start once every candle is out
+    setTimeout(fireworksShow, 2600);   // fireworks start once every candle is out and the message has had a moment to be read
   }, 1300);
 }
 
