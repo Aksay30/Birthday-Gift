@@ -6,7 +6,7 @@
 <title>Three Gifts for You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&family=Kavivanar&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&family=Kavivanar&family=Bangers&display=swap">
 <style>
 /* Layout: one stage at a time. Countdown, locked envelope, night sky with three boxes, photo story, quiz, candles. */
 [hidden] { display: none !important; }
@@ -291,7 +291,7 @@ button { font: inherit; cursor: pointer; }
 .phones svg { width: 22px; height: 22px; flex: 0 0 auto; fill: var(--gold); animation: bob 2.4s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-2px) rotate(-6deg); } }
 /* ---------- Party ---------- */
-#party { padding-block: 56px 90px; display: grid; gap: 56px; }
+#party { padding-block: 0 90px; display: grid; gap: 56px; }
 .hero { text-align: center; display: grid; gap: 10px; justify-items: center; }
 .hero .eyebrow { color: var(--gold); }
 .hero h2 { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 10vw, 84px); line-height: .95; letter-spacing: -.035em; margin: 0; text-wrap: balance; }
@@ -310,10 +310,10 @@ button { font: inherit; cursor: pointer; }
 
 /* ---------- The birthday ride: Bus 28 at evening ---------- */
 .ride {
-  position: relative; overflow: hidden; border-radius: 24px;
-  height: clamp(440px, 72vh, 640px); background: #4b3a8c;
-  box-shadow: 0 30px 70px rgba(0,0,0,.45); isolation: isolate;
-  touch-action: pan-y;
+  position: relative; overflow: hidden; isolation: isolate; touch-action: pan-y;
+  width: 100vw; margin-left: calc(50% - 50vw);          /* edge to edge, outside the page column */
+  height: 100vh; min-height: 460px;                    /* full screen height, including behind a phone's collapsing address bar */
+  background: #4b3a8c;
 }
 .ride.no-anim, .ride.no-anim * { transition: none !important; }
 .ride .sky { position: absolute; inset: 0; opacity: 0; transition: opacity 3s ease; }
@@ -328,7 +328,7 @@ button { font: inherit; cursor: pointer; }
 .ride.s2 .ride-stars { opacity: .35; }
 .ride.s3 .ride-stars { opacity: 1; }
 .sun-wrap { position: absolute; left: 0; right: 0; top: 0; overflow: hidden; pointer-events: none; }
-.sun, .sun-glow { position: absolute; left: 66%; border-radius: 50%; transform: translate(-50%, 50%); transition: transform 3s ease, opacity 3s ease; }
+.sun, .sun-glow { position: absolute; left: 19%; border-radius: 50%; transform: translate(-50%, 50%); transition: transform 3s ease, opacity 3s ease; }
 .sun { background: radial-gradient(circle at 50% 40%, #fff1a8 0%, #ffd263 45%, #ff9a3d 100%); }
 .sun-glow { background: radial-gradient(circle, rgba(255,214,120,.55) 0%, rgba(255,160,90,.25) 35%, rgba(255,140,90,0) 70%); }
 .ride.s1 .sun { transform: translate(-50%, 72%); }
@@ -342,8 +342,6 @@ button { font: inherit; cursor: pointer; }
 @keyframes fly { from { transform: translate(-40px, 0); } 50% { transform: translate(50vw, -14px); } to { transform: translate(110vw, 6px); } }
 .ride.s2 .birds { opacity: 0; }
 .ride .far, .ride .world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
-.ride .far { transition: transform var(--drive, 3.2s) cubic-bezier(.45,.05,.35,1); }
-.ride .world { transition: transform var(--drive, 3.2s) cubic-bezier(.45,.05,.35,1); }
 .skyline { position: absolute; left: 0; }
 .skyline .b { fill: #3a2350; transition: fill 3s ease; }
 .ride.s2 .skyline .b { fill: #241638; }
@@ -358,50 +356,159 @@ button { font: inherit; cursor: pointer; }
 .lamp { position: absolute; width: 4px; background: #241a33; border-radius: 2px; }
 .lamp::before { content: ""; position: absolute; top: 0; left: 0; width: 20px; height: 4px; background: #241a33; border-radius: 2px; }
 .lamp i { position: absolute; top: 2px; left: 14px; width: 12px; height: 7px; border-radius: 0 0 8px 8px; background: #6b5a78; transition: background .6s ease, box-shadow .6s ease; transition-delay: var(--ld, 0s); }
-.lamp b { position: absolute; top: 8px; left: -24px; width: 76px; height: var(--lh, 200px); background: radial-gradient(ellipse at 50% 0%, rgba(255,221,140,.32), rgba(255,221,140,0) 70%); clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); opacity: 0; transition: opacity .8s ease; transition-delay: var(--ld, 0s); pointer-events: none; }
+/* The beam: centred under the bulb (bulb centre is 20px from the pole, its bottom 9px down),
+   as wide as the bulb at the top, brightest at the bulb and fading as it spreads to the ground */
+.lamp b { position: absolute; top: 9px; left: -18px; width: 76px; height: var(--lh, 200px);
+  background: linear-gradient(to bottom, rgba(255,228,155,.55) 0%, rgba(255,221,140,.2) 35%, rgba(255,221,140,.06) 75%, rgba(255,221,140,0) 100%);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); opacity: 0; transition: opacity .8s ease; transition-delay: var(--ld, 0s); pointer-events: none; }
 .ride.lights .lamp i { background: #ffe39a; box-shadow: 0 0 14px 4px rgba(255,214,120,.8); }
 .ride.lights .lamp b { opacity: 1; }
-.stop-sign { position: absolute; width: 4px; background: #c9c2d9; border-radius: 2px; }
-.stop-sign .board {
-  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: -2px;
-  background: #fdfaf4; color: #2b2242; border: 3px solid #2b2242; border-radius: 10px; padding: 5px 10px 6px;
-  font-family: var(--display); font-weight: 800; font-size: 13px; line-height: 1.1; text-align: center; white-space: nowrap;
-  box-shadow: 0 6px 14px rgba(0,0,0,.3); transition: box-shadow .6s ease;
-}
-.stop-sign .board small { display: block; font-family: var(--body); font-weight: 700; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #c8403c; margin-bottom: 1px; }
-.stop-sign.here .board { box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgba(244,197,90,.7); }
-.fairy { position: absolute; left: 50%; bottom: calc(100% + 34px); width: 150px; height: 26px; transform: translateX(-50%); pointer-events: none; }
-.fairy i { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffe7a3; opacity: .15; transition: opacity 1s ease; }
+/* Fairy lights draped from the lamp at the last stop (where you first met) */
+.fairy { position: absolute; pointer-events: none; z-index: 2; }
+.fairy i { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #ffe7a3; opacity: .2; transition: opacity 1s ease; }
 .ride.s3 .fairy i { opacity: 1; box-shadow: 0 0 8px 2px rgba(255,220,140,.9); animation: twinkle 1.2s ease-in-out infinite alternate; animation-delay: var(--tw, 0s); }
+/* LED destination board on the bus roof */
+.bus .led { position: absolute; left: 49.5%; top: 1.6%; width: 44.6%; height: 11%; overflow: hidden; border-radius: 2px; display: flex; align-items: center; }
+.bus .led span {
+  display: inline-block; white-space: nowrap; padding-left: 100%;
+  font: 700 var(--ledf, 9px)/1 "Courier New", ui-monospace, monospace; letter-spacing: .06em; color: #ffae3b;
+  text-shadow: 0 0 4px rgba(255,160,40,.85); animation: marquee var(--ldur, 6s) linear infinite;
+}
+@keyframes marquee { to { transform: translateX(-100%); } }
 #shelf { position: absolute; inset: 0; }
 .ride .gift-slot {
   position: absolute; width: var(--sw, 120px); gap: 8px; visibility: hidden; z-index: 3;
 }
-.ride .gift-slot.delivered { visibility: visible; animation: deliver 1s cubic-bezier(.3,.8,.3,1) both; }
-@keyframes deliver {
-  0% { transform: translate(var(--dx, -120px), var(--dy, 0px)) scale(.3); opacity: 0; }
-  20% { opacity: 1; }
-  60% { transform: translate(0, -34px) scale(1.04); }
-  80% { transform: translate(0, 0) scale(.97); }
+.ride .gift-slot.delivered { visibility: visible; }
+/* The box's label and hint fade in once it has landed */
+.ride .gift-slot .tag, .ride .gift-slot .hold-hint, .ride .gift-slot .reopen { opacity: 0; transition: opacity .6s ease; }
+.ride .gift-slot.landed .tag, .ride .gift-slot.landed .hold-hint, .ride .gift-slot.landed .reopen { opacity: 1; }
+.ride .gift { transform-origin: 50% 100%; }
+
+/* Gift 1: peeks out of the door, then hops over in three little bouncy jumps */
+.gift.deliver-hop { animation: dHop 2.4s cubic-bezier(.35,.1,.4,1) both; }
+@keyframes dHop {
+  0%   { transform: translate(var(--dx), var(--dy)) scale(.5); opacity: 0; }
+  8%   { transform: translate(var(--dx), var(--dy)) scale(.58); opacity: 1; }
+  13%  { transform: translate(calc(var(--dx) + 6px), var(--dy)) scale(.58) rotate(5deg); }
+  18%  { transform: translate(var(--dx), var(--dy)) scale(.6,.52); }
+  28%  { transform: translate(calc(var(--dx) * .78), calc(var(--dy) * .78 - 46px)) scale(.66,.72) rotate(-6deg); }
+  37%  { transform: translate(calc(var(--dx) * .6), calc(var(--dy) * .6)) scale(.78,.62); }
+  41%  { transform: translate(calc(var(--dx) * .6), calc(var(--dy) * .6)) scale(.74,.76); }
+  52%  { transform: translate(calc(var(--dx) * .36), calc(var(--dy) * .36 - 52px)) scale(.84,.9) rotate(-5deg); }
+  62%  { transform: translate(calc(var(--dx) * .18), calc(var(--dy) * .18)) scale(.95,.78); }
+  66%  { transform: translate(calc(var(--dx) * .18), calc(var(--dy) * .18)) scale(.9,.93); }
+  79%  { transform: translate(calc(var(--dx) * .05), -40px) scale(1,1.04) rotate(-3deg); }
+  89%  { transform: translate(0, 0) scale(1.12,.84); }
+  95%  { transform: translate(0, -5px) scale(.97,1.04); }
   100% { transform: none; opacity: 1; }
 }
+
+/* Gift 2: rises off the roof on three balloons, floats over and lands softly; the balloons fly away */
+.gift .balloons { display: none; position: absolute; left: 4%; right: 4%; bottom: 74%; height: 115%; pointer-events: none; z-index: 5; }
+.gift.with-balloons .balloons { display: block; }
+.gift .balloons svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gift .balloons i {
+  position: absolute; width: 30%; aspect-ratio: .82; border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+  background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.75) 0 7%, transparent 22%), var(--c);
+  box-shadow: inset -4px -6px 0 rgba(0,0,0,.12); animation: sway 1.6s ease-in-out infinite alternate;
+}
+.gift .balloons i::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 7px; height: 6px; margin-left: -3.5px; background: var(--c); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+@keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+.gift .balloons.release { animation: fly-away 3.2s cubic-bezier(.4,0,.8,.5) forwards; }
+@keyframes fly-away { to { transform: translate(40px, -130vh) rotate(8deg); opacity: 0; } }
+.gift.deliver-balloon { animation: dBalloon 3.8s cubic-bezier(.4,.05,.3,1) both; }
+@keyframes dBalloon {
+  0%   { transform: translate(var(--dx), var(--dy)) scale(.45); opacity: 0; }
+  10%  { transform: translate(var(--dx), calc(var(--dy) - 10px)) scale(.55); opacity: 1; }
+  30%  { transform: translate(calc(var(--dx) * .8), calc(var(--dy) - 70px)) scale(.7) rotate(-4deg); }
+  55%  { transform: translate(calc(var(--dx) * .45), calc(var(--dy) * .5 - 90px)) scale(.86) rotate(4deg); }
+  78%  { transform: translate(calc(var(--dx) * .1), -36px) scale(.97) rotate(-2deg); }
+  92%  { transform: translate(0, 3px) scale(1.03,.97); }
+  100% { transform: none; opacity: 1; }
+}
+
+/* Gift 3: tossed out of a window in a high arc, one spin, then a bounce and a puff of dust */
+.gift.deliver-toss { animation: dToss 2s cubic-bezier(.3,.2,.5,1) both; }
+/* Box 3: a falling star shoots down beside the moon, bursts into sparkles, and the box is there when they clear */
+/* the box grows up out of the glowing spot where the star touched the ground */
+.gift.deliver-star { transform-origin: 50% 100%; animation: dStar 1.1s cubic-bezier(.3,1.2,.5,1) 4.05s both; }
+@keyframes dStar {
+  0%   { transform: scale(.35, 0); opacity: 0; filter: brightness(2.4); }
+  20%  { opacity: 1; }
+  62%  { transform: scale(1.03, 1.08); filter: brightness(1.5); }
+  80%  { transform: scale(1, .96); }
+  100% { transform: none; opacity: 1; filter: none; }
+}
+.fstar-ripple, .fstar-pool { position: absolute; z-index: 5; pointer-events: none; border-radius: 50%; }
+.fstar-ripple { border: 2px solid rgba(255,246,214,.85); box-shadow: 0 0 10px rgba(255,236,170,.6); animation: fRipple 1.3s ease-out forwards; }
+@keyframes fRipple { 0% { opacity: .95; transform: scale(.15); } 100% { opacity: 0; transform: scale(1.6); } }
+.fstar-pool { mix-blend-mode: screen; background: radial-gradient(ellipse, rgba(255,246,214,.6) 0%, rgba(255,236,170,.22) 45%, rgba(255,236,170,0) 72%);
+  animation: fPool 2.8s ease-out forwards; }
+@keyframes fPool { 0% { opacity: 0; transform: scale(.4); } 12% { opacity: 1; transform: scale(1); } 55% { opacity: .85; } 100% { opacity: 0; transform: scale(1.1); } }
+.fstar, .fstar-tail, .fstar-glit, .fstar-flash { position: absolute; z-index: 5; pointer-events: none; }
+.fstar, .fstar-tail { left: 0; top: 0; }
+.fstar { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fffdf0;
+  box-shadow: 0 0 8px 3px #fff, 0 0 20px 8px rgba(255,236,170,.7); }
+.fstar::before, .fstar::after { content: ""; position: absolute; left: 50%; top: 50%; width: 34px; height: 2px; margin: -1px 0 0 -17px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #fff, transparent); }
+.fstar::after { transform: rotate(90deg); }
+.fstar-tail { left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+.fstar-tail line { stroke-linecap: round; }
+.fstar-glit { width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; border-radius: 50%; background: #fff6d6; box-shadow: 0 0 5px rgba(255,236,170,.9);
+  animation: fGlit var(--d, .9s) ease-out forwards; }
+@keyframes fGlit { 0% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--gx), var(--gy)) scale(.3); } }
+.fstar-flash { border-radius: 50%; background: radial-gradient(circle, rgba(255,250,225,.85) 0%, rgba(255,236,170,.3) 35%, rgba(255,236,170,0) 70%);
+  animation: fFlash .9s ease-out forwards; }
+@keyframes fFlash { 0% { opacity: 0; transform: scale(.3); } 20% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4); } }
+@keyframes dToss {
+  0%   { transform: translate(var(--dx), var(--dy)) scale(.45) rotate(0); opacity: 0; }
+  8%   { opacity: 1; }
+  45%  { transform: translate(calc(var(--dx) * .48), calc(var(--dy) * .5 - 150px)) scale(.82) rotate(-190deg); }
+  78%  { transform: translate(0, 0) scale(1.1,.86) rotate(-360deg); }
+  87%  { transform: translate(0, -16px) scale(.98,1.04) rotate(-360deg); }
+  94%  { transform: translate(0, 0) scale(1.03,.97) rotate(-360deg); }
+  100% { transform: rotate(-360deg); opacity: 1; }
+}
+.dust { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: rgba(230,220,245,.6); pointer-events: none; z-index: 2; animation: dust .9s ease-out forwards; }
+@keyframes dust { from { transform: translate(0, 0) scale(.4); opacity: .9; } to { transform: translate(var(--px), -14px) scale(2); opacity: 0; } }
 .ride .tag { font-size: 19px; color: #fff; }
 .ride .tag small { color: #cfc6e6; }
 .ride .hold-hint { color: #e4dcf6; margin-top: -4px; }
-.bus { position: absolute; left: 0; z-index: 4; transition: transform var(--drive, 3.2s) cubic-bezier(.45,.05,.35,1); will-change: transform; }
-.bus svg { display: block; width: 100%; height: auto; overflow: visible; }
+.bus { position: absolute; left: 0; z-index: 4; will-change: transform; }
+.bus svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 40% 100%; transition: transform .6s ease; }
+.bus.accel svg { transform: rotate(-1.3deg); }
+.bus.brake svg { animation: brake 1s ease-out; }
+@keyframes brake { 30% { transform: rotate(1.6deg); } 65% { transform: rotate(-.4deg); } 100% { transform: none; } }
+.bus.away { visibility: hidden; }
+.ride .world, .ride .far { will-change: transform; }
 .bus .bus-body { transform-box: fill-box; transform-origin: 50% 100%; }
-.bus.moving .bus-body { animation: bob .32s ease-in-out infinite alternate; }
-@keyframes bob { to { transform: translateY(-2px) rotate(-.4deg); } }
+.bus.moving .bus-body { animation: busBob .3s ease-in-out infinite alternate; }
+@keyframes busBob { to { transform: translateY(-1px); } }
+/* Engine idling before it pulls away: a small rumble and exhaust puffs */
+.bus.idle .bus-body { animation: rumble .12s linear infinite; }
+@keyframes rumble { 50% { transform: translateY(-.8px); } }
+.bus .puff { position: absolute; left: -2%; bottom: 14%; width: 9%; aspect-ratio: 1; border-radius: 50%; background: rgba(210,205,225,.55); pointer-events: none; animation: puff 1.3s ease-out forwards; }
+@keyframes puff { from { transform: scale(.4); opacity: .8; } to { transform: translate(-260%, -120%) scale(2.2); opacity: 0; } }
+/* Sona College building at the start */
+.college { position: absolute; pointer-events: none; }
+.college .cw { fill: #ffd9a0; opacity: .55; transition: opacity 2s ease; }
+.ride.lights .college .cw { opacity: .95; }
+.tl { opacity: .15; }
+.tl-r { animation: tlR 7s infinite; } .tl-g { animation: tlG 7s infinite; } .tl-a { animation: tlA 7s infinite; }
+@keyframes tlR { 0%, 42% { opacity: 1; } 43%, 100% { opacity: .15; } }
+@keyframes tlG { 0%, 43% { opacity: .15; } 44%, 85% { opacity: 1; } 86%, 100% { opacity: .15; } }
+@keyframes tlA { 0%, 85% { opacity: .15; } 86%, 99% { opacity: 1; } 100% { opacity: .15; } }
+.ride.lights .clock { filter: drop-shadow(0 0 6px rgba(255,230,170,.9)); }
+.bus .led { justify-content: center; }
+.bus .led span { padding-left: 0; animation: none; }
 .bus .wheel { transform-box: fill-box; transform-origin: center; }
-.bus.moving .wheel { animation: spin .45s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.bus .win { fill: #bfe8ff; transition: fill 1s ease; }
-.ride.lights .bus .win { fill: #ffe39a; }
-.bus .door { fill: #e8fbff; stroke: #2b2242; stroke-width: 1.5; transform-box: fill-box; transform-origin: 0 50%; transition: transform .5s ease; }
+.bus .win { fill: #2a4f86; transition: fill 1s ease; }
+.ride.lights .bus .win { fill: #f3d58c; }
+.bus .door { transform-box: fill-box; transform-origin: 0 50%; transition: transform .5s ease; }
 .bus.door-open .door { transform: scaleX(.12); }
 .bus .hl { fill: #fff3c4; }
-.bus .cone { position: absolute; left: 92%; top: 48%; width: 120%; height: 60%; pointer-events: none; opacity: 0; transition: opacity 1s ease;
+.bus .cone { position: absolute; left: 96%; top: 50%; width: 120%; height: 60%; pointer-events: none; opacity: 0; transition: opacity 1s ease;
   background: linear-gradient(90deg, rgba(255,240,180,.55), rgba(255,240,180,0)); clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 60%); }
 .ride.lights .bus .cone { opacity: 1; }
 .bus-banner { position: absolute; right: 100%; top: 18%; display: flex; align-items: center; opacity: 0; transform: scaleX(0); transform-origin: 100% 50%; transition: opacity .5s ease, transform .8s cubic-bezier(.3,1.4,.5,1); pointer-events: none; }
@@ -410,7 +517,8 @@ button { font: inherit; cursor: pointer; }
 @keyframes flutter { to { transform: skewY(-2deg) translateY(-2px); } }
 .bus.banner-on .bus-banner { opacity: 1; transform: none; }
 .ride-say {
-  position: absolute; z-index: 6; top: 18px; left: 16px; right: 16px; text-align: center;
+  position: absolute; z-index: 6; top: calc(env(safe-area-inset-top, 0px) + 26px);
+  left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); text-align: center;
   display: grid; gap: 6px; justify-items: center; transition: opacity .5s ease;
 }
 .ride-say.swap { opacity: 0; }
@@ -418,10 +526,14 @@ button { font: inherit; cursor: pointer; }
 .ride-say p { margin: 0; font-family: var(--hand); font-size: clamp(22px, 6vw, 30px); line-height: 1.1; color: #fff; text-shadow: 0 2px 12px rgba(40,10,40,.7); max-width: 22ch; text-wrap: balance; }
 .ride-say .btn-gold { margin-top: 8px; box-shadow: 0 8px 22px rgba(0,0,0,.35); }
 .ride-say .btn-gold[hidden] { display: none; }
-.ride-again { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: -30px; }
-.ride-again[hidden] { display: none; }
+.ride-hero { display: grid; gap: 6px; justify-items: center; margin-bottom: 14px; transition: opacity .4s ease; }
+.ride-hero.fade { opacity: 0; }
+.ride-hero[hidden] { display: none; }
+.ride-hero .eyebrow { margin: 0; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; color: #fff4d2; text-shadow: 0 1px 6px rgba(40,10,40,.6); }
+.ride-hero h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(32px, min(9.5vw, 7.5vh), 72px); line-height: .95; letter-spacing: -.03em; color: #fff; text-shadow: 0 4px 24px rgba(40,10,40,.55); text-wrap: balance; }
+.ride-hero h2 .name { color: var(--gold); }
+.ride-hero .since { margin-top: 2px; font-size: 20px; color: #fff; text-shadow: 0 2px 10px rgba(40,10,40,.6); }
 .shelf-note { display: none; }
-@media (prefers-reduced-motion: reduce) { .ride { --drive: .6s; } }
 
 /* ---------- Reveal card + quiz ---------- */
 #reveal {
@@ -661,6 +773,126 @@ button { font: inherit; cursor: pointer; }
 .sound:hover { border-color: var(--gold); }
 body.reel-open .sound, body.overlay-open .sound { display: none; }
 
+/* ---------- Finale in the scene: cake at Old Bus Stand, blow the candles, fireworks ---------- */
+.scene-cake { position: absolute; z-index: 3; opacity: 0; transform: translateY(24px) scale(.9); transform-origin: 50% 100%; transition: opacity .9s ease, transform 1s cubic-bezier(.3,1.4,.5,1); pointer-events: none; }
+.scene-cake.show { opacity: 1; transform: none; pointer-events: auto; }
+.scene-cake svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cake-glow { position: absolute; left: 50%; top: 6%; width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,206,120,.45) 0%, rgba(255,180,90,.15) 40%, rgba(255,180,90,0) 70%); transition: opacity 1.2s ease; }
+.scene-cake.dark .cake-glow { opacity: 0; }
+/* firework light falling on the cake: a coloured wash cut to the cake's shape, plus a soft pool on the ground */
+.cake-light, .cake-spill { position: absolute; pointer-events: none; mix-blend-mode: screen; opacity: 0; }
+.cake-light { left: 0; top: 0; width: 100%; aspect-ratio: 200 / 172; mix-blend-mode: hard-light;   /* tints the cake in the light's colour */
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.cake-spill { left: -30%; width: 160%; bottom: -9%; height: 22%; border-radius: 50%; }
+.cake-light.flash, .cake-spill.flash { animation: cakeLight 2.4s ease-out forwards; }
+@keyframes cakeLight { 0% { opacity: 0; } 6% { opacity: var(--la, 1); } 35% { opacity: calc(var(--la, 1) * .5); } 100% { opacity: 0; } }
+.scandle { position: absolute; width: 4.2%; height: 15%; transform: translateX(-50%); border-radius: 2px; cursor: pointer;
+  background: repeating-linear-gradient(160deg, #fff 0 4px, #7dd3fc 4px 8px); box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.scandle::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 1.5px; height: 5px; margin-left: -.75px; background: #3a2a2a; }
+.scandle::after { content: ""; position: absolute; left: -120%; right: -120%; top: -80%; bottom: -20%; }   /* bigger tap target */
+.scandle i { position: absolute; left: 50%; bottom: calc(100% + 3px); width: 250%; aspect-ratio: .55; transform-origin: 50% 90%;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; margin-left: -125%;
+  background: radial-gradient(ellipse at 50% 70%, #fffbe6 0 20%, #ffd25a 45%, #ff8a2b 80%, rgba(255,120,40,0) 100%);
+  box-shadow: 0 0 10px 3px rgba(255,190,90,.7); animation: flicker .14s ease-in-out infinite alternate; transition: opacity .35s ease, transform .35s ease; }
+@keyframes flicker { from { transform: scale(1, 1) rotate(-2deg); } to { transform: scale(.94, 1.06) rotate(2deg); } }
+.scene-cake.wind .scandle i { animation: none; transform: rotate(-38deg) skewX(-14deg) scale(.82, .9); }
+.scandle.out i { opacity: 0; transform: scale(.15); animation: none; }
+.smoke { position: absolute; left: 50%; bottom: calc(100% + 4px); width: 6px; height: 6px; margin-left: -3px; border-radius: 50%;
+  background: rgba(220,215,230,.7); filter: blur(1.5px); pointer-events: none; animation: smoke 2.6s ease-out forwards; }
+@keyframes smoke {
+  0% { transform: translate(0, 0) scale(.6); opacity: .9; }
+  30% { transform: translate(6px, -22px) scale(1.4); }
+  60% { transform: translate(-6px, -48px) scale(2.2); opacity: .5; }
+  100% { transform: translate(8px, -80px) scale(3.2); opacity: 0; }
+}
+.ride-dim { position: absolute; inset: 0; z-index: 4; background: #05030c; opacity: 0; pointer-events: none; transition: opacity .7s ease; }
+.ride-dim.on { opacity: .6; }
+.ride-dim.soft { opacity: .34; transition-duration: 2.2s; }
+#fireworks { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.sky-glow { position: absolute; inset: 0; z-index: 5; pointer-events: none; mix-blend-mode: screen; opacity: 0; animation: skyGlow 2.4s ease-out forwards; }
+@keyframes skyGlow { 0% { opacity: 0; } 6% { opacity: .95; } 30% { opacity: .55; } 100% { opacity: 0; } }
+/* The white heart she picked: floats in the sky above the bus, then becomes the moon over Old Bus Stand */
+.sky-moon { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
+.sky-moon[hidden] { display: none; }
+.sky-moon.front { z-index: 8; }
+.sky-moon svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sm-halo { position: absolute; inset: -38%; border-radius: 50%; opacity: 0; pointer-events: none;     /* a thin, soft moonlight rim */
+  background: radial-gradient(circle, rgba(255,250,232,.5) 0%, rgba(255,250,232,.5) 38%, rgba(255,246,222,.16) 50%, rgba(255,246,222,.04) 62%, rgba(255,246,222,0) 72%); }
+.sm-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,250,230,.9); opacity: 0; pointer-events: none; }
+.sm-ring.go { animation: smRing 1.4s ease-out forwards; }
+@keyframes smRing { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.6); } }
+/* once it is the moon: pale while the sun is still up at Four Roads, brighter as night falls */
+.sky-moon.formed svg { opacity: .8; transition: opacity 3s ease; }
+.sky-moon.formed .sm-halo { opacity: .45; transition: opacity 3s ease; }
+.ride.s3 .sky-moon.formed svg { opacity: 1; }
+.ride.s3 .sky-moon.formed .sm-halo { opacity: .7; }
+.sm-spark { position: absolute; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px #fff;
+  pointer-events: none; animation: smSpark 1.2s ease-out forwards; }
+@keyframes smSpark { to { opacity: 0; transform: translate(var(--sx), 16px) scale(.3); } }
+/* Ticket check between Four Roads and Old Bus Stand: a conductor waits on the pavement, a comic speech
+   bubble, and a paper bus ticket that pops out of the door to be answered and punched */
+.conductor { position: absolute; z-index: 3; opacity: 0; transition: opacity .6s ease; pointer-events: none; }
+.conductor.show { opacity: 1; }
+.conductor svg { display: block; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 100%; animation: cBob 1.6s ease-in-out infinite alternate; }
+@keyframes cBob { to { transform: scaleY(1.025); } }
+.conductor .c-arm { transform-box: view-box; transform-origin: 43px 41px; transition: transform .4s ease; }
+.conductor.wave .c-arm { animation: cWave .45s ease-in-out infinite alternate; }
+.conductor.point .c-arm { transform: rotate(-58deg); }
+@keyframes cWave { from { transform: rotate(-14deg); } to { transform: rotate(22deg); } }
+.conductor .c-eye { transform-box: fill-box; transform-origin: center; animation: cBlink 3.8s infinite; }
+@keyframes cBlink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+.comic { position: absolute; z-index: 8; pointer-events: none; width: max-content; max-width: min(250px, 72vw); text-align: center;
+  --bb: #fff; background: var(--bb); color: #1b1424; border: 3px solid #1b1424; border-radius: 22px; padding: 8px 14px 6px;
+  font: 400 19px/1.05 "Bangers", "Bricolage Grotesque", sans-serif; letter-spacing: .05em; box-shadow: 4px 4px 0 #1b1424;
+  opacity: 0; transform: translateX(-50%) scale(.2); transform-origin: 50% 120%; }
+.comic::after, .comic::before { content: ""; position: absolute; left: 50%; border-style: solid; border-color: transparent; }
+.comic::after { top: 100%; margin-left: -11px; border-width: 15px 11px 0 4px; border-top-color: #1b1424; }
+.comic::before { top: calc(100% - 4px); margin-left: -7px; border-width: 12px 7px 0 3px; border-top-color: var(--bb); z-index: 1; }
+.comic.big { --bb: #ffe45c; font-size: 27px; padding: 9px 18px 6px; }
+.comic.on { animation: comicPop .45s cubic-bezier(.3,1.8,.5,1) forwards; }
+.comic.off { opacity: 0; transform: translateX(-50%) scale(.6); transition: opacity .25s ease, transform .25s ease; }
+@keyframes comicPop { 0% { opacity: 0; transform: translateX(-50%) scale(.2) rotate(-10deg); } 100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(-2deg); } }
+.tkt { position: absolute; z-index: 7; left: var(--tx, 50%); top: var(--ty, 50%); width: 300px; transform: translate(-50%, -50%) scale(var(--s, 1));
+  display: none; filter: drop-shadow(0 14px 22px rgba(0,0,0,.45)); }
+.tkt.out { display: block; animation: tktOut .85s cubic-bezier(.25,1.25,.4,1) both; }
+.tkt.back { display: block; animation: tktBack .7s ease-in forwards; }
+@keyframes tktOut { 0% { opacity: 0; transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) scale(.08) rotate(-40deg); } 15% { opacity: 1; } 100% { opacity: 1; transform: translate(-50%, -50%) scale(var(--s, 1)); } }
+@keyframes tktBack { 0% { opacity: 1; transform: translate(-50%, -50%) scale(var(--s, 1)); } 100% { opacity: .2; transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) scale(.08) rotate(30deg); } }
+.tkt-card { position: relative; padding: 18px 16px 16px; background: #fdf3d8; color: #2b2242;
+  background-image: linear-gradient(90deg, #f7a8c4 0 6px, transparent 6px), repeating-linear-gradient(0deg, rgba(43,34,66,.025) 0 2px, transparent 2px 5px);
+  -webkit-mask: radial-gradient(circle 5px at 50% 0, transparent 97%, #000) top / 13px 51% repeat-x, radial-gradient(circle 5px at 50% 100%, transparent 97%, #000) bottom / 13px 51% repeat-x;
+          mask: radial-gradient(circle 5px at 50% 0, transparent 97%, #000) top / 13px 51% repeat-x, radial-gradient(circle 5px at 50% 100%, transparent 97%, #000) bottom / 13px 51% repeat-x; }
+.tkt-head { display: flex; justify-content: space-between; font: 800 11px "Bricolage Grotesque", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #a0453f; padding-left: 6px; }
+.tkt-route { margin: 4px 0 10px; padding-left: 6px; font-family: var(--hand); font-size: 23px; line-height: 1.05; }
+.tkt-q { margin: 0; padding: 10px 0 0 6px; border-top: 2px dashed rgba(43,34,66,.22); font: 600 14px/1.3 "DM Sans", sans-serif; color: #3b2f4a; }
+.tkt-spots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 10px 0 8px 6px; }
+.tkt-spot { position: relative; display: grid; justify-items: center; gap: 1px; padding: 6px 0 4px; border-radius: 10px; cursor: pointer;
+  background: rgba(43,34,66,.04); border: 1.5px dashed rgba(43,34,66,.28); font: 600 11px "DM Sans", sans-serif; color: #5a4a64; -webkit-tap-highlight-color: transparent; }
+.tkt-spot svg { width: 30px; height: 30px; overflow: visible; }
+.tkt-spot svg path { stroke: rgba(43,34,66,.45); stroke-width: 1; }
+.tkt-spot { transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.tkt-spot:hover, .tkt-spot.picked { transform: translateY(-3px); border-style: solid; border-color: #e0b04a; background: rgba(244,197,90,.16); box-shadow: 0 6px 12px rgba(43,34,66,.15); }
+.tkt-spot:active { transform: scale(.95); }
+.tkt-spot.x { opacity: .45; filter: grayscale(1); pointer-events: none; }
+.tkt-spot.x::after { content: "✗"; position: absolute; inset: 0; display: grid; place-items: center; font: 800 30px "DM Sans", sans-serif; color: #d2453f; }
+.tkt-spot.picked { pointer-events: none; }
+.tkt-foot { padding-left: 6px; font: 500 11px "DM Sans", sans-serif; color: #7b6a80; text-align: center; }
+.tkt .stamp { position: absolute; right: 12px; top: 12px; padding: 3px 9px; border: 3px solid #d2453f; border-radius: 8px; color: #d2453f;
+  font: 800 14px "Bricolage Grotesque", sans-serif; letter-spacing: .08em; text-transform: uppercase; opacity: 0; mix-blend-mode: multiply; transform: rotate(-10deg); }
+.tkt .stamp.on { animation: tkStamp .45s cubic-bezier(.2,1.6,.4,1) forwards; }
+@keyframes tkStamp { from { opacity: 0; transform: rotate(-10deg) scale(2.6); } to { opacity: .92; transform: rotate(-10deg) scale(1); } }
+.ride-hint { margin: 2px 0 0; font-size: 14px; color: #fff4d2; text-shadow: 0 1px 6px rgba(20,10,30,.7); }
+.ride-hint[hidden], #blowMic[hidden] { display: none; }
+.ride-say.big #rideLine { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8.5vw, 60px); line-height: 1; letter-spacing: -.02em; max-width: 14ch; }
+.ride-say.big .ride-hint { font-family: var(--hand); font-size: clamp(22px, 5.6vw, 28px); line-height: 1.15; color: #fff; max-width: 24ch; margin-top: 10px; }
+.ride .gift-slot.gone { opacity: 0; transition: opacity .8s ease; pointer-events: none; }
+/* an opened gift quietly fades into golden sparkles as the bus pulls away */
+.ride .gift-slot.vanish { opacity: 0; transform: translateY(-4px) scale(.97); transition: opacity 1.3s ease, transform 1.3s ease; pointer-events: none; }
+.gift-spark { position: absolute; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: #ffe3a0; box-shadow: 0 0 6px 1px rgba(255,214,120,.9); opacity: 0; animation: giftSpark var(--d, 1.4s) ease-out var(--w, 0s) forwards; }
+@keyframes giftSpark { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.3); } }
+
 /* ---------- Gift two: friends' group chat ---------- */
 @keyframes ovIn { from { opacity: 0; } }
 #chat {
@@ -846,16 +1078,17 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 
   <!-- Stage 2: the party -->
   <section id="party" hidden>
-    <header class="hero fade-in">
-      <p class="eyebrow">It's your day</p>
-      <h2>Happy Birthday, <span class="name" id="friendName">Friend</span></h2>
-      <p>Your birthday ride is waiting. Turn your sound on 🎧</p>
-      <div class="since"><span>Friends for</span><b id="daysCount">0</b><span>days and counting</span></div>
-    </header>
     <div class="ride" id="ride" aria-label="Bus 28 birthday ride">
       <div class="sky sky0"></div><div class="sky sky1"></div><div class="sky sky2"></div><div class="sky sky3"></div>
       <div class="ride-stars" id="rideStars" aria-hidden="true"></div>
       <div class="sun-wrap" id="sunWrap" aria-hidden="true"><div class="sun-glow" id="sunGlow"></div><div class="sun" id="sun"></div></div>
+      <div class="sky-moon" id="skyMoon" aria-hidden="true" hidden><div class="sm-halo"></div>
+        <svg viewBox="-20 -20 40 40"><defs><radialGradient id="smShade" cx="38%" cy="34%" r="72%"><stop offset="0" stop-color="#fffdf4"/><stop offset=".58" stop-color="#f3ecd4"/><stop offset="1" stop-color="#d4c9a6"/></radialGradient></defs>
+          <path class="sm-shape" fill="#ffffff"/>
+          <g class="sm-detail" opacity="0"><circle r="16" fill="url(#smShade)"/>
+            <circle cx="5.5" cy="-5" r="3.2" fill="#b9ae8c" opacity=".35"/><circle cx="-4.5" cy="4.5" r="4.2" fill="#b9ae8c" opacity=".3"/>
+            <circle cx="7" cy="7" r="2" fill="#b9ae8c" opacity=".28"/><circle cx="-6" cy="-6.5" r="1.7" fill="#b9ae8c" opacity=".25"/><circle cx="1" cy="10.5" r="1.3" fill="#b9ae8c" opacity=".22"/></g>
+        </svg><i class="sm-ring"></i></div>
       <div class="birds" aria-hidden="true">
         <svg viewBox="0 0 22 10" style="--fd:18s;--fl:-4s;top:0"><path d="M1 6q5-6 10 0q5-6 10 0"/></svg>
         <svg viewBox="0 0 22 10" style="--fd:22s;--fl:-12s;top:22px;transform:scale(.8)"><path d="M1 6q5-6 10 0q5-6 10 0"/></svg>
@@ -868,15 +1101,17 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
         <div class="bus" id="bus" aria-hidden="true"></div>
       </div>
       <div class="ride-say" id="rideSay" aria-live="polite">
+        <div class="ride-hero" id="rideHero">
+          <p class="eyebrow">It's your day</p>
+          <h2>Happy Birthday, <span class="name" id="friendName">Friend</span></h2>
+          <div class="since"><span>Friends for</span><b id="daysCount">0</b><span>days and counting</span></div>
+        </div>
         <small id="rideEyebrow"></small>
         <p id="rideLine"></p>
-        <button class="btn-gold" type="button" id="rideGo">Start the ride 🚌</button>
+        <button class="btn-gold" type="button" id="rideGo">Start the ride</button>
+        <p class="ride-hint" id="rideHint" hidden></p>
+        <button class="btn-gold" type="button" id="blowMic" hidden>Blow with the mic 🎤</button>
       </div>
-    </div>
-    <div class="ride-again" id="rideAgain" hidden>
-      <button class="btn-ghost" type="button" data-gift="0">Photos again</button>
-      <button class="btn-ghost" type="button" data-gift="1">Wishes again</button>
-      <button class="btn-ghost" type="button" data-gift="2">Kavidhai again</button>
     </div>
     <p class="shelf-note" id="shelfNote">Start with the first box. Turn your sound on for this one.</p>
     <section id="finale" hidden aria-labelledby="finale-title">
@@ -981,17 +1216,25 @@ var CONFIG = {
   // {name} becomes friendName, {stop} becomes the next stop's name.
   ride: {
     busNumber: "28",
-    busColor: "#36c2b4",
+    busColor: "#3d7fd6",        // body
+    busColorDark: "#1f4f9a",    // lower skirt
     start: "Sona College",
     startLine: "Hop in, {name}! Bus 28 is taking you on a birthday ride",
     stops: [
       { name: "New Bus Stand", line: "First stop… a few memories I've been saving for you." },
       { name: "Four Roads", line: "Second stop… some people have something to tell you." },
-      { name: "Old Bus Stand", line: "Last stop… this one is just from me. But first, a question 🤍" },
+      // The last stop is where you first met. "label" replaces the small text on the sign.
+      { name: "Old Bus Stand", label: "Where we first met",
+        line: "Where it all began. This one is just from me" },
     ],
     nextLine: "Next stop: {stop}",
-    endLine: "End of the ride. But not the end of us 🤍",
+    endLine: "Back where it all began. End of the ride, but never the end of us",
     banner: "Happy Birthday {name} 🎂",
+    // The finale at Old Bus Stand: a cake appears, make a wish, then blow (into the mic, or tap)
+    wishLine: "Close your eyes and make a wish…",
+    blowLine: "Now blow out the candles! 🎂",
+    blowHint: "Blow into your phone, or tap each candle",
+    finalTitle: "Happy Birthday, {name}!",
   },
 
   gifts: [
@@ -1192,6 +1435,7 @@ function fadeSongIn() {
 var audioPrimed = false, wantSong = false;
 function unlockAudio() {
   try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) {}
+  if (typeof sfxLoad === "function") sfxLoad();
   if (audioPrimed || songState !== "idle") return;
   audioPrimed = true;
   song.muted = true;
@@ -1311,7 +1555,9 @@ CONFIG.gifts.forEach(function (g, i) {
     '<button class="gift gift-' + (i + 1) + '" type="button" aria-label="Gift ' + (i + 1) + ': ' + esc(g.tag) + '. Press and hold to open.">' +
     '<span class="glow"></span><span class="spill"></span>' +
     '<span class="lid"><span class="rib"></span><span class="bow"></span></span>' +
-    '<span class="body"><span class="rib"></span></span></button>' +
+    '<span class="body"><span class="rib"></span></span>' +
+    '<span class="balloons"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 100L19 34M50 100L50 24M50 100L81 34" stroke="rgba(255,255,255,.8)" stroke-width="1.2" fill="none" vector-effect="non-scaling-stroke"/></svg>' +
+    '<i style="--c:#ff8fa3;left:4%;top:8%"></i><i style="--c:#f4c55a;left:35%;top:-6%"></i><i style="--c:#7dd3fc;left:66%;top:8%"></i></span></button>' +
     '<div class="tag"><small>Box ' + (i + 1) + '</small>' + esc(g.tag) + '</div>' +
     '<div class="hold-hint">Press and hold to open</div>' +
     '<button class="reopen" type="button" hidden>' + (g.kind === "photos" ? "Watch again" : "Read again") + '</button>';
@@ -1327,7 +1573,8 @@ updateLocks();
 /* ---------- The birthday ride: Bus 28 drives stop to stop, one gift per stop ---------- */
 var R = {
   el: $("ride"), world: $("rideWorld"), far: $("rideFar"), props: $("rideProps"), bus: $("bus"),
-  W: 0, H: 0, stage: 0, moving: false, advancing: false, done: false, started: false
+  W: 0, H: 0, stage: 0, moving: false, advancing: false, done: false, started: false,
+  cam: 0, busU: .05, raf: 0      // camera and bus positions, in scene widths
 };
 var RC = CONFIG.ride;
 function rideText(t, stop) { return fillName(t).replace(/\{stop\}/g, stop || ""); }
@@ -1335,24 +1582,37 @@ function rideText(t, stop) { return fillName(t).replace(/\{stop\}/g, stop || "")
 R.bus.innerHTML =
   '<div class="bus-banner"><span>' + esc(rideText(RC.banner)) + '</span></div>' +
   '<div class="cone"></div>' +
-  '<svg viewBox="0 0 200 112" style="--bus:' + esc(RC.busColor) + '">' +
+  '<div class="led"><span id="ledText"></span></div>' +
+  '<svg viewBox="0 0 220 110" style="--bus:' + esc(RC.busColor) + ';--bus-dark:' + esc(RC.busColorDark) + '">' +
   '<g class="bus-body">' +
-  '<rect x="6" y="14" width="186" height="76" rx="22" fill="var(--bus)"/>' +
-  '<rect x="6" y="64" width="186" height="12" fill="rgba(255,255,255,.78)"/>' +
-  '<rect x="148" y="1" width="40" height="17" rx="6" fill="#2b2242"/>' +
-  '<text x="168" y="14" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ffd36b" font-family="DM Sans, Arial, sans-serif">' + esc(RC.busNumber) + '</text>' +
-  '<rect class="win" x="18" y="24" width="24" height="30" rx="8"/><rect class="win" x="48" y="24" width="24" height="30" rx="8"/>' +
-  '<rect class="win" x="78" y="24" width="24" height="30" rx="8"/><rect class="win" x="108" y="24" width="24" height="30" rx="8"/>' +
-  '<rect x="138" y="24" width="20" height="60" rx="5" fill="#2b2242"/><rect class="door" x="138" y="24" width="20" height="60" rx="5"/>' +
-  '<rect class="win" x="164" y="24" width="23" height="32" rx="9"/>' +
-  '<text x="62" y="74.5" text-anchor="middle" font-size="10" font-weight="800" fill="var(--bus)" font-family="DM Sans, Arial, sans-serif">' + esc(RC.busNumber) + '</text>' +
-  '<circle cx="186" cy="68" r="5" class="hl"/>' +
-  '<path d="M169 61q7 5 14 0" stroke="#2b2242" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="170" cy="58" r="2.4" fill="#ff8fa3" opacity=".7"/>' +
-  '<rect x="168" y="84" width="26" height="7" rx="3.5" fill="#2b2242"/><rect x="4" y="84" width="22" height="7" rx="3.5" fill="#2b2242"/>' +
+  // body: lighter blue top, darker blue skirt, white roof
+  '<path d="M14 12H192Q210 12 212 30L214 84Q214 92 206 92H14Q6 92 6 84V20Q6 12 14 12Z" fill="var(--bus)"/>' +
+  '<path d="M6 64H213.2L214 84Q214 92 206 92H14Q6 92 6 84Z" fill="var(--bus-dark)"/>' +
+  '<rect x="6" y="61" width="207" height="3.5" fill="#a9d1f7"/>' +
+  '<path d="M14 6H190Q204 6 207 16H8Q9 6 14 6Z" fill="#eef4fb"/>' +
+  // LED destination board on the roof, front half
+  '<rect x="108" y="1" width="100" height="14" rx="2.5" fill="#121019"/>' +
+  // tinted side windows with pillars
+  '<rect x="14" y="22" width="146" height="34" rx="4" fill="#163056"/>' +
+  '<rect class="win" x="16" y="24" width="21" height="30" rx="2.5"/><rect class="win" x="40" y="24" width="21" height="30" rx="2.5"/>' +
+  '<rect class="win" x="64" y="24" width="21" height="30" rx="2.5"/><rect class="win" x="88" y="24" width="21" height="30" rx="2.5"/>' +
+  '<rect class="win" x="112" y="24" width="21" height="30" rx="2.5"/><rect class="win" x="136" y="24" width="22" height="30" rx="2.5"/>' +
+  '<path d="M20 50L32 26M44 50L56 26M68 50L80 26M92 50L104 26M116 50L128 26M140 50L152 26" stroke="rgba(255,255,255,.18)" stroke-width="3"/>' +
+  // front door (opens at stops)
+  '<rect x="165" y="22" width="22" height="66" rx="3" fill="#0f2140"/>' +
+  '<g class="door"><rect x="165" y="22" width="22" height="66" rx="3" fill="#1d3a66" stroke="#0f2140" stroke-width="1.5"/>' +
+  '<rect x="168" y="25" width="16" height="30" rx="2" class="win"/><rect x="168" y="58" width="16" height="26" rx="2" fill="#2a4f86"/></g>' +
+  // windscreen
+  '<path d="M192 22H204Q209 23 210 30L211 58H192Z" class="win"/>' +
+  '<path d="M196 26L202 26L198 52L194 52Z" fill="rgba(255,255,255,.22)"/>' +
+  // lights, bumpers, wheel arches
+  '<rect x="206" y="70" width="7.5" height="7" rx="2.5" class="hl"/>' +
+  '<rect x="5.5" y="70" width="4" height="9" rx="1.5" fill="#ff5f5f"/>' +
+  '<rect x="194" y="86" width="22" height="6.5" rx="3" fill="#242433"/><rect x="3" y="86" width="20" height="6.5" rx="3" fill="#242433"/>' +
+  '<path d="M32 92A18 18 0 0 1 68 92Z" fill="#102447"/><path d="M152 92A18 18 0 0 1 188 92Z" fill="#102447"/>' +
   '</g>' +
-  '<g class="wheel"><circle cx="50" cy="94" r="14" fill="#2b2242"/><circle cx="50" cy="94" r="6" fill="#d9d2ef"/><path d="M50 82v24M38 94h24" stroke="#5c5078" stroke-width="2"/></g>' +
-  '<g class="wheel"><circle cx="152" cy="94" r="14" fill="#2b2242"/><circle cx="152" cy="94" r="6" fill="#d9d2ef"/><path d="M152 82v24M140 94h24" stroke="#5c5078" stroke-width="2"/></g>' +
+  '<g class="wheel"><circle cx="50" cy="94" r="14" fill="#1b1b26"/><circle cx="50" cy="94" r="7" fill="#c9d3e0"/><path d="M50 87v14M43 94h14" stroke="#7d8798" stroke-width="2"/></g>' +
+  '<g class="wheel"><circle cx="170" cy="94" r="14" fill="#1b1b26"/><circle cx="170" cy="94" r="7" fill="#c9d3e0"/><path d="M170 87v14M163 94h14" stroke="#7d8798" stroke-width="2"/></g>' +
   '</svg>';
 
 // Stars, placed once
@@ -1369,15 +1629,17 @@ R.bus.innerHTML =
 
 function rideGeom() {
   var W = R.W, H = R.H;
-  var busW = Math.min(190, W * .44), slotW = Math.min(130, W * .3);
+  var busW = Math.min(W * .44, Math.max(190, H * .3), 260), slotW = Math.min(W * .3, Math.max(130, H * .19), 170);
+  var walkTop = H * (W > H ? .74 : .7);           // a little lower on wide screens, leaving room for the heading
   return {
-    W: W, H: H, walkTop: H * .7, roadTop: H * .735, busW: busW, busH: busW * .56, busX: W * .05,
+    W: W, H: H, walkTop: walkTop, roadTop: walkTop + H * .035, busW: busW, busH: busW * .5, busX: W * .05,
     signX: W * .57, slotW: slotW, slotX: W * .79, boxH: slotW * 1.05
   };
 }
 function rideLayout() {
   var r = R.el.getBoundingClientRect();
   if (!r.width) return;
+  if (Math.abs(r.width - R.W) < 1 && Math.abs(r.height - R.H) < 1) return;
   R.W = r.width; R.H = r.height;
   var g = rideGeom(), W = g.W, H = g.H, worldW = W * 5;
   R.el.classList.add("no-anim");
@@ -1385,7 +1647,7 @@ function rideLayout() {
 
   // Sun clipped at the horizon so only the top half shows
   var sunD = Math.min(150, W * .38);
-  $("sunWrap").style.height = g.walkTop + "px";
+  $("sunWrap").style.height = (g.walkTop - H * .26 * .55) + "px";   // horizon sits above most rooftops, so the half sun shows
   $("sun").style.cssText = "width:" + sunD + "px;height:" + sunD + "px;bottom:0";
   $("sunGlow").style.cssText = "width:" + sunD * 3 + "px;height:" + sunD * 3 + "px;bottom:0";
 
@@ -1409,21 +1671,15 @@ function rideLayout() {
   // Road, pavement, street lights and stop signs
   var html = '<div class="sidewalk" style="top:' + g.walkTop + 'px;height:' + (g.roadTop - g.walkTop) + 'px;width:' + worldW + 'px"></div>' +
     '<div class="road" style="top:' + g.roadTop + 'px;width:' + worldW + 'px"></div>';
-  var signs = [W * 0 + g.signX, W + g.signX, 2 * W + g.signX, 3 * W + g.signX];
   var lampH = H * .36, li = 0;
+  var marks = [collegeSvg(g), landmark(1, g), landmark(2, g), landmark(3, g)];
+  html = marks.map(function (m) { return m.html; }).join("") + html;
   for (var lx = W * .3; lx < worldW; lx += W * .5) {
-    if (signs.some(function (sx) { return Math.abs(sx - lx) < 60; })) continue;
+    if (marks.some(function (m) { return lx > m.x0 - 24 && lx < m.x1 + 24; })) continue;
     html += '<div class="lamp" style="left:' + lx + 'px;top:' + (g.walkTop - lampH) + 'px;height:' + lampH + 'px;--ld:' + ((li++ % 6) * .25) + 's;--lh:' + (lampH + 20) + 'px"><i></i><b></b></div>';
   }
-  var names = [RC.start].concat(RC.stops.map(function (s) { return s.name; }));
-  var labels = ["Start", "Stop 1", "Stop 2", "Last stop"];
-  signs.forEach(function (sx, k) {
-    var sh = k === 0 ? H * .2 : g.boxH + 48;     // stop boards sit above the gift box, never behind it
-    html += '<div class="stop-sign' + (k === R.stage && !R.done ? " here" : "") + '" data-k="' + k + '" style="left:' + sx + 'px;top:' + (g.walkTop - sh) + 'px;height:' + sh + 'px">' +
-      '<div class="board"><small>' + labels[k] + '</small>' + esc(names[k]) + '</div>' +
-      (k === 3 ? '<div class="fairy">' + fairyBulbs() + '</div>' : "") + '</div>';
-  });
   R.props.innerHTML = html;
+  if (typeof placeCake === "function" && F.cake) placeCake();
 
   // Gift boxes wait at their stops
   boxes.forEach(function (box, i) {
@@ -1435,25 +1691,152 @@ function rideLayout() {
 
   // The bus
   R.bus.style.width = g.busW + "px";
+  R.bus.style.setProperty("--ledf", Math.max(8, g.busW * .046).toFixed(1) + "px");
   R.bus.style.top = (g.roadTop + (H - g.roadTop) * .62 - g.busH) + "px";
   placeBus();
   void R.el.offsetWidth;
   R.el.classList.remove("no-anim");
 }
-function fairyBulbs() {
-  var s = "";
-  for (var k = 0; k < 13; k++) {
-    var t = k / 12, y = 18 * Math.sin(Math.PI * t);
-    s += '<i style="left:' + (t * 144) + 'px;top:' + (20 - y) + 'px;--tw:' + (k * .15).toFixed(2) + 's"></i>';
-  }
-  return s;
+// Landmarks at each stop: the place's name lives on the building, like the college at the start
+function lmBoard(cx, y, w, h, text, green) {
+  var fs = Math.max(10, Math.min(15, h * .5)), tl = Math.max(10, w - 24);
+  return '<rect x="' + (cx - w / 2) + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (green ? 5 : 3) + '" fill="' + (green ? "#1f7a4d" : "#24163a") + '"' + (green ? ' stroke="#e9f5ec" stroke-width="2"' : '') + '/>' +
+    '<text x="' + cx + '" y="' + (y + h / 2 + fs * .36) + '" text-anchor="middle" font-family="Bricolage Grotesque, DM Sans, Arial, sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="1.2" textLength="' + tl + '" lengthAdjust="spacingAndGlyphs" fill="' + (green ? "#ffffff" : "#ffe2a8") + '"' + (green ? '' : ' style="filter:drop-shadow(0 0 4px rgba(255,200,120,.8))"') + '>' + esc(String(text).toUpperCase()) + '</text>';
 }
-function placeBus() {
-  var g = rideGeom(), cam = Math.min(R.stage, 3);
-  var bx = R.done ? 3 * g.W + g.W * 1.25 : R.stage * g.W + g.busX;
-  R.bus.style.transform = "translateX(" + bx + "px)";
-  R.world.style.transform = "translateX(" + (-cam * g.W) + "px)";
-  R.far.style.transform = "translateX(" + (-cam * g.W * .35) + "px)";
+function lmWin(x, y, w, h) { return '<rect class="cw" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="1.5"/>'; }
+function landmark(k, g) {
+  var name = RC.stops[k - 1].name, cw = Math.min(g.W * .62, 340), ch = Math.min(g.H * .25, 170);
+  var bh = Math.max(24, ch * .2), bw = Math.min(cw * .9, Math.max(cw * .5, name.length * Math.min(15, bh * .5) * .78 + 30));
+  var T = ch + bh + 14, x0 = k * g.W + g.W * .04, top = g.walkTop - T, svg = "", extra = "";
+  var C = "#4b2f66", Cl = "#5e3d7d", Cd = "#24163a";
+  if (k === 1) {
+    // New Bus Stand: a terminal with a long canopy, pillars and platform bays
+    var upTop = T - ch, canY = T - ch * .62;
+    svg += '<rect x="' + cw * .2 + '" y="' + upTop + '" width="' + cw * .6 + '" height="' + (canY - upTop) + '" fill="' + C + '"/>';
+    for (var c = 0; c < 6; c++) svg += lmWin(cw * .23 + c * cw * .093, upTop + ch * .1, cw * .05, ch * .14);
+    svg += '<rect x="' + cw * .06 + '" y="' + canY + '" width="' + cw * .88 + '" height="' + (T - canY) + '" fill="' + C + '"/>';
+    svg += '<rect x="0" y="' + (canY - ch * .02) + '" width="' + cw + '" height="' + ch * .09 + '" rx="3" fill="' + Cl + '"/>';
+    for (var b = 0; b < 5; b++) {
+      var bx = cw * .1 + b * cw * .165;
+      svg += '<rect x="' + bx + '" y="' + (canY + ch * .14) + '" width="' + cw * .13 + '" height="' + (T - canY - ch * .14) + '" fill="' + Cd + '"/>';
+      svg += '<rect class="cw" x="' + bx + '" y="' + (T - ch * .14) + '" width="' + cw * .13 + '" height="' + ch * .14 + '" style="opacity:.35"/>';
+    }
+    for (var pl = 0; pl < 6; pl++) svg += '<rect x="' + (cw * .085 + pl * cw * .165) + '" y="' + (canY + ch * .07) + '" width="4" height="' + (T - canY - ch * .07) + '" fill="#3a2350"/>';
+    svg += lmBoard(cw / 2, upTop - bh - 2, bw, bh, name);
+  } else if (k === 2) {
+    // Four Roads: a row of little shops, a green road sign and a working traffic signal
+    var awn = ["#ff8fa3", "#7dd3fc", "#fcd34d"], sw = cw / 3;
+    for (var s = 0; s < 3; s++) {
+      var sh = ch * (s === 1 ? .62 : .5), sx = s * sw;
+      svg += '<rect x="' + (sx + 2) + '" y="' + (T - sh) + '" width="' + (sw - 4) + '" height="' + sh + '" fill="' + C + '"/>';
+      svg += lmWin(sx + sw * .2, T - sh + sh * .14, sw * .22, sh * .18) + lmWin(sx + sw * .58, T - sh + sh * .14, sw * .22, sh * .18);
+      svg += '<path d="M' + (sx + 2) + ' ' + (T - sh * .52) + 'h' + (sw - 4) + 'l-8 ' + sh * .14 + 'h' + (-(sw - 20)) + 'z" fill="' + awn[s] + '" opacity=".85"/>';
+      svg += '<rect class="cw" x="' + (sx + sw * .14) + '" y="' + (T - sh * .36) + '" width="' + sw * .72 + '" height="' + sh * .36 + '" style="opacity:.5"/>';
+    }
+    var post1 = cw * .2, post2 = cw * .8, signY = T - ch - 6;
+    svg += '<rect x="' + (post1 - 2) + '" y="' + signY + '" width="4" height="' + (T - signY) + '" fill="#2a2140"/><rect x="' + (post2 - 2) + '" y="' + signY + '" width="4" height="' + (T - signY) + '" fill="#2a2140"/>';
+    svg += lmBoard(cw / 2, signY - 2, Math.max(bw, cw * .66), bh * 1.15, "← " + name + " →", true);
+    var tx = cw * .03, ty = T - ch * .95;          // left end, where the gift box never covers it
+    svg += '<rect x="' + (tx - 1.5) + '" y="' + ty + '" width="3" height="' + (T - ty) + '" fill="#2a2140"/>' +
+      '<rect x="' + (tx - 8) + '" y="' + (ty - 2) + '" width="16" height="40" rx="4" fill="#15101f"/>' +
+      '<circle class="tl tl-r" cx="' + tx + '" cy="' + (ty + 7) + '" r="4.5" fill="#ff4d4d"/>' +
+      '<circle class="tl tl-a" cx="' + tx + '" cy="' + (ty + 18) + '" r="4.5" fill="#ffb020"/>' +
+      '<circle class="tl tl-g" cx="' + tx + '" cy="' + (ty + 29) + '" r="4.5" fill="#33dd77"/>';
+  } else {
+    // Old Bus Stand: an older building with arched windows and a clock tower; fairy lights from the tower
+    var blkTop = T - ch * .74, twW = cw * .2, twX = (cw - twW) / 2, twTop = T - ch - bh * .6;
+    svg += '<rect x="' + cw * .04 + '" y="' + blkTop + '" width="' + cw * .92 + '" height="' + (T - blkTop) + '" fill="' + C + '"/>';
+    svg += '<rect x="' + cw * .03 + '" y="' + (blkTop - 4) + '" width="' + cw * .94 + '" height="6" fill="' + Cl + '"/>';
+    for (var r = 0; r < 2; r++) for (var c2 = 0; c2 < 8; c2++) {
+      if (c2 >= 3 && c2 <= 4 && r === 1) continue;
+      var wx = cw * .08 + c2 * cw * .108, wy = blkTop + bh + 12 + r * ch * .19, ww = cw * .05, wh = ch * .14;
+      svg += '<path class="cw" d="M' + wx + ' ' + (wy + wh) + 'V' + (wy + ww / 2) + 'A' + ww / 2 + ' ' + ww / 2 + ' 0 0 1 ' + (wx + ww) + ' ' + (wy + ww / 2) + 'V' + (wy + wh) + 'Z"/>';
+    }
+    svg += '<path d="M' + (cw / 2 - cw * .07) + ' ' + T + 'V' + (T - ch * .2) + 'A' + cw * .07 + ' ' + cw * .07 + ' 0 0 1 ' + (cw / 2 + cw * .07) + ' ' + (T - ch * .2) + 'V' + T + 'Z" fill="' + Cd + '"/>';
+    svg += '<rect x="' + twX + '" y="' + twTop + '" width="' + twW + '" height="' + (blkTop - twTop) + '" fill="' + Cl + '"/>';
+    svg += '<path d="M' + (twX - 4) + ' ' + twTop + 'L' + cw / 2 + ' ' + (twTop - twW * .55) + 'L' + (twX + twW + 4) + ' ' + twTop + 'Z" fill="' + C + '"/>';
+    var cr = twW * .32, cy = twTop + twW * .48;
+    svg += '<circle class="clock" cx="' + cw / 2 + '" cy="' + cy + '" r="' + cr + '" fill="#fdf3d8" stroke="' + Cd + '" stroke-width="2"/>' +
+      '<path d="M' + cw / 2 + ' ' + cy + 'L' + (cw / 2 - cr * .45) + ' ' + (cy + cr * .3) + 'M' + cw / 2 + ' ' + cy + 'L' + (cw / 2 + cr * .1) + ' ' + (cy - cr * .78) + '" stroke="' + Cd + '" stroke-width="2" stroke-linecap="round"/>';
+    svg += lmBoard(cw / 2, blkTop + 6, bw, bh, name);          // on the front, below the clock tower
+    // fairy lights from the tower top down to both corners of the building
+    var bulbs = "", apex = { x: cw / 2, y: twTop - twW * .5 }, ends = [{ x: cw * .04, y: blkTop }, { x: cw * .96, y: blkTop }];
+    ends.forEach(function (e, side) {
+      for (var q = 1; q <= 11; q++) {
+        var t = q / 12, bx2 = apex.x + (e.x - apex.x) * t, by2 = apex.y + (e.y - apex.y) * t + Math.sin(Math.PI * t) * ch * .1;
+        bulbs += '<i style="left:' + bx2.toFixed(1) + 'px;top:' + by2.toFixed(1) + 'px;--tw:' + ((q + side * 5) * .13).toFixed(2) + 's"></i>';
+      }
+    });
+    extra = '<div class="fairy" style="left:' + x0 + 'px;top:' + top + 'px;width:' + cw + 'px;height:' + T + 'px">' + bulbs + '</div>';
+  }
+  var html = '<svg class="college landmark" width="' + cw + '" height="' + T + '" viewBox="0 0 ' + cw + ' ' + T + '" style="left:' + x0 + 'px;top:' + top + 'px;overflow:visible">' + svg + '</svg>' + extra;
+  return { html: html, x0: x0, x1: x0 + cw };
+}
+// The college at the start: a building with its name lit up on the front
+function collegeSvg(g) {
+  var cw = Math.min(g.W * .62, 340), ch = Math.min(g.H * .25, 170), tw = cw * .42, th = ch * .22;
+  var x0 = g.W * .36, x1 = x0 + cw, top = g.walkTop - ch - th;
+  var vb = 'viewBox="0 0 ' + cw + ' ' + (ch + th) + '"', w = "";
+  var cols = 9, rows = 3, gx = cw / cols;
+  for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+    if (c >= 3 && c <= 5 && r === rows - 1) continue;           // leave room for the entrance
+    w += '<rect class="cw" x="' + (c * gx + gx * .28) + '" y="' + (th + ch * .14 + r * ch * .24) + '" width="' + gx * .44 + '" height="' + ch * .13 + '" rx="1.5"/>';
+  }
+  var name = String(RC.start).toUpperCase(), fs = Math.max(11, Math.min(15, cw / 22));
+  tw = Math.min(cw * .92, Math.max(tw, name.length * fs * .78 + 28));
+  var bx = (cw - tw) / 2;
+  var svg = '<svg class="college" width="' + cw + '" height="' + (ch + th) + '" ' + vb + ' style="left:' + x0 + 'px;top:' + top + 'px">' +
+    '<rect x="0" y="' + th + '" width="' + cw + '" height="' + ch + '" fill="#4b2f66"/>' +
+    '<rect x="0" y="' + th + '" width="' + cw + '" height="5" fill="#5e3d7d"/>' +
+    '<rect x="' + bx + '" y="0" width="' + tw + '" height="' + (th + 6) + '" rx="3" fill="#4b2f66"/>' +
+    '<rect x="' + (bx + 6) + '" y="5" width="' + (tw - 12) + '" height="' + (th - 4) + '" rx="3" fill="#24163a"/>' +
+    '<text x="' + cw / 2 + '" y="' + (5 + (th - 4) / 2 + fs * .36) + '" text-anchor="middle" font-family="Bricolage Grotesque, DM Sans, Arial, sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="1.5" textLength="' + (tw - 30) + '" lengthAdjust="spacingAndGlyphs" fill="#ffe2a8" style="filter:drop-shadow(0 0 4px rgba(255,200,120,.8))">' + esc(name) + '</text>' +
+    w +
+    '<path d="M' + (cw / 2 - gx * 1.1) + ' ' + (th + ch) + 'V' + (th + ch * .68) + 'Q' + cw / 2 + ' ' + (th + ch * .5) + ' ' + (cw / 2 + gx * 1.1) + ' ' + (th + ch * .68) + 'V' + (th + ch) + 'Z" fill="#24163a"/>' +
+    '<rect x="' + (cw / 2 - gx * .75) + '" y="' + (th + ch * .72) + '" width="' + gx * 1.5 + '" height="' + ch * .28 + '" fill="#ffd9a0" opacity=".35"/>' +
+    '</svg>';
+  return { html: svg, x0: x0, x1: x1 };
+}
+// LED destination board: scrolls like a real bus display
+function led() {
+  var el = $("ledText"); if (el) el.textContent = RC.busNumber;     // the roof board just shows the route number
+}
+function placeBus() { applyPos(); }
+// Draw the camera, skyline, bus and rolling wheels for the current positions
+function applyPos() {
+  var W = R.W; if (!W) return;
+  R.world.style.transform = "translate3d(" + (-R.cam * W).toFixed(2) + "px,0,0)";
+  R.far.style.transform = "translate3d(" + (-R.cam * W * .35).toFixed(2) + "px,0,0)";
+  R.bus.style.transform = "translate3d(" + (R.busU * W).toFixed(2) + "px,0,0)";
+  var wheelR = rideGeom().busW * 14 / 220;
+  var deg = (R.busU * W / wheelR) * 57.2958;
+  if (!R.wheels) R.wheels = R.bus.querySelectorAll(".wheel");
+  for (var k = 0; k < R.wheels.length; k++) R.wheels[k].style.transform = "rotate(" + deg.toFixed(1) + "deg)";
+}
+// One smooth frame-by-frame move for everything together (gentle start, gentle stop)
+var EASE = {
+  inOut: function (k) { return -(Math.cos(Math.PI * k) - 1) / 2; },   // gentle start and stop
+  away: function (k) { return 1 - Math.cos(k * Math.PI / 2); },      // starts slowly, picks up speed
+  arrive: function (k) { return Math.sin(k * Math.PI / 2); }           // comes in, slows down gradually
+};
+function tween(toCam, toBus, dur, done, ease) {
+  cancelAnimationFrame(R.raf);
+  var c0 = R.cam, b0 = R.busU, t0 = null, fn = ease || EASE.inOut;
+  function f(t) {
+    if (t0 === null) t0 = t;
+    var k = Math.min(1, (t - t0) / dur), e = fn(k);
+    var prevBus = R.busU, prevT = R._lastT || t;
+    R.cam = c0 + (toCam - c0) * e; R.busU = b0 + (toBus - b0) * e;
+    applyPos();
+    if (engine) {
+      var away = R.bus.classList.contains("away");
+      var v = Math.abs(R.busU - prevBus) / Math.max(1, t - prevT);          // scene widths per ms
+      engineSet(away ? .55 : v / .00045);
+    }
+    R._lastT = t;
+    if (k < 1) R.raf = requestAnimationFrame(f); else if (done) done();
+  }
+  R.raf = requestAnimationFrame(f);
 }
 function rideSky() {
   var s = R.done ? 3 : R.stage;
@@ -1461,9 +1844,6 @@ function rideSky() {
   R.el.classList.toggle("s2", s >= 2);
   R.el.classList.toggle("s3", s >= 3);
   R.el.classList.toggle("lights", s >= 2);
-  Array.prototype.forEach.call(R.props.querySelectorAll(".stop-sign"), function (n) {
-    n.classList.toggle("here", +n.getAttribute("data-k") === R.stage && !R.done && !R.moving);
-  });
 }
 function say(eyebrow, line, button) {
   var box = $("rideSay");
@@ -1476,52 +1856,616 @@ function say(eyebrow, line, button) {
     box.classList.remove("swap");
   }, 350);
 }
-function honk(times) {
-  try {
-    if (!audioCtx || audioCtx.state !== "running") return;
-    for (var k = 0; k < (times || 1); k++) {
-      var t = audioCtx.currentTime + k * .32;
-      [392, 494].forEach(function (f) {
-        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.type = "square"; o.frequency.value = f;
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.035, t + .02); g.gain.setValueAtTime(.035, t + .2); g.gain.linearRampToValueAtTime(0, t + .26);
-        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + .3);
-      });
+function vanishGift(i) {
+  var box = boxes[i]; if (!box) return;
+  var slot = box.parentNode;
+  if (slot.classList.contains("vanish")) return;
+  if (!reducedMotion) {
+    var wr = R.world.getBoundingClientRect(), br = box.getBoundingClientRect();
+    for (var n = 0; n < 16; n++) {
+      var sp = document.createElement("span"); sp.className = "gift-spark";
+      sp.style.left = (br.left - wr.left + br.width * (.1 + Math.random() * .8)) + "px";
+      sp.style.top = (br.top - wr.top + br.height * (.2 + Math.random() * .7)) + "px";
+      sp.style.setProperty("--sx", ((Math.random() - .5) * 40).toFixed(0) + "px");
+      sp.style.setProperty("--sy", (-(40 + Math.random() * 70)).toFixed(0) + "px");
+      sp.style.setProperty("--w", (Math.random() * .7).toFixed(2) + "s");
+      sp.style.setProperty("--d", (1 + Math.random() * .6).toFixed(2) + "s");
+      R.world.appendChild(sp);
+      setTimeout(function (el) { return function () { el.remove(); }; }(sp), 2600);
     }
-  } catch (e) {}
+  }
+  slot.classList.add("vanish");
 }
-function driveTime() { return reducedMotion ? 600 : 3200; }
 function rideDrive(to) {
   if (R.moving) return;
   R.moving = true; R.advancing = false;
   R.bus.classList.remove("door-open");
-  honk(1);
+  var wait = reducedMotion ? 300 : 1300;
+  setTimeout(function () { honk(1); }, 250);
+  R.bus.classList.add("idle");
+  engineStart(); engineSet(0);
+  puffs(wait + 900);
+  var ticket = to === 3 && !quizPassed && CONFIG.quiz && CONFIG.quiz.length;
+  vanishGift(to - 2);                                   // the gift she just opened fades into sparkles as the bus starts
+  // at Four Roads the conductor steps in only after the gift has gone
+  if (ticket) {
+    conductorPlace(to - 1);                             // work out where he stands (and where the bus stops) right away
+    setTimeout(function () { COND.el.classList.add("show", "wave"); }, reducedMotion ? 0 : 1500);
+  }
   setTimeout(function () {
-    R.bus.classList.add("moving");
-    R.stage = to;
-    rideSky(); placeBus();
-    setTimeout(rideArrive, driveTime());
-  }, 450);
+    R.bus.classList.remove("idle");
+    R.bus.classList.add("moving", "accel");
+    led("Next stop: " + RC.stops[to - 1].name);
+    var from = to - 1, busOff = rideGeom().busW / R.W + .03;
+    // 1. the bus pulls away and drives off the right edge; the scene stays still
+    if (!ticket) tween(from, from + 1.03, legTime("away"), afterAway, EASE.away);
+    else {
+      // on the way out of Four Roads: roll up to the conductor, stop for the ticket check, then drive on
+      tween(from, from + COND.stopU, reducedMotion ? 300 : 3000, function () {
+        R.bus.classList.remove("moving", "accel");
+        R.bus.classList.remove("brake"); void R.bus.offsetWidth; R.bus.classList.add("brake", "idle");
+        engineSet(0);
+        ticketCheck(function () {
+          R.bus.classList.remove("idle"); R.bus.classList.add("moving", "accel");
+          honk(1); puffs(900);
+          setTimeout(function () {
+            tween(from, from + 1.03, Math.round(legTime("away") * .85), function () { COND.el.classList.remove("show", "wave"); afterAway(); }, EASE.away);
+          }, 450);
+        });
+      }, EASE.inOut);
+    }
+    function afterAway() {
+      R.bus.classList.remove("accel");
+      R.bus.classList.add("away");
+      R.stage = to; rideSky();
+      // 2. the view glides to the next stop while the bus is out of sight
+      R.busU = to - busOff;
+      tween(to, to - busOff, legTime("pan"), function () {
+        R.bus.classList.remove("away");
+        // 3. the bus drives in from the left, slows down and brakes at the stop
+        tween(to, to + .05, legTime("arrive"), function () {
+          R.bus.classList.remove("moving");
+          R.bus.classList.remove("brake"); void R.bus.offsetWidth; R.bus.classList.add("brake");
+          setTimeout(rideArrive, 700);
+        }, EASE.arrive);
+      }, EASE.inOut);
+    }
+  }, wait);
+}
+// The white heart she picked pops out of the ticket, glides up into the evening sky and, right there,
+// its outline melts into a round moon (a true shape morph, not a cross-fade). The moon then stays for the rest of the ride.
+var MOON = { el: $("skyMoon"), formed: false };
+(function () {
+  // the heart and the circle drawn with the same 120 points, so one can reshape smoothly into the other
+  var N = 120, heart = [], circle = [];
+  for (var i = 0; i < N; i++) {
+    var t = i / N * Math.PI * 2, hx = 16 * Math.pow(Math.sin(t), 3);
+    var hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    hx *= .95; hy = hy * .95 - 2.4;
+    var a = Math.atan2(hy, hx);
+    heart.push([hx, hy]); circle.push([16 * Math.cos(a), 16 * Math.sin(a)]);
+  }
+  MOON.shapeAt = function (k) {                    // k: 0 = heart, 1 = circle
+    var d = "";
+    for (var i = 0; i < N; i++) {
+      var x = heart[i][0] + (circle[i][0] - heart[i][0]) * k, y = heart[i][1] + (circle[i][1] - heart[i][1]) * k;
+      d += (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2);
+    }
+    return d + "Z";
+  };
+})();
+function moonSpot() {
+  var g = rideGeom();
+  return { x: g.W * .84, y: g.H * (g.H > g.W ? .2 : .17), d: Math.max(48, Math.min(78, Math.min(g.W, g.H) * .13)) };
+}
+function skyMoonStart(fromEl) {
+  var el = MOON.el, shape = el.querySelector(".sm-shape"), detail = el.querySelector(".sm-detail"), halo = el.querySelector(".sm-halo");
+  var rr = R.el.getBoundingClientRect(), fr = fromEl.getBoundingClientRect(), end = moonSpot(), D = end.d;
+  var p0 = { x: fr.left - rr.left + fr.width / 2, y: fr.top - rr.top + fr.height / 2 }, s0 = fr.width / D;
+  // a gentle curve: first straight up out of the ticket, then across and up to its place in the sky
+  var p1 = { x: p0.x, y: p0.y - rr.height * .28 }, p2 = { x: end.x - rr.width * .12, y: end.y + rr.height * .06 };
+  el.style.width = D + "px"; el.style.height = D + "px"; el.style.margin = (-D / 2) + "px 0 0 " + (-D / 2) + "px";
+  el.style.left = "0"; el.style.top = "0";
+  shape.setAttribute("d", MOON.shapeAt(0)); shape.setAttribute("fill", "#ffffff"); detail.setAttribute("opacity", "0");
+  el.classList.remove("formed"); el.classList.add("front"); el.hidden = false;
+  var POP = 520, RISE = reducedMotion ? 10 : 3400, MORPH = reducedMotion ? 10 : 2600, t0 = null, lastSpark = 0, ringed = false;
+  function ease(k) { return k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
+  function bez(a, b, c, d, k) { var u = 1 - k; return u * u * u * a + 3 * u * u * k * b + 3 * u * k * k * c + k * k * k * d; }
+  function mix(c1, c2, k) { return "rgb(" + [0, 1, 2].map(function (i) { return Math.round(c1[i] + (c2[i] - c1[i]) * k); }).join(",") + ")"; }
+  chime();
+  function frame(t) {
+    if (t0 === null) t0 = t;
+    var e = t - t0, x = p0.x, y = p0.y, sc = s0, hk = 0, glow = .5;
+    if (e < POP) {                                                     // 1. pops out of the ticket with a little bounce
+      var k = e / POP; sc = s0 * (1 + .45 * Math.sin(k * Math.PI)) + (s0 * .15) * k; glow = .5 * Math.sin(k * Math.PI);
+    } else if (e < POP + RISE) {                                       // 2. glides up into the sky, growing, with a sparkle trail
+      var r = ease((e - POP) / RISE);
+      x = bez(p0.x, p1.x, p2.x, end.x, r); y = bez(p0.y, p1.y, p2.y, end.y, r) + Math.sin(e / 420) * 4 * (1 - r);
+      sc = s0 * 1.15 + (1 - s0 * 1.15) * r; glow = .3 + .15 * r;
+      if (t - lastSpark > 90) {
+        lastSpark = t;
+        var sp = document.createElement("span"); sp.className = "sm-spark";
+        sp.style.left = (x + (Math.random() - .5) * D * .4) + "px"; sp.style.top = (y + D * .2) + "px";
+        sp.style.setProperty("--sx", ((Math.random() - .5) * 18).toFixed(0) + "px"); sp.style.zIndex = 8;
+        el.parentNode.insertBefore(sp, el); setTimeout(function () { sp.remove(); }, 1250);
+      }
+    } else {                                                           // 3. in place: it glows, its outline rounds into a circle, the moon's face appears
+      var m = Math.min(1, (e - POP - RISE) / MORPH);
+      x = end.x; y = end.y; sc = 1 + .06 * Math.sin(Math.min(1, m / .35) * Math.PI);   // one soft breath before it changes
+      hk = ease(Math.max(0, Math.min(1, (m - .12) / .58)));
+      glow = .45 + .25 * Math.sin(Math.min(1, m / .7) * Math.PI / 2);
+      if (hk >= .98 && !ringed) { ringed = true; var ring = el.querySelector(".sm-ring"); ring.classList.remove("go"); void ring.offsetWidth; ring.classList.add("go"); }
+      var dk = Math.max(0, Math.min(1, (m - .55) / .45));
+      detail.setAttribute("opacity", dk.toFixed(3));
+      shape.setAttribute("fill", mix([255, 255, 255], [243, 236, 212], hk));
+      if (m >= 1) {
+        shape.setAttribute("d", MOON.shapeAt(1));
+        // settle: fixed in the sky (in %, so it stays put if the window changes), brightness now follows the evening
+        el.style.transform = "none"; el.style.left = (end.x / rr.width * 100) + "%"; el.style.top = (end.y / rr.height * 100) + "%";
+        halo.style.opacity = ""; el.classList.remove("front"); el.classList.add("formed"); MOON.formed = true;
+        return;
+      }
+    }
+    shape.setAttribute("d", MOON.shapeAt(hk));
+    halo.style.opacity = glow.toFixed(3);
+    el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) scale(" + sc.toFixed(3) + ")";
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+// The ticket checker: a cute conductor in a khaki uniform, cap and ticket bag, standing on the pavement
+var COND = { el: null };
+(function buildConductor() {
+  var sk = "#c98b5e", kh = "#c8a96a", khd = "#9c7f45";
+  var el = document.createElement("div"); el.className = "conductor"; el.setAttribute("aria-hidden", "true");
+  el.innerHTML = '<svg viewBox="0 0 60 110">' +
+    '<ellipse cx="30" cy="107" rx="17" ry="3" fill="rgba(0,0,0,.3)"/>' +
+    '<rect x="22" y="72" width="7.5" height="32" rx="2" fill="#3b3350"/><rect x="30.5" y="72" width="7.5" height="32" rx="2" fill="#332b47"/>' +
+    '<ellipse cx="25" cy="105" rx="6.5" ry="3" fill="#1b1424"/><ellipse cx="36" cy="105" rx="6.5" ry="3" fill="#1b1424"/>' +
+    '<path d="M17 76V45Q17 38 24 37H36Q43 38 43 45V76Z" fill="' + kh + '"/>' +
+    '<path d="M30 37V76" stroke="' + khd + '" stroke-width="1"/><circle cx="30" cy="48" r="1" fill="' + khd + '"/><circle cx="30" cy="57" r="1" fill="' + khd + '"/><circle cx="30" cy="66" r="1" fill="' + khd + '"/>' +
+    '<rect x="17" y="70" width="26" height="4" fill="#5a3b22"/>' +
+    '<path d="M21 38L41 68" stroke="#6b4423" stroke-width="3.5" stroke-linecap="round"/>' +
+    '<rect x="35" y="62" width="15" height="13" rx="3" fill="#7a4a26"/><path d="M35 65Q42.5 70 50 65V62.5Q50 62 49 62H36Q35 62 35 63Z" fill="#8d5a30"/><circle cx="42.5" cy="67" r="1.2" fill="#f4c55a"/>' +
+    '<rect x="21" y="42" width="6" height="7" rx="1" fill="' + khd + '"/><circle cx="24" cy="44.5" r="1.3" fill="#f4c55a"/>' +
+    '<path d="M18 42Q11 55 14 66" stroke="' + kh + '" stroke-width="6.5" stroke-linecap="round" fill="none"/><circle cx="14" cy="67.5" r="3.3" fill="' + sk + '"/>' +
+    '<g class="c-arm"><path d="M42 42Q51 33 50 23" stroke="' + kh + '" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
+      '<rect x="44.5" y="8" width="10" height="13" rx="1.2" fill="#fdf3d8" stroke="#d9c79c" stroke-width=".8" transform="rotate(12 49 15)"/>' +
+      '<path d="M46.5 12h6M46.5 15h6M46.5 18h4" stroke="#f7a8c4" stroke-width="1" transform="rotate(12 49 15)"/>' +
+      '<circle cx="50" cy="21" r="3.4" fill="' + sk + '"/></g>' +
+    '<rect x="27" y="31" width="6" height="7" fill="' + sk + '"/>' +
+    '<circle cx="18.8" cy="23" r="2.4" fill="' + sk + '"/><circle cx="41.2" cy="23" r="2.4" fill="' + sk + '"/>' +
+    '<circle cx="30" cy="22" r="11.2" fill="' + sk + '"/>' +
+    '<path d="M19 19Q19 11 30 10.5Q41 11 41 19Q38 15 30 15Q22 15 19 19Z" fill="#1b1424"/>' +
+    '<path d="M18.5 15Q19 5 30 4.5Q41 5 41.5 15Z" fill="' + kh + '"/><path d="M17 15H43Q44.5 18.5 39 18.5H20Q16 18.5 17 15Z" fill="#5a4426"/>' +
+    '<circle cx="30" cy="10" r="2" fill="#f4c55a"/>' +
+    '<ellipse class="c-eye" cx="26" cy="22.5" rx="1.4" ry="1.7" fill="#1b1424"/><ellipse class="c-eye" cx="34" cy="22.5" rx="1.4" ry="1.7" fill="#1b1424"/>' +
+    '<circle cx="23" cy="26.5" r="2" fill="#ff8fa3" opacity=".4"/><circle cx="37" cy="26.5" r="2" fill="#ff8fa3" opacity=".4"/>' +
+    '<path d="M24.5 28.2Q27 26 30 27.4Q33 26 35.5 28.2Q33 29.4 30 28.6Q27 29.4 24.5 28.2Z" fill="#2a1d19"/>' +
+    '<path d="M27.3 30.4Q30 32.6 32.7 30.4" stroke="#7a2e22" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+    '</svg>';
+  R.world.appendChild(el);
+  var bub = document.createElement("div"); bub.className = "comic"; R.el.appendChild(bub);   // above the ticket
+  COND.el = el; COND.bubble = bub;
+  var t = document.createElement("div"); t.className = "tkt"; t.id = "busTicket";
+  R.el.appendChild(t); COND.ticket = t;
+})();
+function conductorPlace(stage) {
+  var g = rideGeom(), h = Math.min(g.busH * 1.08, 130), w = h * 60 / 110;
+  var x = g.W * .72 - w / 2;                                        // where box 2 stood, just left of the street lamp
+  var busLeft = Math.max(g.W * .1, x - 8 - g.busW);                // the bus stops with its door beside him
+  COND.stopU = busLeft / g.W;
+  COND.el.style.width = w + "px"; COND.el.style.height = h + "px";
+  COND.el.style.left = (stage * g.W + x) + "px";
+  COND.el.style.top = (g.walkTop + g.H * .02 - h) + "px";
+}
+function comic(text, big) {
+  var b = COND.bubble;
+  if (!text) { b.classList.remove("on"); b.classList.add("off"); return; }
+  b.classList.remove("on", "off", "big"); void b.offsetWidth;
+  b.textContent = text; if (big) b.classList.add("big");
+  // sit just above the conductor's head, kept fully on screen and clear of the ticket beside him
+  var rr = R.el.getBoundingClientRect(), cr = COND.el.getBoundingClientRect(), minL = 10;
+  var tk = COND.ticket, side = tk.classList.contains("out") && tk.getAttribute("data-side") === "left";
+  if (side) { minL = +tk.getAttribute("data-right") + 10; b.style.maxWidth = Math.max(120, rr.width - minL - 10) + "px"; }
+  else b.style.maxWidth = "";
+  var w = b.offsetWidth, cx = cr.left - rr.left + cr.width / 2;
+  b.style.left = Math.max(minL + w / 2, Math.min(rr.width - w / 2 - 10, cx)) + "px";
+  b.style.bottom = (rr.bottom - cr.top + 16) + "px";
+  b.classList.add("on");
+}
+// Ticket check: "Ticket checking!", the door opens, a ticket pops out; the right heart gets punched and stamped
+function ticketCheck(done) {
+  var t = COND.ticket, qn = 0, wrong = 0;
+  say("On the way to " + RC.stops[2].name, "", null);
+  setTimeout(function () { COND.el.classList.remove("wave"); comic("Ticket checking!", true); honk(1); }, 600);
+  setTimeout(function () { R.bus.classList.add("door-open"); boxDrop(.3); }, 2300);
+  setTimeout(function () { render(); popOut(); comic("Show me the right heart! 🤔"); COND.el.classList.add("point"); }, 2800);
+  function doorPoint() {
+    var g = rideGeom(), rr = R.el.getBoundingClientRect(), busLeft = (R.busU - R.cam) * g.W, busTop = parseFloat(R.bus.style.top) || 0;
+    return { x: busLeft + g.busW * .82, y: busTop + g.busH * .5 };
+  }
+  // Where the ticket goes: beside the conductor (to his left) if there is room, otherwise above him; scaled to fit
+  function placeTicket() {
+    var rr = R.el.getBoundingClientRect(), cr = COND.el.getBoundingClientRect(), W = rr.width, H = rr.height;
+    t.style.cssText += ";display:block;visibility:hidden;animation:none";
+    var nw = t.offsetWidth, nh = t.offsetHeight;
+    t.style.display = ""; t.style.visibility = ""; t.style.animation = "";
+    var top = 64, bottom = H - 12, condL = cr.left - rr.left, condT = cr.top - rr.top;
+    var sLeft = Math.min(1, (condL - 28) / nw, (bottom - top) / nh), p;
+    if (sLeft >= .7) {                                                  // to the left of the conductor
+      var cx = Math.max(12 + nw * sLeft / 2, Math.min(condL - 20 - nw * sLeft / 2, W / 2));
+      p = { x: cx, y: Math.max(top + nh * sLeft / 2, Math.min(bottom - nh * sLeft / 2, H / 2)), s: sLeft, side: "left" };
+    } else {                                                            // narrow phone: above him, clear of his speech bubble
+      var room = condT - 90 - top, sUp = Math.min(1, (W - 24) / nw, room / nh);
+      sUp = Math.max(.6, sUp);
+      p = { x: W / 2, y: top + nh * sUp / 2 + Math.max(0, (room - nh * sUp) / 2), s: sUp, side: "up" };
+    }
+    t.style.setProperty("--tx", p.x.toFixed(0) + "px"); t.style.setProperty("--ty", p.y.toFixed(0) + "px");
+    t.style.setProperty("--s", p.s.toFixed(3)); t.setAttribute("data-side", p.side);
+    t.setAttribute("data-right", (p.x + nw * p.s / 2).toFixed(0));      // its right edge once it has landed
+    return p;
+  }
+  function popOut() {
+    var p = placeTicket(), d = doorPoint();
+    t.style.setProperty("--fx", (d.x - p.x).toFixed(0) + "px");
+    t.style.setProperty("--fy", (d.y - p.y).toFixed(0) + "px");
+    t.classList.remove("back"); void t.offsetWidth; t.classList.add("out");
+    whoosh();
+  }
+  function render() {
+    var q = CONFIG.quiz[qn];
+    var opts = q.options || [];
+    t.innerHTML = '<div class="tkt-card">' +
+      '<div class="tkt-head"><span>Bus ' + esc(RC.busNumber) + ' · Ticket</span><span>No. 0212</span></div>' +
+      '<div class="tkt-route">' + esc(RC.stops[1].name) + ' → ' + esc(RC.stops[2].name) + '</div>' +
+      '<p class="tkt-q">' + esc(q.q) + '</p>' +
+      (q.type === "hearts"
+        ? '<div class="tkt-spots">' + opts.map(function (o) {
+            return '<button type="button" class="tkt-spot" data-v="' + esc(o) + '" aria-label="' + esc(o) + ' heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HEART + '" fill="' + (heartColors[o] || o) + '"/></svg>' + esc(o.charAt(0).toUpperCase() + o.slice(1)) + '</button>';
+          }).join("") + '</div>'
+        : '<form class="quiz-form" id="tktForm" autocomplete="off" novalidate style="margin:10px 0 8px 6px"><input id="tktInput" placeholder="Type your answer" aria-label="Your answer"><button class="btn-ink" type="submit">Check</button></form>') +
+      '<div class="tkt-foot">Valid for one ride, with love</div>' +
+      '<div class="stamp">Checked ✔</div></div>';
+    Array.prototype.forEach.call(t.querySelectorAll(".tkt-spot"), function (b) {
+      b.addEventListener("click", function () { pick(b.getAttribute("data-v"), b); });
+    });
+    var f = t.querySelector("#tktForm");
+    if (f) f.addEventListener("submit", function (e) { e.preventDefault(); pick($("tktInput").value, $("tktInput")); });
+  }
+  function pick(v, el) {
+    var q = CONFIG.quiz[qn];
+    if (!norm(v)) return;
+    var ok = q.answers.some(function (a) { return norm(a) === norm(v); });
+    if (!ok) {
+      wrong++;
+      if (el.classList.contains("tkt-spot")) el.classList.add("x");
+      el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake");
+      sfxPlay("drop", .25, 1.6);
+      comic(wrong >= 2 && q.hint ? "Hint: " + q.hint : ["Oops! Wrong ticket 😄", "Nope! Try again"][Math.min(wrong - 1, 1)]);
+      return;
+    }
+    // the right heart stays its own colour, just lifted like a hover
+    if (el.classList.contains("tkt-spot")) el.classList.add("picked");
+    sfxPlay("drop", .45, 2.1);
+    qn++; wrong = 0;
+    if (qn < CONFIG.quiz.length) { comic("Correct! One more 😊"); setTimeout(function () { render(); }, 1200); return; }
+    quizPassed = true;
+    setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); comic("Correct! Happy journey 😊"); COND.el.classList.remove("point"); }, 650);
+    if (el.classList.contains("tkt-spot")) setTimeout(function () { skyMoonStart(el.querySelector("svg")); }, 1300);   // the heart pops out, rises and becomes the moon
+    setTimeout(function () { t.classList.remove("out"); void t.offsetWidth; t.classList.add("back"); }, 3200);
+    setTimeout(function () { t.classList.remove("back"); t.innerHTML = ""; R.bus.classList.remove("door-open"); boxDrop(.3); }, 3900);
+    setTimeout(function () { comic(""); COND.el.classList.add("wave"); say("Ticket checked ✔", rideText(RC.nextLine, RC.stops[2].name), null); }, 4300);
+    setTimeout(done, 8100);                                              // the bus leaves once the moon has formed
+  }
+}
+// Leg durations scale a little with the scene width so it never races on wide screens
+function legTime(kind) {
+  if (reducedMotion) return 300;
+  var W = R.W || 400;
+  if (kind === "away") return Math.round(Math.max(3200, Math.min(5200, W * 7)));
+  if (kind === "pan") return Math.round(Math.max(1600, Math.min(2600, W * 3.5)));
+  return 3200;
+}
+function puffs(ms) {
+  if (reducedMotion) return;
+  var end = Date.now() + ms;
+  (function one() {
+    if (Date.now() > end) return;
+    var p = document.createElement("span"); p.className = "puff";
+    R.bus.appendChild(p);
+    setTimeout(function () { p.remove(); }, 1400);
+    setTimeout(one, 260);
+  })();
 }
 function rideArrive() {
+  engineStop(1.4);
   R.moving = false;
   R.bus.classList.remove("moving");
   rideSky();
   var k = R.stage, stop = RC.stops[k - 1];
+  led(RC.busNumber + "  " + stop.name);
   say((k === 3 ? "Last stop" : "Stop " + k + " of 3") + " · " + stop.name, rideText(stop.line), null);
+  var kind = ["hop", "balloon", "star"][k - 1];
   setTimeout(function () {
-    R.bus.classList.add("door-open");
-    setTimeout(function () { deliver(k - 1); }, 350);
+    if (kind === "hop") R.bus.classList.add("door-open");      // gift 1 comes out of the door
+    setTimeout(function () { deliver(k - 1, kind); }, kind === "hop" ? 450 : 200);
   }, 400);
 }
-function deliver(i) {
-  var g = rideGeom(), slot = boxes[i].parentNode;
-  var doorX = R.stage * g.W + g.busX + g.busW * .74;
-  var slotCx = (i + 1) * g.W + g.slotX;
-  slot.style.setProperty("--dx", (doorX - slotCx) + "px");
-  slot.style.setProperty("--dy", (g.busH * .2) + "px");
+function deliver(i, kind) {
+  var g = rideGeom(), box = boxes[i], slot = box.parentNode;
+  var busLeft = R.stage * g.W + g.busX, busTop = parseFloat(R.bus.style.top) || 0;
+  var slotCx = (i + 1) * g.W + g.slotX, boxCy = g.walkTop + 4 - g.boxH / 2;
+  // where it starts: the door (hop), the roof (balloons) or a window (toss)
+  var from = kind === "balloon" ? { x: busLeft + g.busW * .45, y: busTop - g.boxH * .15 }
+    : kind === "toss" ? { x: busLeft + g.busW * .5, y: busTop + g.busH * .35 }
+    : { x: busLeft + g.busW * .8, y: busTop + g.busH * .55 };
+  box.style.setProperty("--dx", (from.x - slotCx).toFixed(1) + "px");
+  box.style.setProperty("--dy", (from.y - boxCy).toFixed(1) + "px");
   slot.classList.add("delivered");
   hints[i].textContent = "Press and hold to open";
+  if (reducedMotion) { landed(); return; }
+  if (kind === "balloon") box.classList.add("with-balloons");
+  box.classList.add("deliver-" + kind);
+  if (kind === "toss") setTimeout(function () { dust(slot); boxDrop(1.15, true); }, 2000 * .78);
+  if (kind === "hop") {
+    [.37, .62].forEach(function (f) { setTimeout(function () { boxDrop(.4); }, 2400 * f); });   // little hop taps
+    setTimeout(function () { boxDrop(.95, true); }, 2400 * .89);                               // final landing
+  }
+  if (kind === "balloon") setTimeout(function () { boxDrop(.5); }, 3800 * .92);                // soft touchdown
+  if (kind === "star") fallingStar(slotCx - R.cam * g.W, g.walkTop + 2, g);                  // lands on the pavement; the box grows there
+  var dur = { hop: 2400, balloon: 3800, toss: 2000, star: 5200 }[kind], done = false;
+  function settle() {
+    if (done) return; done = true;
+    box.style.transition = "none";                 // so the tossed box doesn't spin back when the animation ends
+    box.classList.remove("deliver-" + kind);
+    void box.offsetWidth; box.style.transition = "";
+    landed();
+  }
+  box.addEventListener("animationend", function onEnd(e) {
+    if (e.target !== box) return;
+    box.removeEventListener("animationend", onEnd);
+    settle();
+  });
+  setTimeout(settle, dur + 300);                   // backup, in case the browser never reports the end
+  function landed() {
+    slot.classList.add("landed");
+    if (reducedMotion) boxDrop(.8);
+    if (kind === "balloon") {
+      var b = box.querySelector(".balloons");
+      setTimeout(function () { b.classList.add("release"); whoosh(); }, 350);
+      setTimeout(function () { box.classList.remove("with-balloons"); b.classList.remove("release"); }, 3700);
+    }
+    if (kind === "hop") setTimeout(function () { R.bus.classList.remove("door-open"); }, 600);
+  }
+}
+// A shooting star: appears beside the moon, glides across the sky at a shallow angle with a long thin tail,
+// slows down, swoops gently down like a paper plane landing, floats the last bit, and lands softly where box 3 appears
+function fallingStar(tx, ty, g) {
+  var rr = R.el.getBoundingClientRect(), m, W = g.W, H = g.H;
+  if (MOON.formed) { var mr = MOON.el.getBoundingClientRect(); m = { x: mr.left - rr.left + mr.width / 2, y: mr.top - rr.top + mr.height / 2, d: mr.width }; }
+  else m = moonSpot();
+  var anchor = $("fireworks");
+  function add(cls, tag) { var e = tag ? document.createElementNS("http://www.w3.org/2000/svg", tag) : document.createElement("div"); e.setAttribute("class", cls); R.el.insertBefore(e, anchor); return e; }
+  if (reducedMotion) { burst(); return; }
+  // the path: out from beside the moon, a long shallow glide to the left, then a wide gentle swoop down and back to the landing spot
+  var P0 = { x: m.x - m.d * .8, y: m.y + m.d * .15 };
+  var P1 = { x: P0.x - W * .62, y: P0.y + H * .06 };
+  var P2 = { x: tx - W * .34, y: ty - H * .2 };
+  var P3 = { x: tx, y: ty };
+  function bez(k) {
+    var u = 1 - k;
+    return { x: u * u * u * P0.x + 3 * u * u * k * P1.x + 3 * u * k * k * P2.x + k * k * k * P3.x,
+             y: u * u * u * P0.y + 3 * u * u * k * P1.y + 3 * u * k * k * P2.y + k * k * k * P3.y };
+  }
+  var DUR = 3600, star = add("fstar"), svg = add("fstar-tail", "svg"), SEG = 26, segs = [], hist = [], t0 = null, lastG = 0;
+  for (var q = 0; q < SEG; q++) {
+    var ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ln.setAttribute("stroke", q < SEG * .4 ? "#fffdf0" : "#ffe7a8"); svg.appendChild(ln); segs.push(ln);
+  }
+  star.style.opacity = "0";
+  whoosh();
+  function frame(t) {
+    if (t0 === null) t0 = t;
+    var k = Math.min(1, (t - t0) / DUR);
+    var e = 1 - Math.pow(1 - k, 2.3);                                   // quick glide at first, slowing all the way to a soft landing
+    var p = bez(e);
+    if (k > .72) p.x += Math.sin((k - .72) / .28 * Math.PI * 2) * 10 * (1 - k) / .28;   // a gentle sway as it floats down
+    star.style.opacity = Math.min(1, k / .06).toFixed(2);
+    star.style.transform = "translate(" + p.x.toFixed(1) + "px," + p.y.toFixed(1) + "px) scale(" + (1 - .25 * k).toFixed(3) + ")";
+    hist.push({ x: p.x, y: p.y, t: t });
+    while (hist.length && t - hist[0].t > 420) hist.shift();             // the tail is where it was in the last moment: long when fast, short when slow
+    for (var q = 0; q < SEG; q++) {
+      var i1 = Math.floor(q / SEG * (hist.length - 1)), i2 = Math.floor((q + 1) / SEG * (hist.length - 1));
+      var a = hist[i1], b = hist[i2], f = (q + 1) / SEG;                 // f: 0 at the tail end, 1 at the star
+      segs[q].setAttribute("x1", a.x.toFixed(1)); segs[q].setAttribute("y1", a.y.toFixed(1));
+      segs[q].setAttribute("x2", b.x.toFixed(1)); segs[q].setAttribute("y2", b.y.toFixed(1));
+      segs[q].setAttribute("stroke-width", (.4 + 2.6 * f).toFixed(2));
+      segs[q].setAttribute("stroke-opacity", (f * f * .95).toFixed(3));
+    }
+    if (t - lastG > 45) {                                               // a little glitter left behind in the air
+      lastG = t;
+      var gl = add("fstar-glit");
+      gl.style.left = (p.x + (Math.random() - .5) * 5) + "px"; gl.style.top = (p.y + (Math.random() - .5) * 5) + "px";
+      gl.style.setProperty("--gx", ((Math.random() - .5) * 10).toFixed(0) + "px"); gl.style.setProperty("--gy", (8 + Math.random() * 14).toFixed(0) + "px");
+      gl.style.setProperty("--d", (.8 + Math.random() * .7).toFixed(2) + "s");
+      setTimeout(function (el) { return function () { el.remove(); }; }(gl), 1600);
+    }
+    if (k < 1) requestAnimationFrame(frame);
+    else { star.remove(); svg.style.transition = "opacity .5s ease"; svg.style.opacity = "0"; setTimeout(function () { svg.remove(); }, 600); burst(); }
+  }
+  requestAnimationFrame(frame);
+  function burst() {                                                    // it touches the ground: light ripples out and rises
+    var D = g.slotW * 1.6;
+    var pool = add("fstar-pool");
+    pool.style.width = D + "px"; pool.style.height = (D * .28) + "px"; pool.style.left = (tx - D / 2) + "px"; pool.style.top = (ty - D * .14) + "px";
+    setTimeout(function () { pool.remove(); }, 2900);
+    [0, 260].forEach(function (w) {
+      setTimeout(function () {
+        var r = add("fstar-ripple");
+        r.style.width = D + "px"; r.style.height = (D * .24) + "px"; r.style.left = (tx - D / 2) + "px"; r.style.top = (ty - D * .12) + "px";
+        setTimeout(function () { r.remove(); }, 1350);
+      }, w);
+    });
+    for (var n = 0; n < 22; n++) {                                     // sparkles rising from the glow, like steam of light
+      var gl = add("fstar-glit");
+      gl.style.left = (tx + (Math.random() - .5) * D * .6) + "px"; gl.style.top = (ty - Math.random() * 6) + "px";
+      gl.style.setProperty("--gx", ((Math.random() - .5) * 18).toFixed(0) + "px"); gl.style.setProperty("--gy", (-(30 + Math.random() * g.boxH * .9)).toFixed(0) + "px");
+      gl.style.setProperty("--d", (1 + Math.random() * .8).toFixed(2) + "s");
+      gl.style.animationDelay = (Math.random() * .5).toFixed(2) + "s"; gl.style.opacity = "0";
+      setTimeout(function (el) { return function () { el.remove(); }; }(gl), 2500);
+    }
+    chime(); boxDrop(.25);
+  }
+}
+function dust(slot) {
+  var g = rideGeom();
+  for (var k = 0; k < 7; k++) {
+    var d = document.createElement("span"); d.className = "dust";
+    d.style.left = (g.slotW * (.15 + k * .12)) + "px"; d.style.top = (g.boxH - 10) + "px";
+    d.style.setProperty("--px", ((k - 3) * 9) + "px");
+    slot.appendChild(d);
+    setTimeout(function (el) { return function () { el.remove(); }; }(d), 1000);
+  }
+}
+/* Soft, natural sound effects (made in the browser, kept quiet so they sit under the song) */
+function sfxOK() { return audioCtx && audioCtx.state === "running"; }
+function noiseBuf(sec) {
+  var len = Math.round(audioCtx.sampleRate * sec), b = audioCtx.createBuffer(1, len, audioCtx.sampleRate), d = b.getChannelData(0);
+  for (var q = 0; q < len; q++) d[q] = Math.random() * 2 - 1;
+  return b;
+}
+// A box landing on the pavement: a low, soft thud
+function ding() {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(55, t + .18);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.22, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + .28);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + .3);
+    var n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), gn = audioCtx.createGain();
+    n.buffer = noiseBuf(.15); f.type = "lowpass"; f.frequency.value = 380;
+    gn.gain.setValueAtTime(.12, t); gn.gain.exponentialRampToValueAtTime(.0001, t + .14);
+    n.connect(f); f.connect(gn); gn.connect(audioCtx.destination); n.start(t);
+  } catch (e) {}
+}
+/* Real recorded sound effects (in the "sounds" folder). On the live site they go through Web Audio, so the
+   engine can follow the bus's speed; when the file is opened directly from the computer, plain <audio> is used. */
+var SFX = {
+  files: { horn: "sounds/bus-horn.mp3", horn2: "sounds/bus-horn-double.mp3", engine: "sounds/bus-engine.mp3", drop: "sounds/box-drop.mp3",
+           fw1: "sounds/firework-1.mp3", fw2: "sounds/firework-2.mp3", fw3: "sounds/firework-3.mp3" },
+  buf: {}, loading: false, web: /^https?:$/.test(location.protocol)
+};
+function sfxLoad() {
+  if (SFX.loading) return; SFX.loading = true;
+  Object.keys(SFX.files).forEach(function (k) {
+    if (SFX.web && window.fetch && audioCtx) {
+      fetch(SFX.files[k]).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function (ab) { return new Promise(function (res, rej) { audioCtx.decodeAudioData(ab, res, rej); }); })
+        .then(function (b) { SFX.buf[k] = b; }).catch(function () {});
+    }
+  });
+}
+// Play a one-shot sound: vol 0..1, rate = speed/pitch (1 = normal)
+function sfxPlay(k, vol, rate) {
+  try {
+    if (SFX.buf[k] && sfxOK()) {
+      var s = audioCtx.createBufferSource(), g = audioCtx.createGain();
+      s.buffer = SFX.buf[k]; s.playbackRate.value = rate || 1; g.gain.value = vol == null ? 1 : vol;
+      s.connect(g); g.connect(audioCtx.destination); s.start();
+      return;
+    }
+    if (SFX.web && SFX.loading) return;                    // still decoding on the live site: skip rather than double up
+    var a = new Audio(SFX.files[k]); a.volume = Math.min(1, vol == null ? 1 : vol);
+    try { a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false; } catch (e) {}
+    a.playbackRate = rate || 1; var p = a.play(); if (p && p.catch) p.catch(function () {});
+  } catch (e) {}
+}
+function honk(times) { sfxPlay(times > 1 ? "horn2" : "horn", .55); }
+
+// A gift box hitting the ground; "level" scales loudness, "bounce" adds a small second knock
+function boxDrop(level, bounce) {
+  level = level || 1;
+  sfxPlay("drop", Math.min(1, .75 * level), 1.05 - (level - 1) * .15);
+  if (bounce) setTimeout(function () { sfxPlay("drop", .25 * level, 1.25); }, 140);
+}
+
+// The bus engine: the recorded engine loops as a soft, steady background hum while the bus drives
+var ENGINE_VOL = .16;                     // 0..1, raise a little if it is too quiet on the phone
+var engine = null;
+function engineStart() {
+  if (engine) return;
+  if (SFX.web && !SFX.buf.engine) {                 // recording still loading: try again shortly while the bus moves
+    engineStart.tries = (engineStart.tries || 0) + 1;
+    if (!engineStart.wait && engineStart.tries < 25)
+      engineStart.wait = setTimeout(function () { engineStart.wait = null; if (R.moving) engineStart(); }, 300);
+    return;
+  }
+  try {
+    if (SFX.buf.engine && sfxOK()) {
+      var s = audioCtx.createBufferSource(), g = audioCtx.createGain(), t = audioCtx.currentTime;
+      s.buffer = SFX.buf.engine; s.loop = true; s.playbackRate.value = .95;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(ENGINE_VOL, t + 1.2);
+      s.connect(g); g.connect(audioCtx.destination); s.start();
+      engine = { src: s, gain: g }; engineStart.tries = 0;
+    } else if (!SFX.web) {
+      var a = new Audio(SFX.files.engine); a.loop = true; a.volume = ENGINE_VOL;
+      try { a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false; } catch (e) {}
+      var p = a.play(); if (p && p.catch) p.catch(function () {});
+      engine = { el: a };
+    }
+  } catch (e) { engine = null; }
+}
+function engineSet(speed) {               // speed 0..1: only a slight pitch lift; the loudness stays the same, soft hum
+  if (!engine) return;
+  var sp = Math.max(0, Math.min(1, speed));
+  var rate = .95 + sp * .12, gain = ENGINE_VOL;
+  if (engine.src) {
+    var t = audioCtx.currentTime;
+    engine.src.playbackRate.setTargetAtTime(rate, t, .2);
+    engine.gain.gain.setTargetAtTime(gain, t, .2);
+  } else if (engine.el) { engine.el.playbackRate = rate; engine.el.volume = Math.min(1, gain); }
+}
+function engineStop(fade) {
+  if (!engine) return;
+  var e = engine, f = fade || 1.2; engine = null;
+  if (e.src) {
+    var t = audioCtx.currentTime;
+    e.gain.gain.cancelScheduledValues(t); e.gain.gain.setTargetAtTime(0, t, f / 4);
+    setTimeout(function () { try { e.src.stop(); } catch (x) {} }, f * 1000 + 300);
+  } else if (e.el) {
+    var steps = 10, k = 0, v0 = e.el.volume;
+    var iv = setInterval(function () { k++; e.el.volume = Math.max(0, v0 * (1 - k / steps)); if (k >= steps) { clearInterval(iv); e.el.pause(); } }, f * 100);
+  }
+}
+// Balloons letting go: a light rising whoosh
+function whoosh() {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime, n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    n.buffer = noiseBuf(.9); f.type = "bandpass"; f.Q.value = 1.2;
+    f.frequency.setValueAtTime(350, t); f.frequency.exponentialRampToValueAtTime(1800, t + .75);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.07, t + .25); g.gain.exponentialRampToValueAtTime(.0001, t + .85);
+    n.connect(f); f.connect(g); g.connect(audioCtx.destination); n.start(t);
+  } catch (e) {}
+}
+// A box opening: a gentle shimmer, like soft wind chimes
+function chime() {
+  try {
+    if (!sfxOK()) return;
+    var notes = [1047, 1175, 1319, 1568, 1760, 2093, 2349], t0 = audioCtx.currentTime;
+    for (var k = 0; k < 7; k++) {
+      var t = t0 + k * .07 + Math.random() * .04, fq = notes[(Math.random() * notes.length) | 0];
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = fq * (1 + (Math.random() - .5) * .004);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.018, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + 1.4);
+      o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 1.5);
+    }
+    var n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), gn = audioCtx.createGain();
+    n.buffer = noiseBuf(1); f.type = "highpass"; f.frequency.value = 6000;
+    gn.gain.setValueAtTime(0, t0); gn.gain.linearRampToValueAtTime(.025, t0 + .1); gn.gain.exponentialRampToValueAtTime(.0001, t0 + .9);
+    n.connect(f); f.connect(gn); gn.connect(audioCtx.destination); n.start(t0);
+  } catch (e) {}
 }
 // Called whenever a gift is closed: if this stop's gift is done, move on
 function rideAfterGift() {
@@ -1540,16 +2484,20 @@ function rideEnd() {
   R.done = true;
   R.bus.classList.remove("door-open");
   R.bus.classList.add("banner-on");
+  led("Happy birthday " + CONFIG.friendName);
   honk(2);
   setTimeout(function () {
     R.bus.classList.add("moving");
-    rideSky(); placeBus();
+    rideSky();
     say("End of the ride", rideText(RC.endLine), null);
-    setTimeout(function () {
+    R.bus.classList.add("accel");
+    engineStart();
+    tween(3, 4.15, legTime("away") + 600, function () {
+      engineStop(1.5);
+      R.bus.classList.remove("accel");
       R.bus.classList.remove("moving");
-      $("rideAgain").hidden = false;
-      showFinale();
-    }, driveTime() + 400);
+      sceneFinale();
+    }, EASE.away);
   }, 900);
 }
 $("rideGo").addEventListener("click", function () {
@@ -1557,19 +2505,305 @@ $("rideGo").addEventListener("click", function () {
   R.started = true;
   unlockAudio();
   $("rideGo").hidden = true;
-  R.el.scrollIntoView({ behavior: "smooth", block: "center" });
+  R.el.scrollIntoView({ behavior: "smooth", block: "start" });
+  $("rideHero").classList.add("fade");
+  setTimeout(function () { $("rideHero").hidden = true; }, 380);
   rideDrive(1);
-});
-Array.prototype.forEach.call($("rideAgain").querySelectorAll("button"), function (b) {
-  b.addEventListener("click", function () {
-    var i = +b.getAttribute("data-gift");
-    cardOrigin = reelOrigin = centerOf(b);
-    showGift(i);
-  });
 });
 var rideResizeT = 0;
 addEventListener("resize", function () { clearTimeout(rideResizeT); rideResizeT = setTimeout(rideLayout, 150); });
-say(RC.start, rideText(RC.startLine), "Start the ride 🚌");
+/* ---------- Finale in the scene: make a wish, really blow out the candles, fireworks over the city ---------- */
+var F = { cake: null, candles: [], out: 0, mic: null, done: false, started: false };
+var FC = { candles: 3 };
+(function buildCake() {
+  var c = document.createElement("div"); c.className = "scene-cake"; c.id = "sceneCake";
+  c.innerHTML = '<div class="cake-glow"></div>' +
+    '<svg viewBox="0 0 200 172">' +
+    // little table with a scalloped cloth
+    '<rect x="92" y="138" width="16" height="30" fill="#3d2a24"/><ellipse cx="100" cy="168" rx="34" ry="5" fill="#2a1d19"/>' +
+    '<path d="M12 120H188V138Q179 146 170 138Q161 146 152 138Q143 146 134 138Q125 146 116 138Q107 146 98 138Q89 146 80 138Q71 146 62 138Q53 146 44 138Q35 146 26 138Q17 146 12 138Z" fill="#fdf3e7"/>' +
+    '<ellipse cx="100" cy="120" rx="88" ry="7" fill="#fff9f1"/>' +
+    // bottom tier
+    '<rect x="38" y="78" width="124" height="44" rx="9" fill="#f7a8c4"/>' +
+    '<path d="M38 88Q38 78 47 78H153Q162 78 162 88V92Q156 100 150 92Q144 102 137 92Q130 100 123 92Q116 103 109 92Q102 100 95 92Q88 102 81 92Q74 100 67 92Q60 102 53 92Q46 100 38 92Z" fill="#fff5f8"/>' +
+    '<rect x="38" y="112" width="124" height="6" fill="#e98bb0"/>' +
+    // top tier
+    '<rect x="60" y="46" width="80" height="36" rx="8" fill="#fdd7e4"/>' +
+    '<path d="M60 55Q60 46 68 46H132Q140 46 140 55V58Q135 65 130 58Q124 67 118 58Q112 65 106 58Q100 67 94 58Q88 65 82 58Q76 66 70 58Q65 64 60 58Z" fill="#ffffff"/>' +
+    // sprinkles
+    '<g stroke-width="2.4" stroke-linecap="round"><path d="M72 70l4 -2" stroke="#7dd3fc"/><path d="M92 74l3 2" stroke="#fcd34d"/><path d="M114 69l4 1" stroke="#86efac"/><path d="M128 74l-3 2" stroke="#c4b5fd"/>' +
+    '<path d="M52 104l4 -2" stroke="#fcd34d"/><path d="M76 106l3 2" stroke="#7dd3fc"/><path d="M102 103l4 1" stroke="#c4b5fd"/><path d="M128 107l-3 2" stroke="#86efac"/><path d="M148 102l3 -2" stroke="#7dd3fc"/></g>' +
+    '</svg>';
+  for (var k = 0; k < FC.candles; k++) (function (k) {
+    var x = 100 + (k - (FC.candles - 1) / 2) * 20;
+    var cd = document.createElement("button");
+    cd.type = "button"; cd.className = "scandle"; cd.setAttribute("aria-label", "Blow out candle " + (k + 1));
+    cd.style.left = (x / 200 * 100) + "%"; cd.style.bottom = ((172 - 47) / 172 * 100) + "%";
+    cd.innerHTML = "<i></i>";
+    cd.addEventListener("click", function () { if (F.started) blowOut(k); });
+    c.appendChild(cd); F.candles.push(cd);
+  })(k);
+  // layers that catch the firework light, shaped exactly like the cake drawing
+  var svgEl = c.querySelector("svg"), shape = svgEl.outerHTML.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ');
+  var lit = document.createElement("div"), spill = document.createElement("div");
+  lit.className = "cake-light"; spill.className = "cake-spill";
+  var mask = 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(shape) + '")';
+  lit.style.webkitMaskImage = mask; lit.style.maskImage = mask;
+  c.insertBefore(spill, svgEl); c.insertBefore(lit, svgEl.nextSibling);
+  F.light = lit; F.spill = spill;
+  F.cake = c;
+  R.world.appendChild(c);
+  var dim = document.createElement("div"); dim.className = "ride-dim"; dim.id = "rideDim"; R.el.appendChild(dim);
+  var cv = document.createElement("canvas"); cv.id = "fireworks"; R.el.appendChild(cv);
+})();
+function placeCake() {
+  if (!R.W) return;
+  var g = rideGeom(), w = Math.min(g.W * .4, 220, g.H * .3);
+  F.cake.style.width = w + "px";
+  F.cake.style.left = (3 * g.W + g.slotX - w / 2) + "px";          // where the (opened) third box stood, clear of the sign
+  F.cake.style.top = (g.walkTop + 10 - w * 172 / 200) + "px";
+  var cv = $("fireworks"), dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(g.W * dpr); cv.height = Math.round(g.H * dpr);
+  cv.style.width = g.W + "px"; cv.style.height = g.H + "px";
+  cv.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function sceneFinale() {
+  placeCake();
+  R.bus.classList.remove("banner-on");
+  R.bus.classList.add("away");
+  boxes[2].parentNode.classList.add("gone");
+  say("One more thing…", "", null);
+  setTimeout(function () { F.cake.classList.add("show"); ding(); }, 600);
+  setTimeout(function () { say("Make a wish", rideText(RC.wishLine), null); }, 1600);
+  setTimeout(function () {
+    F.started = true;
+    say("Now blow", rideText(RC.blowLine), null);
+    setTimeout(function () {
+      var hint = $("rideHint"), mic = $("blowMic");
+      hint.textContent = RC.blowHint; hint.hidden = false;
+      mic.hidden = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    }, 400);
+  }, 5200);
+}
+function blowOut(k) {
+  var cd = F.candles[k];
+  if (!cd || cd.classList.contains("out")) return;
+  cd.classList.add("out");
+  for (var n = 0; n < 3; n++) (function (n) {
+    setTimeout(function () {
+      var sm = document.createElement("span"); sm.className = "smoke";
+      sm.style.animationDuration = (2.2 + n * .4) + "s";
+      cd.appendChild(sm); setTimeout(function () { sm.remove(); }, 3200);
+    }, n * 220);
+  })(n);
+  F.out++;
+  if (F.out >= F.candles.length) allOut();
+}
+function allOut() {
+  if (F.done) return; F.done = true;
+  stopMic();
+  $("blowMic").hidden = true; $("rideHint").hidden = true;
+  F.cake.classList.add("dark");
+  $("rideDim").classList.add("on");
+  setTimeout(function () {
+    $("rideDim").classList.remove("on"); $("rideDim").classList.add("soft");
+    $("rideSay").classList.add("big");
+    say("", rideText(RC.finalTitle), null);
+    setTimeout(function () { var h = $("rideHint"); h.textContent = CONFIG.finaleWish; h.hidden = false; }, 400);
+    if (songState !== "playing") synthTune();
+    fireworksShow();               // fireworks only start once every candle is out
+  }, 1300);
+}
+
+// Microphone: blowing makes a loud rush of noise; listen for it rising well above the room's normal level
+$("blowMic").addEventListener("click", function () {
+  var btn = this;
+  btn.disabled = true;
+  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
+    btn.hidden = true;
+    $("rideHint").textContent = "Blow now… 🌬️";
+    startMic(stream);
+  }).catch(function () {
+    btn.hidden = true;
+    $("rideHint").textContent = "No problem, just tap each candle 🕯️";
+  });
+});
+function startMic(stream) {
+  try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) { return; }
+  var src = audioCtx.createMediaStreamSource(stream), an = audioCtx.createAnalyser();
+  an.fftSize = 1024; src.connect(an);
+  var buf = new Float32Array(an.fftSize), base = 0, samples = 0, t0 = performance.now(), blowMs = 0, last = t0;
+  try { F.songVol = song.volume; song.volume = Math.min(song.volume, .25); } catch (e) {}   // quieter music so it can't "blow" by itself
+  F.mic = { stream: stream, raf: 0 };
+  (function listen(t) {
+    if (!F.mic) return;
+    an.getFloatTimeDomainData(buf);
+    var sum = 0; for (var q = 0; q < buf.length; q++) sum += buf[q] * buf[q];
+    var rms = Math.sqrt(sum / buf.length), dt = t - last; last = t;
+    if (t - t0 < 700) { base += rms; samples++; }                       // first moment: learn the room's normal level
+    else {
+      var thr = Math.max(.06, (base / Math.max(1, samples)) * 3 + .03);
+      var blowing = rms > thr;
+      F.cake.classList.toggle("wind", blowing);
+      if (blowing) {
+        blowMs += dt * Math.min(3, rms / thr);                           // harder blowing counts faster
+        if (blowMs > 380) { blowMs = 0; var k = F.candles.findIndex(function (c) { return !c.classList.contains("out"); }); if (k >= 0) blowOut(k); }
+      } else blowMs = Math.max(0, blowMs - dt * .5);
+    }
+    F.mic.raf = requestAnimationFrame(listen);
+  })(t0);
+}
+function stopMic() {
+  if (!F.mic) return;
+  cancelAnimationFrame(F.mic.raf);
+  F.mic.stream.getTracks().forEach(function (tr) { tr.stop(); });
+  F.mic = null;
+  F.cake.classList.remove("wind");
+  try { if (F.songVol != null) song.volume = F.songVol; } catch (e) {}
+}
+
+// Fireworks: glowing rockets rise from the rooftops and open into long colourful streaks, golden willows and twinkling glitter
+function fireworksShow() {
+  if (reducedMotion) return;
+  var cv = $("fireworks"), ctx = cv.getContext("2d"), parts = [], rockets = [], flashes = [], glints = [], running = false, last = 0;
+  var PAL = { pink: "#ff6fae", cyan: "#5ee7ff", gold: "#ffcf6b", white: "#fff6e0", lilac: "#c9a7ff", mint: "#8ff0c4", orange: "#ffad5c" };
+  var MIXES = [["pink", "cyan", "gold"], ["gold", "white"], ["cyan", "lilac", "white"], ["pink", "gold"], ["mint", "cyan", "gold"], ["lilac", "pink", "white"]];
+  var TYPES = ["streak", "streak", "willow", "ring", "streak", "glitter", "willow", "streak"];
+  var shot = 0;
+  function launch(type) {
+    var g = rideGeom();
+    var x = g.W * (.14 + Math.random() * .72), ty = g.H * (.12 + Math.random() * .26);
+    rockets.push({ x: x, y: g.walkTop - 10, x0: x, y0: g.walkTop - 10, ty: ty, drift: (Math.random() - .5) * g.W * .05,
+                   t: 0, dur: 1000 + Math.random() * 450, type: type || TYPES[shot++ % TYPES.length] });
+    if (!running) { running = true; last = 0; requestAnimationFrame(frame); }
+  }
+  function part(o) { o.px = o.x; o.py = o.y; parts.push(o); return o; }
+  function burst(x, y, type) {
+    var g = rideGeom(), S = Math.min(g.W, g.H) / 400;                 // scale bursts to the screen
+    var mix = MIXES[(Math.random() * MIXES.length) | 0], n, q, a, v;
+    flashes.push({ x: x, y: y, r: 70 * S + 30, life: 1 });
+    skyGlow(x, y, type === "willow" ? PAL.gold : PAL[mix[0]], type === "willow" ? PAL.orange : PAL[mix[1] || mix[0]]);
+    for (q = 0; q < 5; q++) glints.push({ x: x + (Math.random() - .5) * 160 * S, y: y + (Math.random() - .5) * 140 * S, s: 5 + Math.random() * 6, t: -q * 120 - Math.random() * 300, dur: 700 + Math.random() * 500 });
+    if (type === "willow") {                                           // golden, slow, drooping like a weeping willow
+      n = 70;
+      for (q = 0; q < n; q++) { a = Math.PI * 2 * q / n + Math.random() * .1; v = (2.6 + Math.random() * .8) * S;
+        part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .975, grav: .045 * S, life: 1, decay: .0075, w: 1.6, color: Math.random() < .2 ? PAL.white : PAL.gold, glit: true }); }
+    } else if (type === "ring") {                                      // two rings: an outer colour ring and an inner gold one
+      var c1 = PAL[mix[0]], c2 = PAL[mix[1]];
+      for (q = 0; q < 60; q++) { a = Math.PI * 2 * q / 60; v = 3.6 * S;
+        part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .965, grav: .02 * S, life: 1, decay: .012, w: 2, color: c1 }); }
+      for (q = 0; q < 36; q++) { a = Math.PI * 2 * q / 36 + .08; v = 1.9 * S;
+        part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .965, grav: .02 * S, life: 1, decay: .014, w: 1.8, color: c2 }); }
+    } else if (type === "glitter") {                                   // soft burst that ends in crackling silver glitter
+      for (q = 0; q < 80; q++) { a = Math.random() * Math.PI * 2; v = (1 + Math.random() * 2.6) * S;
+        part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .96, grav: .025 * S, life: 1, decay: .016 + Math.random() * .006, w: 1.7, color: PAL[mix[q % mix.length]], crackle: true }); }
+    } else {                                                           // long multicolour streaks, like a chrysanthemum
+      n = 110;
+      for (q = 0; q < n; q++) { a = Math.PI * 2 * q / n + Math.random() * .05; v = (3.7 + Math.random() * .7) * S;
+        part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .972, grav: .022 * S, life: 1, decay: .0095 + Math.random() * .003, w: 2.1, color: PAL[mix[q % mix.length]], glit: Math.random() < .3 }); }
+    }
+    fwSound("boom", x / g.W, type === "willow" ? .8 : 1);
+  }
+  // the whole sky (and the town under it) glows in the burst's colours, then slowly settles back
+  function skyGlow(x, y, c1, c2) {
+    var g = rideGeom(), el = document.createElement("div");
+    el.className = "sky-glow";
+    el.style.background = "radial-gradient(circle at " + (x / g.W * 100) + "% " + (y / g.H * 100) + "%, " + c1 + "99 0%, " + c2 + "55 28%, " + c2 + "1f 55%, transparent 80%)";
+    cv.parentNode.insertBefore(el, cv);
+    setTimeout(function () { el.remove(); }, 2600);
+    cakeLight(x, y, c1);
+  }
+  // the same burst lights up the cake from its side, brighter when it bursts nearby
+  function cakeLight(x, y, color) {
+    if (!F.light || !F.cake.classList.contains("show")) return;
+    var cr = F.cake.getBoundingClientRect(), fr = cv.getBoundingClientRect();
+    var cx = cr.left - fr.left + cr.width / 2, cy = cr.top - fr.top + cr.height / 2;
+    var dx = cx - x, dy = cy - y, dist = Math.sqrt(dx * dx + dy * dy);
+    var ang = Math.atan2(dx, -dy) * 180 / Math.PI;                  // light travels from the burst towards the cake
+    var strength = Math.max(.45, Math.min(1, 1.25 - dist / (rideGeom().H * 1.1)));
+    F.light.style.background = "linear-gradient(" + ang + "deg, " + color + " 0%, " + color + "aa 35%, " + color + "33 75%, transparent 100%)";
+    F.spill.style.background = "radial-gradient(ellipse at " + (50 - Math.max(-30, Math.min(30, dx / 6))) + "% 50%, " + color + "aa 0%, " + color + "33 45%, transparent 72%)";
+    [F.light, F.spill].forEach(function (el) {
+      el.style.setProperty("--la", strength.toFixed(2));
+      el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    });
+  }
+  function star4(x, y, s, al) {                                        // a four-pointed twinkle ✦
+    ctx.globalAlpha = al; ctx.fillStyle = "#fffbe8";
+    ctx.beginPath(); ctx.moveTo(x, y - s); ctx.quadraticCurveTo(x, y, x + s, y); ctx.quadraticCurveTo(x, y, x, y + s);
+    ctx.quadraticCurveTo(x, y, x - s, y); ctx.quadraticCurveTo(x, y, x, y - s); ctx.fill();
+  }
+  function frame(t) {
+    var g = rideGeom(), dt = last ? Math.min(50, t - last) : 16.7, k = dt / 16.7; last = t;
+    // fade what was drawn before, so everything leaves a glowing trail
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = 1; ctx.fillStyle = "rgba(0,0,0," + Math.min(.5, .16 * k) + ")"; ctx.fillRect(0, 0, g.W, g.H);
+    ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
+    rockets = rockets.filter(function (r) {
+      r.t += dt; var e = Math.min(1, r.t / r.dur), ee = 1 - Math.pow(1 - e, 2.2);
+      var nx = r.x0 + r.drift * ee, ny = r.y0 + (r.ty - r.y0) * ee;
+      ctx.globalAlpha = 1; ctx.strokeStyle = "#ffe7a8"; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(nx, ny); ctx.stroke();
+      r.x = nx; r.y = ny;
+      ctx.fillStyle = "#fffaf0"; ctx.beginPath(); ctx.arc(nx, ny, 2.4, 0, 7); ctx.fill();
+      if (Math.random() < .8 * k) part({ x: nx + (Math.random() - .5) * 3, y: ny + 4, vx: (Math.random() - .5) * .6, vy: .4 + Math.random() * .8, drag: .95, grav: .03, life: .8, decay: .03, w: 1.2, color: PAL.gold });
+      if (e >= 1) { burst(nx, ny, r.type); return false; }
+      return true;
+    });
+    flashes = flashes.filter(function (f) {
+      var gr = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+      gr.addColorStop(0, "rgba(255,250,230," + (.55 * f.life) + ")"); gr.addColorStop(1, "rgba(255,240,200,0)");
+      ctx.globalAlpha = 1; ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 7); ctx.fill();
+      f.life -= .09 * k; return f.life > 0;
+    });
+    var born = [];
+    parts = parts.filter(function (p) {
+      p.px = p.x; p.py = p.y;
+      var d = Math.pow(p.drag, k);
+      p.vx *= d; p.vy = p.vy * d + p.grav * k;
+      p.x += p.vx * k; p.y += p.vy * k; p.life -= p.decay * k;
+      if (p.life <= 0) {
+        if (p.crackle) for (var c = 0; c < 3; c++) born.push({ x: p.x, y: p.y, px: p.x, py: p.y, vx: (Math.random() - .5) * 2.4, vy: (Math.random() - .5) * 2.4, drag: .9, grav: .01, life: .6, decay: .05, w: 1.3, color: "#ffffff", spark: true });
+        return false;
+      }
+      var al = Math.min(1, p.life * 1.4);
+      if (p.glit && p.life < .5) al *= Math.random() < .5 ? 1 : .25;   // fading ends twinkle
+      if (p.spark) al *= Math.random() < .6 ? 1 : 0;
+      ctx.globalAlpha = al; ctx.strokeStyle = p.color; ctx.lineWidth = p.w;
+      ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
+      return true;
+    });
+    if (born.length) parts = parts.concat(born);
+    glints = glints.filter(function (s) {
+      s.t += dt; if (s.t < 0) return true;
+      var e = s.t / s.dur; if (e >= 1) return false;
+      star4(s.x, s.y, s.s * Math.sin(e * Math.PI), Math.sin(e * Math.PI));
+      return true;
+    });
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    if (parts.length || rockets.length || flashes.length || glints.length) requestAnimationFrame(frame);
+    else { running = false; ctx.clearRect(0, 0, g.W, g.H); }
+  }
+  // the show: a happy opening volley, gentle shots now and then, and a small grand finale at the end
+  [0, 700, 1300, 1350, 2300, 3000, 3700, 3750, 4800].forEach(function (t) { setTimeout(function () { launch(); }, t); });
+  var n = 0, iv = setInterval(function () {
+    launch(); if (Math.random() < .35) setTimeout(function () { launch(); }, 280);
+    if (++n >= 12) {
+      clearInterval(iv);
+      setTimeout(function () { ["streak", "willow", "ring", "streak", "glitter", "willow"].forEach(function (ty, i) { setTimeout(function () { launch(ty); }, i * 260); }); }, 2600);
+    }
+  }, 2500);
+}
+// Firework sounds: real recorded sky-cracker bursts (sounds/firework-1..3.mp3), picked at random, slightly varied
+var FW_VOL = .5;                          // 0..1, overall loudness of the fireworks
+function fwSound(kind, xFrac, size) {
+  var k = "fw" + (1 + ((Math.random() * 3) | 0));
+  setTimeout(function () { sfxPlay(k, FW_VOL * (size || 1) * (.8 + Math.random() * .2), .94 + Math.random() * .12); }, 90);
+}
+
+say(RC.start, rideText(RC.startLine), "Start the ride");
+led(RC.busNumber + "  " + RC.start);
 
 function flashHint(i, text) {
   var h = hints[i];
@@ -1609,6 +2843,7 @@ function setupHold(box, i) {
   }
   function start(e) {
     if (opened[i] || busy[i]) return;
+    if (box.closest(".ride") && !box.parentNode.classList.contains("landed")) return;   // still arriving
     if (e && e.preventDefault) e.preventDefault();
     unlockAudio();
     if (i === 2 && !(opened[0] && opened[1])) {
@@ -1714,7 +2949,7 @@ function unwrap(i, holdDimEl) {
 
   var copy = box.cloneNode(true);
   copy.removeAttribute("style"); copy.removeAttribute("aria-label"); copy.tabIndex = -1;
-  copy.classList.remove("holding", "charged", "nudge", "wiggle");
+  copy.classList.remove("holding", "charged", "nudge", "wiggle", "with-balloons", "deliver-hop", "deliver-balloon", "deliver-toss", "deliver-star");
   // Keep the lid as high as the hold left it, so the copy carries on from the same moment
   copy.style.setProperty("--lp", box.style.getPropertyValue("--lp") || "0");
   holder.style.left = r.left + "px"; holder.style.top = r.top + "px";
@@ -1735,6 +2970,7 @@ function unwrap(i, holdDimEl) {
   // The lid bursts off straight away while the open box glides to the centre
   setTimeout(function () {
     copy.classList.add("burst");
+    chime();
     sparkles(copy, 30);
   }, 80);
   setTimeout(function () {
@@ -1868,7 +3104,7 @@ function showGift(i) {
   var g = CONFIG.gifts[i];
   if (g.kind === "photos") { openReel(); return; }
   if (g.kind === "chat") { cardOrigin = null; openChat(i); return; }
-  if (g.kind === "poem") { cardOrigin = null; openPoem(i, true); return; }
+  if (g.kind === "poem") { cardOrigin = null; openPoem(i, false); return; }
   var html = '<p class="eyebrow">' + esc(g.eyebrow) + '</p><h3 id="revealTitle">' + esc(g.title) + '</h3>';
   if (g.kind === "coupon") {
     html += '<div class="coupon"><p class="big">' + esc(g.big) + '</p><p class="terms">' + esc(g.terms) + '</p><p class="code">' + esc(g.code) + '</p></div>';
@@ -2236,13 +3472,15 @@ function avatarEl(name, photo, color) {
   }
   return d;
 }
+// A new chat arriving: a soft, low tick
 function chatPop() {
   try {
     if (!audioCtx || audioCtx.state !== "running") return;
-    var t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = "sine"; o.frequency.setValueAtTime(660, t); o.frequency.exponentialRampToValueAtTime(990, t + .08);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.06, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + .18);
-    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + .2);
+    var t = audioCtx.currentTime, o = audioCtx.createOscillator(), f = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(380, t + .06);
+    f.type = "lowpass"; f.frequency.value = 1400;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + .09);
+    o.connect(f); f.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + .1);
   } catch (e) {}
 }
 // Box 2 works like a phone's chat list. Friends' chats arrive one by one, newest on top,
@@ -2518,7 +3756,49 @@ $("poem").addEventListener("click", function (e) {
 })();
 
 /* ---------- Start ---------- */
-if (unlockAt && Date.now() < unlockAt.getTime()) runCountdown(); else showLock();
+/* ---------- Test shortcuts (for you, while building) ----------
+   index.html?test=ticket  starts as the bus leaves Four Roads: conductor, ticket, heart → moon, falling star, box 3
+   index.html?test=box3    starts as the bus arrives at Old Bus Stand (moon already up): falling star, box 3, finale */
+var TEST = params.get("test");
+function moonInstant() {                     // put the moon straight into the sky, already formed
+  var el = MOON.el, end = moonSpot(), D = end.d, rr = R.el.getBoundingClientRect();
+  el.style.width = D + "px"; el.style.height = D + "px"; el.style.margin = (-D / 2) + "px 0 0 " + (-D / 2) + "px";
+  el.style.transform = "none"; el.style.left = (end.x / rr.width * 100) + "%"; el.style.top = (end.y / rr.height * 100) + "%";
+  el.querySelector(".sm-shape").setAttribute("d", MOON.shapeAt(1)); el.querySelector(".sm-shape").setAttribute("fill", "rgb(243,236,212)");
+  el.querySelector(".sm-detail").setAttribute("opacity", "1");
+  el.hidden = false; el.classList.add("formed"); MOON.formed = true;
+}
+function runTest() {
+  $("rideHero").hidden = true; R.started = true;
+  [0, 1].forEach(function (i) {                 // boxes 1 and 2 count as already opened
+    var slot = boxes[i].parentNode;
+    slot.classList.add("delivered", "landed", "vanish");
+    boxes[i].classList.add("opened"); opened[i] = true; openedCount++;
+  });
+  if (TEST === "box3") {
+    quizPassed = true;
+    R.stage = 3; R.cam = 3; R.busU = 3.05; applyPos(); rideSky(); moonInstant();
+    setTimeout(rideArrive, 300);
+  } else {
+    R.stage = 2; R.cam = 2; R.busU = 2.05; applyPos(); rideSky();
+    boxes[1].parentNode.classList.remove("vanish");   // box 2 is still there, so you can watch it fade
+    setTimeout(function () { rideDrive(3); }, 300);
+  }
+}
+if (TEST === "ticket" || TEST === "box3") {
+  unlockAt = null;
+  openParty();
+  setTimeout(function () {
+    say("Test", TEST === "box3" ? "Old Bus Stand: falling star and box 3" : "From Four Roads: conductor, ticket and moon", "Start test");
+  }, 60);
+  $("rideGo").addEventListener("click", function (e) {
+    if (R.started) return;
+    e.stopImmediatePropagation();
+    unlockAudio();
+    $("rideGo").hidden = true;
+    runTest();
+  }, true);
+} else if (unlockAt && Date.now() < unlockAt.getTime()) runCountdown(); else showLock();
 </script>
 </body>
 </html>

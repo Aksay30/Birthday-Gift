@@ -1,0 +1,30 @@
+Sound credits
+=============
+
+bus-horn.mp3, bus-horn-double.mp3
+  Cut from "City Bus MAN SG 220 – horn" (WWS CityBusMANSG220horn.ogg)
+  by Work With Sounds / Technical Museum of Slovenia
+  Licence: CC BY 4.0  https://creativecommons.org/licenses/by/4.0/
+  Source: https://commons.wikimedia.org/wiki/File:WWS_CityBusMANSG220horn.ogg
+  Changes: trimmed to short honks, faded, volume-normalised, converted to mp3.
+
+box-drop.mp3
+  "Dull thud" by gregoryweir
+  Licence: Public domain
+  Source: https://commons.wikimedia.org/wiki/File:Dull_thud.ogg
+  Changes: trimmed, volume-normalised, converted to mp3.
+
+bus-engine.mp3
+  Cut from "City Bus MAN SG 220 – engine" (WWS CityBusMANSG220engine.ogg)
+  by Work With Sounds / Technical Museum of Slovenia
+  Licence: CC BY 4.0  https://creativecommons.org/licenses/by/4.0/
+  Source: https://commons.wikimedia.org/wiki/File:WWS_CityBusMANSG220engine.ogg
+  Changes: 10-second steady section made into a seamless loop, softened, converted to mp3.
+
+firework-1.mp3, firework-2.mp3, firework-3.mp3
+  Cut from "Fireworks in distance 1.ogg", "Fireworks in distance 3.ogg" and "Fireworks piece.ogg"
+  Licence: Public domain
+  Sources: https://commons.wikimedia.org/wiki/File:Fireworks_in_distance_1.ogg
+           https://commons.wikimedia.org/wiki/File:Fireworks_in_distance_3.ogg
+           https://commons.wikimedia.org/wiki/File:Fireworks_piece.ogg
+  Changes: single bursts trimmed, faded, volume-normalised, converted to mp3.
