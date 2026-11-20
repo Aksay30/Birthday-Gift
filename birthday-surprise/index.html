@@ -689,7 +689,7 @@ button { font: inherit; cursor: pointer; }
 .pola {
   --x: 0px; --y: 120vh; --r: 0deg; --s: .7;
   position: absolute; left: 50%; top: 52%; margin: 0;
-  width: min(76vw, 340px, calc((100vh - 230px) * .72));
+  width: var(--pw, min(76vw, 340px, calc((100vh - 230px) * .72)));   /* --pw is set per photo from its real shape */
   transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--s));
   transition: transform 1.15s cubic-bezier(.2,.85,.25,1), opacity .7s ease, filter .7s ease;
   opacity: 0; will-change: transform;
@@ -701,14 +701,13 @@ button { font: inherit; cursor: pointer; }
   background: var(--polaroid); padding: 10px 10px 0; border-radius: 3px;
   box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.08);
 }
-.pola-img { aspect-ratio: 4 / 5; overflow: hidden; background: #e8e1d6; }
-.pola-img img { display: block; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
-.pola.center .pola-img img { animation: kenburns var(--dur, 6s) ease-out forwards; }
-@keyframes kenburns {
-  from { transform: scale(1.04) translate(0, 0); }
-  to { transform: scale(1.2) translate(var(--kx, 2%), var(--ky, -2%)); }
-}
-#reel.paused .pola-img img { animation-play-state: paused; }
+/* the photo area takes each photo's own shape (tall or wide), so the whole picture shows, never cropped */
+.pola-img { aspect-ratio: var(--ar, .8); overflow: hidden; background: #e8e1d6; }
+.pola-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* while a photo is on screen the whole card drifts gently closer (the photo itself is never zoomed or cut) */
+.pola.center .pola-inner { animation: cardZoom var(--dur, 6s) ease-out forwards; }
+@keyframes cardZoom { from { transform: scale(1); } to { transform: scale(1.05); } }
+#reel.paused .pola-inner { animation-play-state: paused; }
 .pola figcaption, .flyer figcaption {
   font-family: var(--hand); color: var(--ink); font-size: clamp(20px, 5.4vw, 26px); line-height: 1.1;
   text-align: center; padding: 10px 6px 14px; min-height: 52px;
@@ -811,7 +810,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .ride-dim.soft { opacity: .34; transition-duration: 2.2s; }
 #fireworks { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
 .sky-glow { position: absolute; inset: 0; z-index: 5; pointer-events: none; mix-blend-mode: screen; opacity: 0; animation: skyGlow 2.4s ease-out forwards; }
-@keyframes skyGlow { 0% { opacity: 0; } 6% { opacity: .6; } 30% { opacity: .35; } 100% { opacity: 0; } }
+@keyframes skyGlow { 0% { opacity: 0; } 6% { opacity: .32; } 30% { opacity: .18; } 100% { opacity: 0; } }
 /* The white heart she picked: floats in the sky above the bus, then becomes the moon over Old Bus Stand */
 .sky-moon { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
 .sky-moon[hidden] { display: none; }
@@ -842,6 +841,35 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 @keyframes cWave { from { transform: rotate(-14deg); } to { transform: rotate(22deg); } }
 .conductor .c-eye { transform-box: fill-box; transform-origin: center; animation: cBlink 3.8s infinite; }
 @keyframes cBlink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+/* The little boy with specs (that's you): a jointed cartoon (olive polo, black specs, fluffy side-parted hair).
+   JS drives his joints every frame: he steps down out of the bus, walks, tosses gift 1, waits, says goodbye and climbs back in */
+.me { position: absolute; left: 0; top: 0; z-index: 3; opacity: 0; transition: opacity .35s ease; pointer-events: none; will-change: transform; }
+.me.show { opacity: 1; }
+.me.front { z-index: 5; }
+.me svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.me .b-glint { opacity: 0; }
+.me.glint .b-glint { animation: meGlint .8s ease-out; }
+@keyframes meGlint { 25% { opacity: 1; } 100% { opacity: 0; } }
+/* Gift 1 growing: magic from his fingertip, glow rings on the pavement, light rays, and a springy bow */
+.magic-dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; pointer-events: none; z-index: 6;
+  background: #fff6d6; box-shadow: 0 0 6px 2px rgba(255,214,120,.9), 0 0 14px 5px rgba(255,190,90,.45); }
+.grow-ring { position: absolute; pointer-events: none; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,222,140,.9);
+  box-shadow: 0 0 12px rgba(255,200,110,.7), inset 0 0 10px rgba(255,220,150,.5); transform: translate(-50%,-50%) scale(.2); animation: growRing .95s ease-out forwards; }
+@keyframes growRing { 0% { opacity: .95; transform: translate(-50%,-50%) scale(.2); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1); } }
+.grow-rays { position: absolute; pointer-events: none; z-index: 2; border-radius: 50%; opacity: 0;
+  background: repeating-conic-gradient(from 0deg, rgba(255,228,150,.6) 0deg 6deg, rgba(255,228,150,0) 6deg 20deg);
+  -webkit-mask: radial-gradient(closest-side, #000 20%, transparent 100%); mask: radial-gradient(closest-side, #000 20%, transparent 100%);
+  animation: growRays 1.8s ease-out forwards; }
+@keyframes growRays { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.3) rotate(0deg); } 22% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.1) rotate(28deg); } }
+.ride .gift.bow-boing .bow { transform-origin: 50% 100%; animation: bowBoing .95s ease-out; }
+@keyframes bowBoing { 0% { transform: translateX(-50%); } 22% { transform: translateX(-50%) scale(.8,1.32); } 46% { transform: translateX(-50%) scale(1.2,.82); }
+  68% { transform: translateX(-50%) scale(.94,1.1); } 84% { transform: translateX(-50%) scale(1.03,.97); } 100% { transform: translateX(-50%); } }
+/* the bus sinks a little on its springs as he steps on or off */
+.bus.dip svg { animation: busDip .6s ease-out; }
+@keyframes busDip { 22% { transform: translateY(1.3%); } 55% { transform: translateY(-.35%); } 100% { transform: none; } }
+/* the gift settling after its roll */
+.ride .gift.plop { animation: plop .5s ease-out; transform-origin: 50% 100%; }
+@keyframes plop { 0% { transform: scale(1.08, .86); } 45% { transform: scale(.96, 1.05); } 75% { transform: scale(1.02, .98); } 100% { transform: none; } }
 .comic { position: absolute; z-index: 8; pointer-events: none; width: max-content; max-width: min(250px, 72vw); text-align: center;
   --bb: #fff; background: var(--bb); color: #1b1424; border: 3px solid #1b1424; border-radius: 22px; padding: 8px 14px 6px;
   font: 400 19px/1.05 "Bangers", "Bricolage Grotesque", sans-serif; letter-spacing: .05em; box-shadow: 4px 4px 0 #1b1424;
@@ -888,6 +916,67 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   background: radial-gradient(ellipse at 50% 45%, rgba(10,6,24,.55) 0%, rgba(10,6,24,.3) 45%, rgba(10,6,24,0) 72%); pointer-events: none; }
 .ride-say.big #rideLine, .ride-say.big .ride-hint { text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 18px rgba(10,6,24,.7); }
 .ride-say.big #rideLine { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8.5vw, 60px); line-height: 1; letter-spacing: -.02em; max-width: 14ch; }
+/* the closing line: gold handwriting that appears word by word, with a soft glow */
+.far-line { margin: 14px 0 0; font-family: var(--hand); font-weight: 700; font-size: clamp(24px, 6.2vw, 34px); line-height: 1.15; color: #ffd98a; max-width: 22ch; text-wrap: balance;
+  text-shadow: 0 2px 4px rgba(10,6,24,.85), 0 0 22px rgba(255,200,110,.45); }
+.far-line[hidden] { display: none; }
+/* ---------- Tell the moon: once all is quiet, a little bubble pops out of the moon; she writes, her words float up into it ---------- */
+.moon-bubble { position: absolute; z-index: 8; left: 0; top: 0; max-width: min(240px, calc(100% - 32px)); padding: 10px 16px 11px; border: 0; border-radius: 22px;
+  background: rgba(250,251,255,.95); color: #2b2a4a; cursor: pointer; text-align: center; font-family: var(--hand); font-weight: 700;
+  font-size: clamp(20px, 5.2vw, 25px); line-height: 1.1; box-shadow: 0 0 26px rgba(215,228,255,.55), 0 10px 26px rgba(0,0,0,.35);
+  transform-origin: var(--ox, 100%) 0; opacity: 0; transform: scale(.15); pointer-events: none; -webkit-tap-highlight-color: transparent;
+  transition: opacity .35s ease, transform .6s cubic-bezier(.3,1.6,.5,1); }
+.moon-bubble.on { opacity: 1; transform: none; pointer-events: auto; }
+.moon-bubble.on.float { animation: bubbleFloat 3.4s ease-in-out infinite; }
+@keyframes bubbleFloat { 50% { transform: translateY(-4px); } }
+.moon-bubble.quiet { cursor: default; pointer-events: none; }
+.moon-bubble .mb-press { display: inline-block; margin-top: 8px; padding: 6px 16px 7px; border-radius: 999px; background: #2b3170; color: #fff;
+  font: 700 14px var(--body); letter-spacing: .02em; box-shadow: 0 0 0 0 rgba(120,140,255,.5); animation: pressPulse 2s ease-in-out infinite; }
+@keyframes pressPulse { 50% { box-shadow: 0 0 0 7px rgba(120,140,255,0); transform: scale(1.04); } }
+.moon-bubble.quiet .mb-press { display: none; }
+.moon-bubble span { display: block; transition: opacity .4s ease; }
+.moon-bubble.swap span { opacity: 0; }
+.moon-bubble:focus-visible { outline: 2px solid #dfe8ff; outline-offset: 3px; }
+.moon-dot { position: absolute; z-index: 8; left: 0; top: 0; border-radius: 50%; background: rgba(250,251,255,.92); box-shadow: 0 0 10px rgba(215,228,255,.6);
+  pointer-events: none; opacity: 0; transform: scale(0); transition: opacity .3s ease, transform .4s cubic-bezier(.3,1.6,.5,1); }
+.moon-dot.on { opacity: 1; transform: none; }
+/* the moon glows a little brighter while it waits, and brightens as her words reach it */
+.sky-moon.listen { pointer-events: auto; cursor: pointer; }
+.sky-moon.listen .sm-halo { animation: moonListen 3.4s ease-in-out infinite; }
+@keyframes moonListen { 50% { opacity: 1; transform: scale(1.14); } }
+.sky-moon.gulp .sm-halo { animation: moonGulp 1.1s ease-out; }
+@keyframes moonGulp { 30% { opacity: 1; transform: scale(1.4); } }
+.sky-moon.gulp svg { animation: moonGlow 1.1s ease-out; }
+@keyframes moonGlow { 30% { filter: brightness(1.3) drop-shadow(0 0 20px rgba(230,238,255,.95)); } }
+.moon-card { position: absolute; z-index: 9; left: 50%; top: 52%; width: min(calc(100% - 32px), 420px); max-height: calc(100% - 24px); overflow: auto;
+  padding: 18px 20px 14px; border-radius: 18px; border: 1px solid rgba(220,230,255,.35);
+  background: linear-gradient(160deg, rgba(44,50,96,.74), rgba(18,20,48,.8)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 0 44px rgba(170,190,255,.25), 0 24px 60px rgba(0,0,0,.5); color: #eef2ff;
+  opacity: 0; transform: translate(-50%, -46%) scale(.96); filter: blur(4px); transition: opacity .7s ease, transform .8s cubic-bezier(.3,1.2,.5,1), filter .7s ease; }
+.moon-card.on { opacity: 1; transform: translate(-50%, -50%); filter: none; }
+.moon-card.grow { transition: transform .6s cubic-bezier(.3,1.15,.5,1), opacity .35s ease, filter .4s ease; }
+.moon-card.away { opacity: 0; transition: opacity .25s ease; }
+.moon-card[hidden] { display: none; }
+.moon-card .to { margin: 0 0 6px; font-family: var(--hand); font-size: 26px; color: #cfd9ff; }
+.moon-card textarea, .mw-fly { font-family: var(--hand); font-size: 25px; line-height: 1.3; color: #f2f5ff; text-shadow: 0 0 10px rgba(200,215,255,.45); }
+.moon-card textarea { display: block; width: 100%; min-height: 150px; resize: none; border: 0; outline: 0; padding: 0; margin: 0; background: transparent; }
+.moon-card textarea::placeholder { color: rgba(220,228,255,.45); text-shadow: none; }
+.moon-card .sign { margin: 6px 0 0; text-align: right; font-family: var(--hand); font-size: 24px; color: #cfd9ff; }
+.moon-card .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.moon-card .later { background: none; border: 0; padding: 8px 4px; font: 500 15px var(--body); color: rgba(220,228,255,.7); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.moon-card .send { padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(230,238,255,.6); background: linear-gradient(#f6f8ff, #d2dcf6); color: #1d2147;
+  font: 700 16px var(--body); cursor: pointer; box-shadow: 0 0 18px rgba(200,215,255,.45); }
+.moon-card .send[disabled] { opacity: .4; cursor: default; }
+.moon-card .status { min-height: 1.2em; margin: 8px 0 0; font: 500 14px var(--body); color: #ffb3a7; text-align: center; }
+.moon-card .bot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+/* her words, lifted off the card: they shimmer, then float up into the moon one by one */
+.mw-layer { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.mw-fly { position: absolute; white-space: pre; animation: mwShimmer 1.2s ease-in-out infinite alternate; }
+@keyframes mwShimmer { to { text-shadow: 0 0 14px rgba(230,238,255,.95), 0 0 3px #fff; } }
+
+.far-line .fl { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(6px);
+  animation: farIn .9s ease forwards; animation-delay: var(--d, 0s); }
+@keyframes farIn { to { opacity: 1; filter: blur(0); transform: none; } }
 .ride-say.big .ride-hint { font-family: var(--hand); font-size: clamp(22px, 5.6vw, 28px); line-height: 1.15; color: #fff; max-width: 24ch; margin-top: 10px; }
 .ride .gift-slot.gone { opacity: 0; transition: opacity .8s ease; pointer-events: none; }
 /* an opened gift quietly fades into golden sparkles as the bus pulls away */
@@ -1113,6 +1202,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
         <p id="rideLine"></p>
         <button class="btn-gold" type="button" id="rideGo">Start the ride</button>
         <p class="ride-hint" id="rideHint" hidden></p>
+        <p class="far-line" id="farLine" hidden></p>
         <button class="btn-gold" type="button" id="blowMic" hidden>Blow with the mic 🎤</button>
       </div>
     </div>
@@ -1199,20 +1289,21 @@ var CONFIG = {
   hint: "Think back to September 2023. The day it all started.",
 
   // Background song. Put the mp3 next to index.html. It starts when box 1 is opened and keeps playing.
-  song: "song.mp3",
+  song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
-  // Gift one: the photo story. Put photos in a "photos" folder. Any number works; 6 to 12 feels best.
-  photoSeconds: 4.5,             // how long each photo stays on screen
+  // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
+  // .jpg, .jpeg, .png or .webp all work (capital letters too): the page tries each one.
+  photoSeconds: 4.5,             // used only if the song can't play; with the song, photos are timed to end with it
   photos: [
-    { src: "photos/1.jpg", caption: "The very first one" },
-    { src: "photos/2.jpg", caption: "That smile, though" },
-    { src: "photos/3.jpg", caption: "Caught you mid-laugh" },
-    { src: "photos/4.jpg", caption: "The trip we still talk about" },
-    { src: "photos/5.jpg", caption: "Main character energy" },
-    { src: "photos/6.jpg", caption: "Proof you can't pose" },
-    { src: "photos/7.jpg", caption: "Our usual spot" },
-    { src: "photos/8.jpg", caption: "Still my favourite" },
+    { src: "photos/photo1.jpg", caption: "The very first one" },
+    { src: "photos/photo2.jpg", caption: "That smile, though" },
+    { src: "photos/photo3.jpg", caption: "Caught you mid-laugh" },
+    { src: "photos/photo4.jpg", caption: "The trip we still talk about" },
+    { src: "photos/photo5.jpg", caption: "Main character energy" },
+    { src: "photos/photo6.jpg", caption: "Proof you can't pose" },
+    { src: "photos/photo7.jpg", caption: "Our usual spot" },
+    { src: "photos/photo8.jpg", caption: "Still my favourite" },
   ],
 
   // The birthday ride: Bus 28 starts here and drops one gift at each stop.
@@ -1236,8 +1327,9 @@ var CONFIG = {
     // The finale at Old Bus Stand: a cake appears, make a wish, then blow (into the mic, or tap)
     wishLine: "Close your eyes and make a wish…",
     blowLine: "Now blow out the candles! 🎂",
-    blowHint: "Blow into your phone, or tap each candle",
+    blowHint: "Blow into your phone, or tap the cake",
     finalTitle: "Happy Birthday, {name}!",
+    farLine: "Even from far away, I'm celebrating you today.",   // writes itself in while the song's last lines play
   },
 
   gifts: [
@@ -1257,7 +1349,7 @@ var CONFIG = {
       closing: "Happy birthday from all of us 🤍\nOne more box left… but you'll have to answer a question first 😉",
     },
     {
-      tag: "Answer to unlock",
+      tag: "",
       kind: "poem",
       eyebrow: "Gift three · Written for you",
       // Your kavidhai. Each line appears one by one. An empty line starts a new verse.
@@ -1292,6 +1384,16 @@ var CONFIG = {
   ],
 
   finaleWish: "Happy birthday. Here's to many more years of us.",
+  // At the very end she can tell the moon something: her words float up into the moon and arrive in your email (via web3forms.com)
+  reply: {
+    key: "c7f10b4c-3f17-4293-9713-3b48dc4a70d3",   // your Web3Forms access key (it can only send to your email)
+    invite: "Tell the moon something… it'll reach me",   // in a little bubble from the moon, once the song has ended
+    press: "Press me",
+    placeholder: "Write anything you'd like to tell me…",
+    button: "Send",
+    sent: "It reached him.",                          // the moon's answer after her words float into it
+    goodnight: "Happy birthday. Good night."
+  },
 };
 /* ====================================================================== */
 
@@ -1420,17 +1522,45 @@ var synthTune = (function () {
 var song = new Audio();
 var songState = "idle"; // idle | playing | paused | failed
 if (CONFIG.song) {
-  song.src = CONFIG.song; song.loop = true; song.preload = "auto";
+  song.src = CONFIG.song; song.loop = false; song.preload = "auto";
+  song.addEventListener("ended", function () {     // plays once; afterwards she can just look at the wall in quiet
+    songState = "paused"; try { song.currentTime = CONFIG.songStart || 0; } catch (e) {} setSoundLabel();
+  });
   song.addEventListener("loadedmetadata", function () { if (CONFIG.songStart) song.currentTime = CONFIG.songStart; });
 } else songState = "failed";
 
+// Fade the song out (when the photos are closed), then stop it and rewind for next time
+var songFadeId = 0;
+function fadeSongOut(ms) {
+  clearInterval(songFadeId);
+  if (songState !== "playing") { try { song.pause(); song.currentTime = CONFIG.songStart || 0; } catch (e) {} return; }
+  var v0 = song.volume, steps = Math.max(1, Math.round((ms || 2000) / 80)), n = 0;
+  songFadeId = setInterval(function () {
+    n++;
+    try { song.volume = Math.max(0, v0 * (1 - n / steps)); } catch (e) {}
+    if (n >= steps) {
+      clearInterval(songFadeId);
+      try { song.pause(); song.currentTime = CONFIG.songStart || 0; } catch (e) {}
+      songState = "paused"; setSoundLabel();
+    }
+  }, 80);
+}
+function restartSong() {                 // "Watch again": the song starts over with the photos
+  clearInterval(songFadeId);
+  try { song.pause(); song.currentTime = CONFIG.songStart || 0; } catch (e) {}
+  if (songState === "playing") songState = "paused";
+  startSong();
+}
+var SONG_VOL = .75;                      // song loudness with the photos (0..1)
+var SONG_TAIL_VOL = .38;                 // song loudness after the candles: soft, under the birthday message
 function fadeSongIn() {
   var v = 0;
   try { song.volume = 0; } catch (e) {}
-  var id = setInterval(function () {
-    v = Math.min(.9, v + .05);
+  clearInterval(songFadeId);
+  songFadeId = setInterval(function () {
+    v = Math.min(SONG_VOL, v + .025);
     try { song.volume = v; } catch (e) {}
-    if (v >= .9) clearInterval(id);
+    if (v >= SONG_VOL) clearInterval(songFadeId);
   }, 120);
 }
 // Phones only allow audio that starts from a touch. unlockAudio() runs when the finger goes down,
@@ -1555,7 +1685,7 @@ CONFIG.gifts.forEach(function (g, i) {
   var slot = document.createElement("div");
   slot.className = "gift-slot";
   slot.innerHTML =
-    '<button class="gift gift-' + (i + 1) + '" type="button" aria-label="Gift ' + (i + 1) + ': ' + esc(g.tag) + '. Press and hold to open.">' +
+    '<button class="gift gift-' + (i + 1) + '" type="button" aria-label="Gift ' + (i + 1) + (g.tag ? ': ' + esc(g.tag) : '') + '. Press and hold to open.">' +
     '<span class="glow"></span><span class="spill"></span>' +
     '<span class="lid"><span class="rib"></span><span class="bow"></span></span>' +
     '<span class="body"><span class="rib"></span></span>' +
@@ -1688,7 +1818,7 @@ function rideLayout() {
   boxes.forEach(function (box, i) {
     var slot = box.parentNode;
     slot.style.setProperty("--sw", g.slotW + "px");
-    slot.style.left = ((i + 1) * W + g.slotX - g.slotW / 2) + "px";
+    slot.style.left = (slotCenter(i, g) - g.slotW / 2) + "px";
     slot.style.top = (g.walkTop + 4 - g.boxH) + "px";
   });
 
@@ -1697,6 +1827,7 @@ function rideLayout() {
   R.bus.style.setProperty("--ledf", Math.max(8, g.busW * .046).toFixed(1) + "px");
   R.bus.style.top = (g.roadTop + (H - g.roadTop) * .62 - g.busH) + "px";
   placeBus();
+  if (typeof ME !== "undefined" && ME && ME.out && ME.idle) { var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the boy keeps his spot
   void R.el.offsetWidth;
   R.el.classList.remove("no-anim");
 }
@@ -1904,7 +2035,7 @@ function rideDrive(to) {
     if (!ticket) tween(from, from + 1.03, legTime("away"), afterAway, EASE.away);
     else {
       // on the way out of Four Roads: roll up to the conductor, stop for the ticket check, then drive on
-      tween(from, from + COND.stopU, reducedMotion ? 300 : 3000, function () {
+      tween(from, from + COND.stopU, reducedMotion ? 300 : Math.round(3000 * RIDE_PACE), function () {
         R.bus.classList.remove("moving", "accel");
         R.bus.classList.remove("brake"); void R.bus.offsetWidth; R.bus.classList.add("brake", "idle");
         engineSet(0);
@@ -2062,20 +2193,620 @@ function conductorPlace(stage) {
   COND.el.style.left = (stage * g.W + x) + "px";
   COND.el.style.top = (g.walkTop + g.H * .02 - h) + "px";
 }
-function comic(text, big) {
+function comic(text, big, who) {
   var b = COND.bubble;
+  who = who || COND.el;
   if (!text) { b.classList.remove("on"); b.classList.add("off"); return; }
   b.classList.remove("on", "off", "big"); void b.offsetWidth;
   b.textContent = text; if (big) b.classList.add("big");
   // sit just above the conductor's head, kept fully on screen and clear of the ticket beside him
-  var rr = R.el.getBoundingClientRect(), cr = COND.el.getBoundingClientRect(), minL = 10;
-  var tk = COND.ticket, side = tk.classList.contains("out") && tk.getAttribute("data-side") === "left";
+  var rr = R.el.getBoundingClientRect(), cr = who.getBoundingClientRect(), minL = 10;
+  var tk = COND.ticket, side = who === COND.el && tk.classList.contains("out") && tk.getAttribute("data-side") === "left";
   if (side) { minL = +tk.getAttribute("data-right") + 10; b.style.maxWidth = Math.max(120, rr.width - minL - 10) + "px"; }
   else b.style.maxWidth = "";
   var w = b.offsetWidth, cx = cr.left - rr.left + cr.width / 2;
   b.style.left = Math.max(minL + w / 2, Math.min(rr.width - w / 2 - 10, cx)) + "px";
   b.style.bottom = (rr.bottom - cr.top + 16) + "px";
   b.classList.add("on");
+}
+/* ---------- The little boy with specs (that's you) ---------- */
+// A small rig: legs and arms have two joints each, solved every frame (feet stay planted while he walks),
+// and every pose is a set of numbers that are tweened, so he moves smoothly between them.
+var ME = { el: null, out: false, idle: false, x: 0, y: 0, s: 1, lift: 0, raf: 0, loop: 0, live: false, lt: 0,
+  p: null, tw: [], walk: 0, walkOn: false, ph: 0, dir: 1, lx: null, ly: null, talkTill: 0, blinkAt: 0, blinkT: -9999,
+  timers: [], idleT: 0, Q: null, dimNow: -1, mouth: "", backNow: -1, behindNow: -1 };
+var ME_REST = { bob: 0, lean: 0, shift: 0, sx: 1, sy: 1, turn: 0, tilt: 0, gx: 0, gy: 0, lid: 0, smile: .4,
+  hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4, gift: 0, wave: 0, tuck: 0, dim: 0, pb: 0, back: 0, behind: 0 };
+var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
+(function buildMe() {
+  var SKF = "#f3c9a8", SKD = "#e0a684", HAIR = "#16121a", HL = "#433b4c", OL = "#f7f8fa", OLD = "#cdd3dd", OLL = "#ffffff",
+      TR = "#2b2421", TRD = "#201a18", SHOE = "#17120f";
+  var W = "#ef6f6c", WD = "#d65956", RB = "#f4c55a";          // box 1's wrapping colours, for the tiny gift in his hands
+  function leg(cls, col) {
+    return '<g class="' + cls + '"><rect x="-3.7" y="-1.6" width="7.4" height="19" rx="3.2" fill="' + col + '"/>' +
+      '<g class="m-shin"><rect x="-3.4" y="-1.2" width="6.8" height="18" rx="3" fill="' + col + '"/>' +
+      '<g class="m-foot"><path d="M-4.8 1.1Q-4.8 -2 -1.4 -2.1H1.4Q4.8 -2 4.8 1.1Q4.8 3 3.3 3H-3.3Q-4.8 3 -4.8 1.1Z" fill="' + SHOE + '"/>' +
+      '<path d="M-4.2 2.5H4.2" stroke="#3b312d" stroke-width=".7"/><path d="M-2.4 -1.2Q0 -1.9 2.4 -1.2" stroke="rgba(255,255,255,.18)" stroke-width=".6" fill="none"/></g></g></g>';
+  }
+  function arm(cls, watch) {
+    return '<g class="' + cls + '"><path d="M0 0V11.6" stroke="' + SKF + '" stroke-width="4.5" stroke-linecap="round"/>' +
+      '<g class="m-fore"><path d="M0 0V10.4" stroke="' + SKF + '" stroke-width="4" stroke-linecap="round"/>' +
+      (watch ? '<rect x="-2.5" y="7.2" width="5" height="2.5" rx=".8" fill="#141414"/><rect x="-1.3" y="7.55" width="2.6" height="1.8" rx=".4" fill="#6b7888"/>' : '') +
+      '<ellipse cx="0" cy="11.6" rx="2.7" ry="3" fill="' + SKF + '"/><path d="M-1.3 13.4Q0 14.3 1.3 13.4" stroke="' + SKD + '" stroke-width=".5" fill="none"/></g>' +
+      '<path d="M-3.9 -1.4Q-4.4 4.4 -3.7 6.6Q0 7.9 3.7 6.6Q4.4 4.4 3.9 -1.4Q0 -4.6 -3.9 -1.4Z" fill="' + OL + '"/>' +
+      '<path d="M-3.6 6.3Q0 7.5 3.6 6.3" stroke="' + OLD + '" stroke-width=".8" fill="none"/></g>';
+  }
+  function eye(cx, id) {
+    return '<g class="m-eye" data-cx="' + cx + '"><ellipse cx="' + cx + '" cy="25" rx="3.1" ry="3.5" fill="#fff"/>' +
+      '<g clip-path="url(#' + id + ')"><g class="m-iris"><circle cx="' + cx + '" cy="25.3" r="2.35" fill="#6b4226"/>' +
+      '<circle cx="' + cx + '" cy="25.3" r="1.55" fill="#4a2c18"/><circle cx="' + cx + '" cy="25.3" r="1.1" fill="#120b08"/>' +
+      '<circle cx="' + (cx + .9) + '" cy="24.2" r=".75" fill="#fff"/><circle cx="' + (cx - .7) + '" cy="26.2" r=".35" fill="#fff" opacity=".8"/></g></g>' +
+      '<path d="M' + (cx - 3.1) + ' 23.6Q' + cx + ' 20.6 ' + (cx + 3.1) + ' 23.6" stroke="#2a1c16" stroke-width=".95" fill="none" stroke-linecap="round"/></g>';
+  }
+  var gift = '<g class="m-gift"><rect x="-5.5" y="-3.4" width="11" height="8.4" rx="1.1" fill="' + W + '"/>' +
+    '<rect x="-6.2" y="-5.4" width="12.4" height="2.8" rx=".8" fill="' + WD + '"/><rect x="-.7" y="-5.4" width="1.4" height="10.4" fill="' + RB + '"/>' +
+    '<ellipse cx="-1.9" cy="-6.2" rx="2.1" ry="1.3" fill="none" stroke="' + RB + '" stroke-width="1.1" transform="rotate(-20 -1.9 -6.2)"/>' +
+    '<ellipse cx="1.9" cy="-6.2" rx="2.1" ry="1.3" fill="none" stroke="' + RB + '" stroke-width="1.1" transform="rotate(20 1.9 -6.2)"/></g>';
+  var el = document.createElement("div"); el.className = "me"; el.setAttribute("aria-hidden", "true");
+  el.innerHTML = '<svg viewBox="0 0 60 110"><defs>' +
+    '<radialGradient id="meSkin" cx="42%" cy="36%" r="66%"><stop offset="0" stop-color="#fcdcc2"/><stop offset=".68" stop-color="#f2c5a3"/><stop offset="1" stop-color="#e2a985"/></radialGradient>' +
+    '<linearGradient id="meShirt" x1="0" x2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f3f5f8"/><stop offset="1" stop-color="#d6dce5"/></linearGradient>' +
+    '<linearGradient id="meHair" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#2a2430"/><stop offset=".6" stop-color="#16121a"/></linearGradient>' +
+    '<clipPath id="meEyeL"><ellipse cx="24.6" cy="25" rx="3.1" ry="3.5"/></clipPath><clipPath id="meEyeR"><ellipse cx="35.4" cy="25" rx="3.1" ry="3.5"/></clipPath>' +
+    '</defs>' +
+    '<ellipse class="m-shadow" cx="30" cy="108" rx="14" ry="2.8" fill="rgba(0,0,0,.28)"/>' +
+    '<g class="m-root">' +
+      leg("m-legr", TRD) + leg("m-legl", TR) +
+      '<g class="m-pelvis"><path d="M20.4 66H39.6L40 76.4Q30 78.2 20 76.4Z" fill="' + TR + '"/></g>' +
+      '<g class="m-torso">' +
+        '<path d="M26.6 33H33.4V42.4H26.6Z" fill="' + SKD + '"/>' +
+        // olive polo: body, folds, collar, two-button placket, chest pocket (the details turn with him)
+        '<path d="M18.6 74.6Q18 62 18.2 50Q18.4 42.6 25 41.4H35Q41.6 42.6 41.8 50Q42 62 41.4 74.6Q30 76.6 18.6 74.6Z" fill="url(#meShirt)"/>' +
+        '<path d="M21.2 74Q21.8 66 21.1 58.4M38.6 74Q38 67 38.8 60.4M24 73.8Q26 70.6 25 67" stroke="' + OLD + '" stroke-width=".7" fill="none" opacity=".75"/>' +
+        '<g class="m-front">' +
+          '<path d="M25.4 41.3L30 45.2L34.6 41.3Z" fill="' + SKD + '"/>' +
+          '<path d="M28.8 44.6H31.2V54.4H28.8Z" fill="' + OLD + '" opacity=".55"/>' +
+          '<circle cx="30" cy="47.8" r=".75" fill="#b3bac6"/><circle cx="30" cy="51.6" r=".75" fill="#b3bac6"/>' +
+          '<path d="M34 50.6H38.8V55.8Q36.4 56.8 34 55.8Z" fill="none" stroke="' + OLD + '" stroke-width=".7"/><path d="M34 50.6H38.8" stroke="#bcc3ce" stroke-width="1.1"/>' +
+          '<path d="M24.2 41.2L30 45.6L27.5 48.6Q24.6 46.2 23.3 42.8Z" fill="' + OLL + '" stroke="' + OLD + '" stroke-width=".55" stroke-linejoin="round"/>' +
+          '<path d="M35.8 41.2L30 45.6L32.5 48.6Q35.4 46.2 36.7 42.8Z" fill="' + OLL + '" stroke="' + OLD + '" stroke-width=".55" stroke-linejoin="round"/>' +
+        '</g>' +
+        '<g class="m-backc" visibility="hidden"><path d="M24 41.2Q30 39.4 36 41.2L35.7 43.6Q30 42 24.3 43.6Z" fill="' + OLL + '" stroke="' + OLD + '" stroke-width=".55"/>' +
+          '<path d="M30 44V73" stroke="' + OLD + '" stroke-width=".6" opacity=".6"/></g>' +
+        '<g class="m-head">' +
+          '<g class="m-hairb"><path d="M15 29Q12.2 17 17.6 9.6Q22.6 3.2 30 3.4Q38.6 3.2 43 9.8Q47.8 17.4 45 29Q43.4 22 40 19H20Q16.6 22 15 29Z" fill="url(#meHair)"/></g>' +
+          '<g class="m-earl"><ellipse cx="16.7" cy="26.4" rx="2.6" ry="3.4" fill="' + SKF + '"/><path d="M16.4 24.8Q15.2 26.4 16.6 28.2" stroke="' + SKD + '" stroke-width=".7" fill="none"/></g>' +
+          '<g class="m-earr"><ellipse cx="43.3" cy="26.4" rx="2.6" ry="3.4" fill="' + SKF + '"/><path d="M43.6 24.8Q44.8 26.4 43.4 28.2" stroke="' + SKD + '" stroke-width=".7" fill="none"/></g>' +
+          '<ellipse cx="30" cy="24.2" rx="13.4" ry="13.6" fill="url(#meSkin)"/>' +
+          '<path d="M18.4 29.6Q22 37.8 30 37.9Q38 37.8 41.6 29.6Q39 36.2 30 36.6Q21 36.2 18.4 29.6Z" fill="' + SKD + '" opacity=".45"/>' +
+          '<g class="m-face">' +
+            '<ellipse cx="21.3" cy="31.4" rx="2.4" ry="1.5" fill="#ff8f8f" opacity=".3"/><ellipse cx="38.7" cy="31.4" rx="2.4" ry="1.5" fill="#ff8f8f" opacity=".3"/>' +
+            eye(24.6, "meEyeL") + eye(35.4, "meEyeR") +
+            '<path d="M20.4 19.6Q24 17.1 28.1 18.6L27.9 19.9Q24.2 18.9 21 20.6Z" fill="' + HAIR + '"/>' +
+            '<path d="M39.6 19.6Q36 17.1 31.9 18.6L32.1 19.9Q35.8 18.9 39 20.6Z" fill="' + HAIR + '"/>' +
+            // black rectangular specs, with a glint
+            '<rect x="19.1" y="20.7" width="10.3" height="8.6" rx="2.2" fill="rgba(220,235,255,.1)" stroke="#111" stroke-width="1.6"/>' +
+            '<rect x="30.6" y="20.7" width="10.3" height="8.6" rx="2.2" fill="rgba(220,235,255,.1)" stroke="#111" stroke-width="1.6"/>' +
+            '<path d="M29.4 23.8Q30 23.1 30.6 23.8M19.1 23.2L16.6 22.7M40.9 23.2L43.4 22.7" stroke="#111" stroke-width="1.3" fill="none" stroke-linecap="round"/>' +
+            '<path d="M20.8 22.6H22.6M32.3 22.6H34.1" stroke="#fff" stroke-width=".6" opacity=".45" stroke-linecap="round"/>' +
+            '<path class="b-glint" d="M21 27.8L24.6 22.2M32.5 27.8L36.1 22.2" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>' +
+            '<path d="M30.3 28.4Q31.9 30.4 29.8 31.1" stroke="' + SKD + '" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+            '<path class="m-ms" d="M27 33.2Q30 35.6 33 33.2" stroke="#8a3b2c" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+            '<g class="m-mb"><path d="M26.4 32.8Q30 33.8 33.6 32.8Q32.8 36.8 30 36.8Q27.2 36.8 26.4 32.8Z" fill="#7a2a22"/>' +
+              '<path d="M27.2 33.3Q30 34 32.8 33.3L32.6 34.1Q30 34.6 27.4 34.1Z" fill="#fff"/><path d="M28.4 35.8Q30 35 31.6 35.8Q30.8 36.6 30 36.6Q29.2 36.6 28.4 35.8Z" fill="#e0706a"/></g>' +
+            '<ellipse class="m-mo" cx="30" cy="34.2" rx="1.7" ry="1.5" fill="#7a2a22"/>' +
+          '</g>' +
+          // fluffy black hair, parted on the left and swept across to the right
+          '<g class="m-hairf"><path d="M16.4 23.5C14.6 18 15.6 13 18.6 10.4C18.4 7.6 21.2 5.4 24 6C25.4 3 29.6 2.2 32 4C34.6 2.4 38.6 3.4 39.6 6.2C42.6 6.4 44.8 9.6 44 12.8C46 15.6 45.4 20.4 43.6 23.8C42.8 19.8 41 17.4 38.6 16.6C39.2 18.2 38.8 19.4 38 20C36.8 17.2 34 15.8 31 16.2C32 17.2 32 18.2 31.4 18.8C29.4 16.6 26.4 16.2 23.8 17.4C22.2 18.2 20.8 19.8 20 22C19.4 19.6 19.8 17.4 20.6 16C18.6 17.6 17.4 20.4 16.4 23.5Z" fill="url(#meHair)"/>' +
+            '<path d="M22.4 6.4Q21.4 3.4 24.6 3.2Q23.6 4.6 24.4 6Z M40.2 6.6Q42.6 5 44.4 7Q42.6 6.8 41.6 7.8Z" fill="' + HAIR + '"/>' +
+            '<path d="M22.6 8.8Q21.4 12.2 21.6 15.8M27.6 9.4Q26.4 12.4 27.2 15.2M35.2 8.2Q36 11.2 34.8 14.6" stroke="#0b090e" stroke-width=".7" fill="none" stroke-linecap="round"/>' +
+            '<path d="M20.6 11Q23.8 7.8 27.8 8.6M29.6 6.6Q34.4 4.8 38.4 7.6M38.6 10.8Q42.2 12 43 15.8M24.6 13.2Q28.8 10.8 33.4 12.2" stroke="' + HL + '" stroke-width=".85" fill="none" stroke-linecap="round" opacity=".9"/>' +
+          '</g>' +
+          // from behind: the back of his head, short at the neck, ears and the arms of his specs
+          '<g class="m-back" visibility="hidden">' +
+            '<path d="M16.4 25.6Q15.2 11.6 22 7.2Q30 2.6 38 7.2Q44.8 11.6 43.6 25.6Q43.2 32.4 39 35.2Q36 36.4 34 35.4Q32 36.6 30 35.6Q28 36.6 26 35.4Q24 36.4 21 35.2Q16.8 32.4 16.4 25.6Z" fill="url(#meHair)"/>' +
+            '<path d="M24.4 3.6Q26 2 28.6 2.6Q27 3.4 27 5M31.6 3.2Q34.4 2 36.6 3.8Q34.8 4 34.2 5.4" fill="' + HAIR + '"/>' +
+            '<path d="M22 10.6Q26 7.6 31 8.6M33 8.4Q38.6 8.6 41.6 13.6M19.6 18Q20.4 13.6 23.6 11.6M24.6 16Q30 13.2 36.4 15.6M21.6 26Q24 22.6 28 23.2M32 23.2Q36.4 22.4 38.6 26" stroke="' + HL + '" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".85"/>' +
+            '<ellipse cx="16.4" cy="26.4" rx="2.5" ry="3.3" fill="' + SKF + '"/><ellipse cx="43.6" cy="26.4" rx="2.5" ry="3.3" fill="' + SKF + '"/>' +
+            '<path d="M14.6 23.2L18 23.6M45.4 23.2L42 23.6" stroke="#111" stroke-width="1.1" stroke-linecap="round"/>' +
+          '</g>' +
+        '</g>' +
+        gift + arm("m-armr", false) + arm("m-arml", true) +
+      '</g>' +
+    '</g></svg>';
+  R.world.appendChild(el);
+  ME.el = el;
+  function q(s, r) { return (r || el).querySelector(s); }
+  function legQ(s) { var g = q(s); return { g: g, shin: q(".m-shin", g), foot: q(".m-foot", g) }; }
+  function armQ(s) { var g = q(s); return { g: g, fore: q(".m-fore", g) }; }
+  var eyes = el.querySelectorAll(".m-eye"), iris = el.querySelectorAll(".m-iris");
+  ME.Q = { root: q(".m-root"), shadow: q(".m-shadow"), legL: legQ(".m-legl"), legR: legQ(".m-legr"), pelvis: q(".m-pelvis"),
+    torso: q(".m-torso"), front: q(".m-front"), head: q(".m-head"), face: q(".m-face"), hairf: q(".m-hairf"), hairb: q(".m-hairb"),
+    earL: q(".m-earl"), earR: q(".m-earr"), eyes: eyes, iris: iris, gift: q(".m-gift"), armL: armQ(".m-arml"), armR: armQ(".m-armr"),
+    ms: q(".m-ms"), mb: q(".m-mb"), mo: q(".m-mo"), back: q(".m-back"), backc: q(".m-backc") };
+  ME.p = meCopy(ME_REST);
+})();
+function meCopy(o) { var r = {}; for (var k in o) r[k] = o[k]; return r; }
+function f2(n) { return (Math.round(n * 100) / 100).toString(); }
+// two-joint solver: returns [upper rotation, lower rotation relative to upper], degrees; bend = which side the joint bulges (+1 = +x)
+function ik2(sx, sy, tx, ty, L1, L2, bend) {
+  var dx = tx - sx, dy = ty - sy, d = Math.sqrt(dx * dx + dy * dy);
+  d = Math.max(Math.abs(L1 - L2) + .01, Math.min(L1 + L2 - .02, d));
+  var line = Math.atan2(dx, dy);
+  var a = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + d * d - L2 * L2) / (2 * L1 * d))));
+  var b = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
+  var D = 180 / Math.PI;
+  return [-(line + bend * a) * D, bend * (Math.PI - b) * D];
+}
+function meSize() { var g = rideGeom(), h = Math.min(g.busH * .6, 82);   // a child is about half as tall as a bus
+  return { h: h, w: h * 60 / 110, k: h / 110 }; }
+function mePut(x, y, s) {                       // x = centre of his feet, y = ground under his feet (world px)
+  ME.x = x; ME.y = y; if (s != null) ME.s = s;
+  var d = meSize();
+  ME.el.style.width = d.w + "px"; ME.el.style.height = d.h + "px";
+  ME.el.style.transformOrigin = "50% 100%";
+  ME.el.style.transform = "translate3d(" + (x - d.w / 2).toFixed(1) + "px," + (y - d.h).toFixed(1) + "px,0) scale(" + ME.s.toFixed(3) + ")";
+}
+// moves his feet; "arc" lifts his body (not his shadow) in a little jump
+function meMove(tx, ty, dur, arc, done, ease, ts) {
+  cancelAnimationFrame(ME.raf);
+  var x0 = ME.x, y0 = ME.y, s0 = ME.s, t0 = null, fn = ease || EASE.inOut;
+  function f(t) {
+    if (t0 === null) t0 = t;
+    var k = Math.min(1, (t - t0) / dur), e = fn(k);
+    ME.lift = (arc || 0) * 4 * k * (1 - k);
+    mePut(x0 + (tx - x0) * e, y0 + (ty - y0) * e, ts == null ? s0 : s0 + (ts - s0) * e);
+    if (k < 1) ME.raf = requestAnimationFrame(f); else { ME.lift = 0; if (done) done(); }
+  }
+  ME.raf = requestAnimationFrame(f);
+}
+// pose tweens
+function meSet(o) { for (var k in o) { meDrop(k); ME.p[k] = o[k]; } }
+function meDrop(k) { for (var i = ME.tw.length - 1; i >= 0; i--) if (ME.tw[i].k === k) ME.tw.splice(i, 1); }
+function meTo(o, dur, ease) {
+  var now = performance.now();
+  for (var k in o) { meDrop(k); ME.tw.push({ k: k, a: ME.p[k], b: o[k], t0: now, d: Math.max(1, dur), e: ease || EASE.inOut }); }
+}
+function meAt(ms, fn) { var id = setTimeout(fn, ms); ME.timers.push(id); return id; }
+function meReset() {
+  ME.timers.forEach(clearTimeout); ME.timers = []; clearTimeout(ME.idleT);
+  ME.tw = []; ME.walkOn = false; ME.idle = false; ME.p = meCopy(ME_REST);
+}
+function meStart() {
+  if (ME.live) return;
+  ME.live = true; ME.lt = 0; ME.lx = null;
+  ME.loop = requestAnimationFrame(meLoop);
+}
+function meStop() { ME.live = false; cancelAnimationFrame(ME.loop); }
+function meFlash(cls, ms) { var el = ME.el; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(function () { el.classList.remove(cls); }, ms); }
+function meTalk(ms) { ME.talkTill = performance.now() + ms; }
+function meSay(text, big) { comic(text, big, ME.el); if (text) meTalk(Math.min(1500, 260 + text.length * 55)); }
+function meDipBus() { R.bus.classList.remove("dip"); void R.bus.offsetWidth; R.bus.classList.add("dip"); setTimeout(function () { R.bus.classList.remove("dip"); }, 650); }
+// a torso-space point (svg units) in world px, e.g. where the gift is in his hands
+function meToWorld(u, v) {
+  var P = ME.p, a = P.lean * Math.PI / 180, du = u - 30, dv = v - 71;
+  var ru = 30 + du * Math.cos(a) - dv * Math.sin(a) + P.shift, rv = 71 + du * Math.sin(a) + dv * Math.cos(a) + P.bob;
+  var k = meSize().k * ME.s;
+  return { x: ME.x + (ru - 30) * k, y: ME.y + (rv - 110) * k - ME.lift };
+}
+// eyes and head follow a point in the world (the flying gift)
+function meLook(wx, wy) {
+  var h = meToWorld(30, 25), k = meSize().k * ME.s, dx = (wx - h.x) / k, dy = (wy - h.y) / k, P = ME.p;
+  ["gx", "gy", "turn", "tilt"].forEach(meDrop);
+  P.gx += (Math.max(-1.6, Math.min(1.6, dx / 22)) - P.gx) * .25;
+  P.gy += (Math.max(-1.3, Math.min(1.3, dy / 22)) - P.gy) * .25;
+  P.turn += (Math.max(-.6, Math.min(.6, dx / 120)) - P.turn) * .15;
+  P.tilt += (Math.max(-6, Math.min(8, dy / 6)) - P.tilt) * .15;
+}
+function meLoop(now) {
+  if (!ME.live) return;
+  var dt = ME.lt ? Math.min(50, now - ME.lt) : 16; ME.lt = now;
+  for (var i = ME.tw.length - 1; i >= 0; i--) {
+    var t = ME.tw[i], q = Math.min(1, (now - t.t0) / t.d);
+    ME.p[t.k] = t.a + (t.b - t.a) * t.e(q);
+    if (q >= 1) ME.tw.splice(i, 1);
+  }
+  ME.walk += ((ME.walkOn ? 1 : 0) - ME.walk) * Math.min(1, dt / 110);
+  if (ME.lx !== null) {                          // legs cycle by distance travelled, so his feet never slide
+    var dd = Math.sqrt((ME.x - ME.lx) * (ME.x - ME.lx) + (ME.y - ME.ly) * (ME.y - ME.ly));
+    ME.ph = (ME.ph + dd / (2 * 18 * meSize().k * ME.s)) % 1;
+  }
+  ME.lx = ME.x; ME.ly = ME.y;
+  if (now > ME.blinkAt) { ME.blinkT = now; ME.blinkAt = now + 2200 + Math.random() * 2800; }
+  meRender(now);
+  ME.loop = requestAnimationFrame(meLoop);
+}
+function meRender(now) {
+  var P = ME.p, Q = ME.Q, w = ME.walk, dir = ME.dir, at = Math.min(1, Math.abs(P.turn)), TAU = Math.PI * 2;
+  var ph = (ME.ph + P.pb) % 1, cw = Math.cos(TAU * ph), bw = 1.2 * cw * cw * w;   // lowest as each foot lands
+  var breath = Math.sin(now * .0033);
+  var hipY = 70.9 + P.bob + bw, side = Math.abs(P.turn) > .3 || w > .1;
+  var kd = P.turn > .05 ? 1 : P.turn < -.05 ? -1 : dir;
+  var base = [26 + 2.4 * at, 34 - 2.4 * at], legs = [Q.legL, Q.legR];
+  for (var i = 0; i < 2; i++) {
+    var q = (ph + i * .5) % 1, off, lf = 0, u;
+    if (q < .5) { u = q / .5; off = 1 - 2 * u; }
+    else { u = (q - .5) / .5; off = -1 + 2 * u * u * (3 - 2 * u); lf = 4 * Math.sin(Math.PI * u); }
+    off *= dir * 9 * w; lf *= w;
+    var bend = side ? kd : (i ? 1 : -1);          // facing her, knees bend outwards; side on, forwards
+    var a = ik2(base[i] + P.shift, hipY, base[i] + off, 104.5 - lf - P.tuck, 17, 16.75, bend), L = legs[i];
+    L.g.setAttribute("transform", "translate(" + f2(base[i] + P.shift) + " " + f2(hipY) + ") rotate(" + f2(a[0]) + ")");
+    L.shin.setAttribute("transform", "translate(0 17) rotate(" + f2(a[1]) + ")");
+    L.foot.setAttribute("transform", "translate(0 16.75) rotate(" + f2(-(a[0] + a[1]) + (lf > .5 ? -dir * lf * 3 : 0)) + ") translate(" + f2(1.3 * P.turn) + " 0)");
+  }
+  Q.pelvis.setAttribute("transform", "translate(" + f2(P.shift) + " " + f2(P.bob + bw) + ")");
+  Q.torso.setAttribute("transform", "translate(" + f2(P.shift) + " " + f2(P.bob + bw) + ") rotate(" + f2(P.lean) + " 30 71)");
+  Q.front.setAttribute("transform", "translate(" + f2(2.4 * P.turn) + " 0)");
+  var hy = -.3 * breath + .5 * Math.sin(2 * TAU * ph) * w;
+  Q.head.setAttribute("transform", "translate(0 " + f2(hy) + ") rotate(" + f2(P.tilt) + " 30 39)");
+  Q.face.setAttribute("transform", "translate(" + f2(3.1 * P.turn) + " " + f2(.5 * P.gy) + ")");
+  Q.hairf.setAttribute("transform", "translate(" + f2(1.4 * P.turn) + " " + f2(.25 * P.gy) + ")");
+  Q.hairb.setAttribute("transform", "translate(" + f2(-.5 * P.turn) + " 0)");
+  Q.earL.setAttribute("transform", "translate(" + f2(2.6 * Math.max(0, -P.turn)) + " 0)");
+  Q.earR.setAttribute("transform", "translate(" + f2(-2.6 * Math.max(0, P.turn)) + " 0)");
+  var blink = now - ME.blinkT < 160 ? Math.sin(Math.PI * (now - ME.blinkT) / 160) : 0, sy = 1 - .92 * Math.max(P.lid, blink);
+  for (var e = 0; e < 2; e++) {
+    var cx = e ? 35.4 : 24.6;
+    Q.eyes[e].setAttribute("transform", "translate(0 25) scale(1 " + f2(sy) + ") translate(0 -25)");
+    Q.iris[e].setAttribute("transform", "translate(" + f2(.9 * P.gx + .5 * P.turn) + " " + f2(.8 * P.gy) + ")");
+  }
+  // arms: hands go where the pose says; they swing opposite the legs when he walks empty-handed
+  var swing = P.gift > .5 || P.behind > .5 ? 0 : 3.2 * cw * w * dir, sb = .25 * breath;
+  var hl = [P.hLx - swing, P.hLy], hr = [P.hRx + swing + P.wave * 2.6 * Math.sin(now * .017), P.hRy];
+  var sL = [19.5 + 1.6 * at, 45 + sb], sR = [40.5 - 1.6 * at, 45 + sb];
+  var aL = ik2(sL[0], sL[1], hl[0], hl[1], 11.6, 11.6, -1), aR = ik2(sR[0], sR[1], hr[0], hr[1], 11.6, 11.6, 1);
+  Q.armL.g.setAttribute("transform", "translate(" + f2(sL[0]) + " " + f2(sL[1]) + ") rotate(" + f2(aL[0]) + ")");
+  Q.armL.fore.setAttribute("transform", "translate(0 11.6) rotate(" + f2(aL[1]) + ")");
+  Q.armR.g.setAttribute("transform", "translate(" + f2(sR[0]) + " " + f2(sR[1]) + ") rotate(" + f2(aR[0]) + ")");
+  Q.armR.fore.setAttribute("transform", "translate(0 11.6) rotate(" + f2(aR[1]) + ")");
+  if (P.gift > .02) {
+    Q.gift.setAttribute("visibility", "visible");
+    Q.gift.setAttribute("transform", "translate(" + f2((hl[0] + hr[0]) / 2) + " " + f2((hl[1] + hr[1]) / 2 - .6) + ") scale(" + f2(P.gift) + ")");
+  } else Q.gift.setAttribute("visibility", "hidden");
+  var m = now < ME.talkTill ? (Math.sin(now * .036) > -.2 ? "o" : (P.smile > .6 ? "b" : "s")) : (P.smile > .6 ? "b" : "s");
+  if (m !== ME.mouth) {
+    ME.mouth = m;
+    Q.ms.setAttribute("visibility", m === "s" ? "visible" : "hidden");
+    Q.mb.setAttribute("visibility", m === "b" ? "visible" : "hidden");
+    Q.mo.setAttribute("visibility", m === "o" ? "visible" : "hidden");
+  }
+  var bh = P.behind > .5 ? 1 : 0;
+  if (bh !== ME.behindNow) {                      // hands hidden behind his back, or in front
+    ME.behindNow = bh;
+    [Q.armL.g, Q.armR.g, Q.gift].forEach(function (n) { if (bh) Q.torso.insertBefore(n, Q.torso.firstChild); });
+    if (!bh) [Q.gift, Q.armR.g, Q.armL.g].forEach(function (n) { Q.torso.appendChild(n); });
+  }
+  var bk = P.back > .5 ? 1 : 0;
+  if (bk !== ME.backNow) {                        // front or back view
+    ME.backNow = bk;
+    [Q.face, Q.hairf, Q.front].forEach(function (n) { n.setAttribute("visibility", bk ? "hidden" : "visible"); });
+    [Q.back, Q.backc].forEach(function (n) { n.setAttribute("visibility", bk ? "visible" : "hidden"); });
+  }
+  var k = meSize().k * ME.s, liftU = ME.lift / k;
+  Q.root.setAttribute("transform", "translate(0 " + f2(-liftU) + ") translate(30 108) scale(" + f2(P.sx) + " " + f2(P.sy) + ") translate(-30 -108)");
+  Q.shadow.setAttribute("rx", f2(14 * (1 - Math.min(.45, liftU / 50))));
+  var dm = Math.round(P.dim * 20) / 20;
+  if (dm !== ME.dimNow) { ME.dimNow = dm; ME.el.style.filter = dm > 0 ? "brightness(" + (1 - .5 * dm).toFixed(2) + ")" : ""; }
+}
+var WALK_EASE = function (k) { return .75 * k + .25 * (1 - Math.cos(Math.PI * k)) / 2; };
+function meWalkTo(x, y, s, done) {
+  var d = meSize(), dist = Math.sqrt((x - ME.x) * (x - ME.x) + (y - ME.y) * (y - ME.y));
+  if (dist < 3) { if (done) done(); return; }
+  ME.dir = x >= ME.x ? 1 : -1;
+  ME.walkOn = true;
+  meTo({ turn: ME.dir * .85, gx: ME.dir * .7, gy: 0, tilt: 0, lean: ME.dir * 1.5 }, 280);
+  var dur = Math.max(600, dist / (36 * d.k * ME.s * 2.3) * 1000);       // brisk little steps, feet planted
+  meMove(x, y, dur, 0, function () { ME.walkOn = false; meTo({ lean: 0 }, 300); if (done) done(); }, WALK_EASE, s);
+}
+// one step down (or up) the bus steps: one leg swings through, a small lift, a soft landing
+function meStepTo(x, y, s, dur, arc, done) {
+  ME.dir = x >= ME.x ? 1 : -1;
+  ME.walkOn = true; meSet({ pb: 0 }); meTo({ pb: .5 }, dur, LINEAR);
+  meMove(x, y, dur, arc, function () {
+    ME.ph = (ME.ph + ME.p.pb) % 1; meSet({ pb: 0 }); ME.walkOn = false;
+    meTo({ bob: 2, sx: 1.03, sy: .97 }, 90, EASE.arrive);
+    meAt(90, function () { meTo({ bob: 0, sx: 1, sy: 1 }, 240); });
+    boxDrop(.1);
+    if (done) done();
+  }, EASE.inOut, s);
+}
+var LINEAR = function (k) { return k; };
+// Idle while she opens the gift: breathes and blinks, and every few seconds does something small
+var ME_IDLE_REST = { bob: 0, lean: 0, shift: 0, sx: 1, sy: 1, turn: 0, tilt: 0, gx: 0, gy: 0, lid: 0, smile: .4,
+  hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4, wave: 0 };
+var ME_ACTS = {
+  pocket: function () { meTo({ hLx: 21.4, hLy: 72.4, shift: -1.4, lean: -1.2, tilt: -2 }, 480); return 3400; },
+  watch: function () {
+    meTo({ hLx: 28.4, hLy: 53.4, tilt: 7, gy: 1.3, gx: -.7, turn: -.15 }, 460);
+    meAt(1500, function () { if (ME.idle) meTo({ gy: 0, gx: 0, tilt: 0, smile: .7 }, 300); });
+    return 2200;
+  },
+  specs: function () {
+    meTo({ hRx: 33.4, hRy: 25.4, tilt: -2 }, 420);
+    meAt(430, function () { if (ME.idle) { meTo({ hRy: 23.8 }, 170); meFlash("glint", 800); } });
+    return 1100;
+  },
+  shift: function () { meTo({ shift: 1.7, lean: 1.4, tilt: 3 }, 600); return 1700; },
+  peek: function () { meTo({ turn: .6, gx: 1.6, lean: 3.4, tilt: -4, shift: 1.2 }, 520); return 1500; },
+  rock: function () {
+    meTo({ bob: -1.1, sy: 1.02 }, 260);
+    meAt(300, function () { if (ME.idle) meTo({ bob: .4, sy: 1 }, 260); });
+    meAt(600, function () { if (ME.idle) meTo({ bob: -1.1, sy: 1.02 }, 260); });
+    return 900;
+  }
+};
+function meIdle(on) {
+  clearTimeout(ME.idleT); ME.idle = on;
+  if (!on) return;
+  meTo(ME_IDLE_REST, 450);
+  var last = "";
+  function next() {
+    if (!ME.idle) return;
+    var names = Object.keys(ME_ACTS).filter(function (a) { return a !== last; }), a = names[(Math.random() * names.length) | 0];
+    last = a;
+    var dur = ME_ACTS[a]();
+    ME.idleT = setTimeout(function () {
+      if (!ME.idle) return;
+      meTo(ME_IDLE_REST, 480);
+      ME.idleT = setTimeout(next, 1700 + Math.random() * 1600);
+    }, dur);
+  }
+  ME.idleT = setTimeout(next, 1600);
+}
+// Where he goes: the bus door, the step, the road beside the bus, round the front of the bus, and up onto the pavement
+function meSpots() {
+  var g = rideGeom(), d = meSize(), busLeft = R.busU * g.W, busTop = parseFloat(R.bus.style.top) || 0;
+  var pav = g.walkTop + g.H * .02, cx = slotCenter(0, g);
+  var door = { x: busLeft + g.busW * 176 / 220, y: busTop + g.busH * 86 / 110 };
+  var stepP = { x: door.x + d.w * .1, y: busTop + g.busH * 96 / 110 };
+  var ground = { x: door.x + d.w * .3, y: busTop + g.busH * 1.04 };
+  var out = { x: busLeft + g.busW + d.w * .6, y: ground.y };                 // just past the front of the bus
+  return { g: g, d: d, door: door, stepP: stepP, ground: ground, out: out,
+    set: { x: cx - 12 * d.k, y: pav },                                     // where he squats to put the little box down
+    stand: { x: cx - Math.min(g.slotW, 200) / 2 - d.w * .7, y: pav }, slotCx: cx };
+}
+// Box 1 stands a good few steps from the bus, with room for him in between
+function slotCenter(i, g) {
+  g = g || rideGeom();
+  if (i === 0) { var bw = Math.min(g.slotW, 200); return g.W + Math.min(g.W - bw / 2 - 12, g.busX + g.busW + meSize().w * 3.2 + bw / 2); }
+  return (i + 1) * g.W + g.slotX;
+}
+function meWalkPath(pts, done) {
+  var n = 0;
+  (function next() { if (n >= pts.length) { if (done) done(); return; } var p = pts[n++]; meWalkTo(p.x, p.y, 1, next); })();
+}
+function anim(dur, fn, done) {
+  var t0 = null;
+  function f(t) { if (t0 === null) t0 = t; var q = Math.min(1, (t - t0) / dur); fn(q); if (q < 1) requestAnimationFrame(f); else if (done) done(); }
+  requestAnimationFrame(f);
+}
+// Gift 1: he hops out with his hands hidden behind his back, walks over, "Guess what?", brings out a tiny box: "For you!",
+// crouches and sets it down, steps back, flicks his hand at it, and it grows in three bouncy pops to full size
+function meDeliver(i) {
+  var S = meSpots(), el = ME.el, box = boxes[0], slot = box.parentNode;
+  meReset(); ME.out = true; ME.dir = 1;
+  meSet({ dim: 1, turn: .25, gy: .6, smile: .8, behind: 1, gift: 1.8, hLx: 25.4, hLy: 63, hRx: 34.6, hRy: 63 });
+  meAt(250, function () { R.bus.classList.add("door-open"); });
+  meAt(650, function () {
+    el.classList.add("front");
+    mePut(S.door.x, S.door.y, .9); ME.lift = 0;
+    meStart(); el.classList.add("show");             // there he is, in the doorway
+  });
+  meAt(1000, function () { meTo({ gy: 1.3, tilt: 6, turn: .1 }, 300); });              // looks down at the step
+  meAt(1350, function () {
+    meTo({ dim: .4 }, 400);
+    meStepTo(S.stepP.x, S.stepP.y, .95, 420, S.d.h * .08, function () {
+      meAt(160, function () {
+        meDipBus();                                  // the bus rises a touch as his weight leaves it
+        meTo({ dim: 0 }, 400);
+        meStepTo(S.ground.x, S.ground.y, 1, 460, S.d.h * .1, function () {
+          meAt(200, function () {
+            meTo({ gy: 0, tilt: 0 }, 250);
+            meWalkPath([S.out, S.set], function () { el.classList.remove("front"); guess(); });
+          });
+        });
+      });
+    });
+  });
+  function guess() {
+    meTo({ turn: 0, gx: 0, gy: 0, tilt: -3, smile: 1 }, 300);
+    meAt(350, function () {
+      meSay("Guess what?", false);
+      [0, 440].forEach(function (t) {                                                   // bounces on his toes
+        meAt(t, function () { meTo({ bob: -1.2, sy: 1.02 }, 200); });
+        meAt(t + 220, function () { meTo({ bob: 0, sy: 1 }, 200); });
+      });
+    });
+    meAt(1900, function () {
+      meSay(""); meSet({ behind: 0 });                                                  // out from behind his back...
+      meTo({ hLx: 24.4, hLy: 56, hRx: 35.6, hRy: 56, tilt: 0 }, 300);
+    });
+    meAt(2300, function () { meFlash("glint", 800); meSay("For you!", false); });     // ...a tiny gift
+    meAt(3000, function () { meTo({ gy: 1, tilt: 5 }, 300); });
+    meAt(3700, setDown);
+  }
+  function setDown() {
+    meSay("");
+    meTo({ turn: .6, gx: .8, gy: 1.4, tilt: 6, bob: 13, lean: 5, shift: -2, hLx: 38, hLy: 79, hRx: 44, hRy: 79 }, 560);   // squats down beside it
+    meAt(600, function () {
+      var g = rideGeom(), P = ME.p, c = meToWorld((P.hLx + P.hRx) / 2, (P.hLy + P.hRy) / 2 + 7.5);
+      var cx = slotCenter(0, g), gy = g.walkTop + 4, s0 = 11 * 1.8 * meSize().k * ME.s / Math.min(g.slotW, 200);
+      meSet({ gift: 0 });
+      slot.classList.add("delivered"); hints[0].textContent = "Press and hold to open";
+      box.style.transition = "none"; box.style.transformOrigin = "50% 100%";
+      ME.boxS = s0;
+      anim(170, function (q) {
+        box.style.transform = "translate(" + ((c.x - cx) * (1 - q)).toFixed(1) + "px," + ((c.y - gy) * (1 - q * q)).toFixed(1) + "px) scale(" + s0.toFixed(4) + ")";
+      }, function () { boxDrop(.12); });
+    });
+    meAt(900, function () { meTo({ bob: 0, lean: 0, shift: 0, tilt: 0, gy: .4, hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4 }, 420); });
+    meAt(1450, function () { meWalkTo(S.stand.x, S.stand.y, 1, magic); });              // steps back to give it room
+  }
+  function magic() {
+    meTo({ turn: .55, gx: 1.2, gy: .4, smile: 1 }, 300);                               // faces the little box
+    meAt(450, function () { meTo({ hRx: 51, hRy: 44, lean: 3 }, 170, EASE.away); meFlash("glint", 800); });   // a flick of the hand
+    meAt(620, function () { meTo({ hRx: 49, hRy: 47 }, 140); });
+    meAt(560, function () {
+      var g = rideGeom(), bw = Math.min(g.slotW, 200), cx = slotCenter(0, g), gy = g.walkTop + 4, th = bw * ME.boxS * 1.05;
+      var tip = meToWorld(ME.p.hRx + 2.5, ME.p.hRy), c = { x: cx, y: gy - th / 2 };
+      sparkTrail(tip, c, 560, function () { sparkOrbit(c, Math.max(14, th * .9), 420, grow); });
+    });
+  }
+  function grow() {
+    var steps = [.36, .68, 1], n = 0, from = ME.boxS;
+    function back(q) { var u = q - 1; return 1 + 2.4 * u * u * u + 1.4 * u * u; }   // overshoots a little, then settles
+    (function pop() {
+      if (n >= steps.length) { done(); return; }
+      var to = steps[n], a = from, last = n === steps.length - 1; n++;
+      sparkles(box, last ? 4 : 6); boxDrop(.2 + n * .15, last);
+      var g = rideGeom(), bw = Math.min(g.slotW, 200), cx = slotCenter(0, g), gy = g.walkTop + 4;
+      growRing(cx, gy, bw * to * 2.3); popNote(n - 1, last);
+      box.style.filter = "drop-shadow(0 0 " + (5 + n * 6) + "px rgba(255,214,120," + (.45 + n * .15).toFixed(2) + "))";
+      if (last) {
+        growRays(cx, gy - bw * 1.05 / 2, bw * 2.6);
+        setTimeout(function () { box.classList.add("bow-boing"); setTimeout(function () { box.classList.remove("bow-boing"); }, 1000); }, 300);
+      }
+      anim(last ? 420 : 340, function (q) {
+        var s = a + (to - a) * back(q), sq = Math.sin(q * Math.PI) * .06;
+        box.style.transform = "scale(" + (s * (1 + sq)).toFixed(4) + "," + (s * (1 - sq)).toFixed(4) + ")";
+      }, function () { from = to; setTimeout(pop, last ? 0 : 160); });
+    })();
+    function done() {
+      box.style.transform = ""; box.style.transformOrigin = "";
+      box.classList.add("plop"); dust(slot); sparkles(box, 10);
+      setTimeout(function () { box.classList.remove("plop"); }, 520);
+      box.style.transition = "filter 1.4s ease";                                         // the glow fades away
+      requestAnimationFrame(function () { box.style.filter = ""; });
+      setTimeout(function () { box.style.transition = ""; }, 1500);
+      slot.classList.add("landed");
+      meTo({ hRx: 42.4, hRy: 67.4, lean: 0, turn: .15, gx: .3, gy: 0, lid: .3 }, 260);   // delighted
+      meAt(300, function () { meClap(3, function () { meAt(500, function () { meIdle(true); }); }); });
+    }
+  }
+}
+// A bright dot flies in an arc from his fingertip to the tiny box, leaving a trail of sparkles
+function trailSpark(x, y, spread) {
+  var sp = document.createElement("span"); sp.className = "gift-spark"; sp.style.zIndex = 6;
+  sp.style.left = (x + (Math.random() - .5) * spread) + "px"; sp.style.top = (y + (Math.random() - .5) * spread) + "px";
+  sp.style.setProperty("--sx", ((Math.random() - .5) * 18).toFixed(0) + "px"); sp.style.setProperty("--sy", (6 + Math.random() * 14).toFixed(0) + "px");
+  sp.style.setProperty("--w", "0s"); sp.style.setProperty("--d", (.5 + Math.random() * .4).toFixed(2) + "s");
+  R.world.appendChild(sp); setTimeout(function () { sp.remove(); }, 1000);
+}
+function sparkTrail(a, b, dur, done) {
+  var dot = document.createElement("span"); dot.className = "magic-dot"; R.world.appendChild(dot);
+  var m = { x: (a.x + b.x) / 2, y: Math.min(a.y, b.y) - 36 }, last = 0;
+  magicNote(0);
+  anim(dur, function (q) {
+    var e = EASE.inOut(q), u = 1 - e, x = u * u * a.x + 2 * u * e * m.x + e * e * b.x, y = u * u * a.y + 2 * u * e * m.y + e * e * b.y;
+    dot.style.left = x.toFixed(1) + "px"; dot.style.top = y.toFixed(1) + "px";
+    var t = performance.now(); if (t - last > 24) { last = t; trailSpark(x, y, 6); }
+  }, function () { dot.remove(); done(); });
+}
+// three little lights circle the tiny box, closing in on it
+function sparkOrbit(c, r0, dur, done) {
+  var dots = [0, 1, 2].map(function () { var d = document.createElement("span"); d.className = "magic-dot"; R.world.appendChild(d); return d; }), last = 0;
+  magicNote(1);
+  anim(dur, function (q) {
+    var r = r0 * (1 - q * .85), t = performance.now();
+    dots.forEach(function (d, k) {
+      var a = q * Math.PI * 4 + k * Math.PI * 2 / 3, x = c.x + Math.cos(a) * r, y = c.y + Math.sin(a) * r * .45;
+      d.style.left = x.toFixed(1) + "px"; d.style.top = y.toFixed(1) + "px";
+      if (t - last > 40 && k === 0) trailSpark(x, y, 4);
+    });
+    if (t - last > 40) last = t;
+  }, function () { dots.forEach(function (d) { d.remove(); }); done(); });
+}
+function growRing(x, y, w) {
+  var r = document.createElement("span"); r.className = "grow-ring";
+  r.style.left = x + "px"; r.style.top = y + "px"; r.style.width = w + "px"; r.style.height = (w * .3) + "px";
+  R.world.appendChild(r); setTimeout(function () { r.remove(); }, 1000);
+}
+function growRays(x, y, d) {
+  var r = document.createElement("span"); r.className = "grow-rays";
+  r.style.left = x + "px"; r.style.top = y + "px"; r.style.width = d + "px"; r.style.height = d + "px";
+  R.world.appendChild(r); setTimeout(function () { r.remove(); }, 1900);
+}
+// soft bell notes: a shimmer as the magic flies, then do, mi, sol as the box pops bigger, and a sparkly chord at the end
+function bell(fq, t, vol, len) {
+  var o = audioCtx.createOscillator(), o2 = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = "sine"; o.frequency.value = fq; o2.type = "sine"; o2.frequency.value = fq * 2.01;
+  var g2 = audioCtx.createGain(); g2.gain.value = .18;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+  o.connect(g); o2.connect(g2); g2.connect(g); g.connect(audioCtx.destination);
+  o.start(t); o2.start(t); o.stop(t + len + .05); o2.stop(t + len + .05);
+}
+function popNote(n, last) {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime;
+    bell([1047, 1319, 1568][n] || 1568, t, .045, 1.1);
+    if (last) { bell(2093, t + .05, .028, 1.6); bell(2637, t + .1, .02, 1.8); bell(3136, t + .16, .012, 1.8); }
+  } catch (e) {}
+}
+function magicNote(k) {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime, run = k ? [1760, 2093, 2349] : [1319, 1568, 1760, 2093];
+    run.forEach(function (fq, j) { bell(fq, t + j * .07, .016, .6); });
+  } catch (e) {}
+}
+function meClap(n, done) {
+  var k = 0;
+  (function one() {
+    if (k++ >= n) { meTo({ hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4, lid: 0 }, 380); if (done) done(); return; }
+    meTo({ hLx: 23.4, hLy: 50.6, hRx: 36.6, hRy: 50.6 }, 120);
+    meAt(130, function () { meTo({ hLx: 28.4, hLy: 51.6, hRx: 31.6, hRy: 51.6 }, 100, EASE.away); });
+    meAt(250, one);
+  })();
+}
+// After she closes the photos: he talks to her, points at the bus, waves, walks back and climbs in
+function meFarewell(done) {
+  var el = ME.el, S = meSpots();
+  meIdle(false);
+  meTo({ turn: 0, gx: 0, gy: 0, tilt: -2, lean: 0, shift: 0, smile: 1, lid: .25, hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4 }, 380);
+  meFlash("glint", 800);
+  meSay("I could see you smile 😊", false);
+  meAt(2500, function () {
+    meTo({ hLx: -1.4, hLy: 40.6, turn: -.45, gx: -1.4, lean: -2, tilt: 2, lid: 0, smile: .7 }, 380);   // points at the bus
+    meSay("More gifts ahead!", true);
+  });
+  meAt(4300, function () { meTo({ turn: 0, gx: 0, lean: 0, tilt: 0, smile: 1 }, 300); });
+  meAt(4700, function () {
+    meSay("");
+    meTo({ hLx: 17.6, hLy: 67.4, hRx: 47.4, hRy: 22.6, wave: 1 }, 320);                 // waves bye
+  });
+  meAt(5900, function () {
+    meTo({ wave: 0, hRx: 42.4, hRy: 67.4, smile: .5 }, 300);
+    el.classList.add("front");
+    meWalkPath([S.out, S.ground], function () {
+      // turns his back to us and faces the door
+      meTo({ sx: 1.04, sy: .97 }, 110);
+      meAt(110, function () { meSet({ back: 1 }); meTo({ turn: 0, gx: 0, gy: 0, tilt: -3, sx: 1, sy: 1, lean: 0 }, 200); });
+      meAt(420, function () { meTo({ hRx: 45.6, hRy: 33.4, hLx: 19, hLy: 64 }, 320); });      // reaches for the handrail
+      meAt(760, function () {
+        meDipBus();                                                                      // the bus sinks as he steps on
+        meTo({ dim: .35 }, 440);
+        meStepTo(S.stepP.x, S.stepP.y, .95, 460, S.d.h * .09, function () {
+          meAt(180, function () {
+            meTo({ dim: .7, hRy: 31 }, 440);
+            meStepTo(S.door.x, S.door.y, .9, 460, S.d.h * .09, function () {
+              // and walks on inside, into the dark of the bus
+              meTo({ dim: 1, hRx: 42.4, hRy: 67.4, hLx: 17.6, hLy: 67.4 }, 420);
+              ME.walkOn = true; ME.dir = -1;
+              el.classList.remove("show");
+              meMove(S.door.x - S.d.w * .3, S.door.y - S.d.h * .04, 520, 0, function () { ME.walkOn = false; }, LINEAR, .82);
+              meAt(650, function () {
+                meStop(); meReset();
+                R.bus.classList.remove("door-open"); boxDrop(.25);                        // the door closes behind him
+                ME.out = false; el.classList.remove("front");
+                meAt(450, done);
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 }
 // Ticket check: "Ticket checking!", the door opens, a ticket pops out; the right heart gets punched and stamped
 function ticketCheck(done) {
@@ -2163,12 +2894,13 @@ function ticketCheck(done) {
   }
 }
 // Leg durations scale a little with the scene width so it never races on wide screens
+var RIDE_PACE = 1.12;                    // >1 = the bus drives a little slower (1.12 = 12% slower)
 function legTime(kind) {
   if (reducedMotion) return 300;
   var W = R.W || 400;
-  if (kind === "away") return Math.round(Math.max(3200, Math.min(5200, W * 7)));
-  if (kind === "pan") return Math.round(Math.max(1600, Math.min(2600, W * 3.5)));
-  return 3200;
+  if (kind === "away") return Math.round(Math.max(3200, Math.min(5200, W * 7)) * RIDE_PACE);
+  if (kind === "pan") return Math.round(Math.max(1600, Math.min(2600, W * 3.5)) * RIDE_PACE);
+  return Math.round(3200 * RIDE_PACE);
 }
 function puffs(ms) {
   if (reducedMotion) return;
@@ -2190,6 +2922,10 @@ function rideArrive() {
   led(RC.busNumber + "  " + stop.name);
   say((k === 3 ? "Last stop" : "Stop " + k + " of 3") + " · " + stop.name, rideText(stop.line), null);
   var kind = ["hop", "balloon", "star"][k - 1];
+  if (k === 1 && !reducedMotion) {                              // gift 1: the little boy brings it out himself
+    setTimeout(function () { meDeliver(0); }, 300);
+    return;
+  }
   setTimeout(function () {
     if (kind === "hop") R.bus.classList.add("door-open");      // gift 1 comes out of the door
     setTimeout(function () { deliver(k - 1, kind); }, kind === "hop" ? 450 : 200);
@@ -2198,7 +2934,7 @@ function rideArrive() {
 function deliver(i, kind) {
   var g = rideGeom(), box = boxes[i], slot = box.parentNode;
   var busLeft = R.stage * g.W + g.busX, busTop = parseFloat(R.bus.style.top) || 0;
-  var slotCx = (i + 1) * g.W + g.slotX, boxCy = g.walkTop + 4 - g.boxH / 2;
+  var slotCx = slotCenter(i, g), boxCy = g.walkTop + 4 - g.boxH / 2;
   // where it starts: the door (hop), the roof (balloons) or a window (toss)
   var from = kind === "balloon" ? { x: busLeft + g.busW * .45, y: busTop - g.boxH * .15 }
     : kind === "toss" ? { x: busLeft + g.busW * .5, y: busTop + g.busH * .35 }
@@ -2476,6 +3212,13 @@ function rideAfterGift() {
   var k = R.stage;
   if (k < 1 || !opened[k - 1]) return;
   R.advancing = true;
+  if (k === 1 && ME.out) {
+    meFarewell(function () {
+      say("Next stop", rideText(RC.nextLine, RC.stops[1].name), null);
+      setTimeout(function () { rideDrive(2); }, 900);
+    });
+    return;
+  }
   if (k < 3) {
     say("Next stop", rideText(RC.nextLine, RC.stops[k].name), null);
     setTimeout(function () { rideDrive(k + 1); }, 1800);
@@ -2540,10 +3283,10 @@ var FC = { candles: 3 };
   for (var k = 0; k < FC.candles; k++) (function (k) {
     var x = 100 + (k - (FC.candles - 1) / 2) * 20;
     var cd = document.createElement("button");
-    cd.type = "button"; cd.className = "scandle"; cd.setAttribute("aria-label", "Blow out candle " + (k + 1));
+    cd.type = "button"; cd.className = "scandle"; cd.setAttribute("aria-label", "Blow out the candles");
     cd.style.left = (x / 200 * 100) + "%"; cd.style.bottom = ((172 - 47) / 172 * 100) + "%";
     cd.innerHTML = "<i></i>";
-    cd.addEventListener("click", function () { if (F.started) blowOut(k); });
+    cd.addEventListener("click", function (e) { e.stopPropagation(); if (F.started) blowAll(k); });
     c.appendChild(cd); F.candles.push(cd);
   })(k);
   // layers that catch the firework light, shaped exactly like the cake drawing
@@ -2554,6 +3297,7 @@ var FC = { candles: 3 };
   lit.style.webkitMaskImage = mask; lit.style.maskImage = mask;
   c.insertBefore(spill, svgEl); c.insertBefore(lit, svgEl.nextSibling);
   F.light = lit; F.spill = spill;
+  c.addEventListener("click", function () { if (F.started) blowAll(); });   // a tap anywhere on the cake works too
   F.cake = c;
   R.world.appendChild(c);
   var dim = document.createElement("div"); dim.className = "ride-dim"; dim.id = "rideDim"; R.el.appendChild(dim);
@@ -2583,11 +3327,20 @@ function sceneFinale() {
     F.started = true;
     say("Now blow", rideText(RC.blowLine), null);
     setTimeout(function () {
+      if (F.done) return;                                   // candles already out: don't bring the blow hint back
       var hint = $("rideHint"), mic = $("blowMic");
       hint.textContent = RC.blowHint; hint.hidden = false;
       mic.hidden = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     }, 400);
   }, 5200);
+}
+// one tap (or one breath) puts every candle out, in a quick ripple spreading from where she tapped
+function blowAll(from) {
+  if (F.blowing || F.done) return; F.blowing = true;
+  var n = F.candles.length; if (from == null) from = (n - 1) / 2;
+  F.cake.classList.add("wind");
+  F.candles.forEach(function (cd, k) { setTimeout(function () { blowOut(k); }, Math.abs(k - from) * 70); });
+  setTimeout(function () { F.cake.classList.remove("wind"); }, 700);
 }
 function blowOut(k) {
   var cd = F.candles[k];
@@ -2603,19 +3356,63 @@ function blowOut(k) {
   F.out++;
   if (F.out >= F.candles.length) allOut();
 }
+// The last lines of the song, played once more, softly, under the birthday message
+function playSongTail(onEnd) {
+  if (songState === "failed" || !CONFIG.song || !isFinite(song.duration) || !song.duration) return false;
+  clearInterval(songFadeId);
+  var end = song.duration - SONG_SILENT_END;
+  try { song.pause(); song.currentTime = Math.max(0, end - SONG_TAIL); song.volume = 0; } catch (e) { return false; }
+  var p = song.play();
+  var go = function () {
+    songState = "playing"; FW_DUCK = .45;              // fireworks stay soft and distant while it plays
+    var v = 0;
+    songFadeId = setInterval(function () { v = Math.min(SONG_TAIL_VOL, v + .012); try { song.volume = v; } catch (e) {} if (v >= SONG_TAIL_VOL) clearInterval(songFadeId); }, 90);
+    var stopAt = setInterval(function () {             // ease out over the last 2 seconds, stop on the last sung note
+      var left = end - song.currentTime;
+      if (left < 2 && left > 0) { clearInterval(songFadeId); try { song.volume = SONG_TAIL_VOL * Math.max(0, left / 2); } catch (e) {} }
+      if (song.paused || left <= 0) { clearInterval(stopAt); try { song.pause(); } catch (e) {} songState = "paused"; FW_DUCK = 1; if (onEnd) onEnd(); }
+    }, 100);
+  };
+  if (p && p.then) p.then(go).catch(function () { synthTune(); });
+  else go();
+  return true;
+}
+// "Even from far away, I'm celebrating you today." appears word by word, like it's being written
+function showFarLine() {
+  var el = $("farLine"), text = RC.farLine;
+  if (!el || !text) return;
+  el.innerHTML = ""; el.setAttribute("aria-label", text);
+  text.split(/\s+/).forEach(function (w, k) {
+    if (k) el.appendChild(document.createTextNode(" "));
+    var sp = document.createElement("span"); sp.className = "fl"; sp.textContent = w;
+    sp.setAttribute("aria-hidden", "true");
+    sp.style.setProperty("--d", (reducedMotion ? 0 : k * .32) + "s");
+    el.appendChild(sp);
+  });
+  el.hidden = false;
+}
 function allOut() {
   if (F.done) return; F.done = true;
   stopMic();
-  $("blowMic").hidden = true; $("rideHint").hidden = true;
   F.cake.classList.add("dark");
   $("rideDim").classList.add("on");
+  var box = $("rideSay");
+  box.classList.add("swap");            // the "Now blow…" line fades away quietly as the room goes dark
   setTimeout(function () {
     $("rideDim").classList.remove("on"); $("rideDim").classList.add("soft");
-    $("rideSay").classList.add("big");
-    say("", rideText(RC.finalTitle), null);
+    // swap the text while it is still invisible, then switch to the big style and fade it in
+    $("blowMic").hidden = true; $("rideHint").hidden = true;   // hidden only now, while invisible, so nothing jumps
+    $("rideEyebrow").textContent = ""; $("rideLine").textContent = rideText(RC.finalTitle); $("rideGo").hidden = true;
+    box.classList.add("big");
+    box.classList.remove("swap");
     setTimeout(function () { var h = $("rideHint"); h.textContent = CONFIG.finaleWish; h.hidden = false; }, 400);
-    if (songState !== "playing") synthTune();
-    setTimeout(fireworksShow, 2600);   // fireworks start once every candle is out and the message has had a moment to be read
+    var quietOnce = false;
+    function quiet() { if (quietOnce) return; quietOnce = true; fireworksStop(); sceneQuiet(); }   // the song has ended: all goes quiet
+    var tail = playSongTail(quiet);          // the song's last lines come back softly…
+    if (!tail && songState !== "playing") synthTune();
+    setTimeout(showFarLine, tail ? 3200 : 2400);   // …and the closing line writes itself in
+    setTimeout(function () { fireworksShow(quiet); }, tail ? 5600 : 4200);  // fireworks once the line has been read
+    setTimeout(quiet, tail ? (SONG_TAIL + 6) * 1000 : 14000);           // in case the song's end is never reported
   }, 1300);
 }
 
@@ -2624,12 +3421,14 @@ $("blowMic").addEventListener("click", function () {
   var btn = this;
   btn.disabled = true;
   navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
+    if (F.done) { stream.getTracks().forEach(function (tr) { tr.stop(); }); return; }   // candles were tapped out meanwhile
     btn.hidden = true;
     $("rideHint").textContent = "Blow now… 🌬️";
     startMic(stream);
   }).catch(function () {
+    if (F.done) return;
     btn.hidden = true;
-    $("rideHint").textContent = "No problem, just tap each candle 🕯️";
+    $("rideHint").textContent = "No problem, just tap the cake 🕯️";
   });
 });
 function startMic(stream) {
@@ -2651,7 +3450,7 @@ function startMic(stream) {
       F.cake.classList.toggle("wind", blowing);
       if (blowing) {
         blowMs += dt * Math.min(3, rms / thr);                           // harder blowing counts faster
-        if (blowMs > 380) { blowMs = 0; var k = F.candles.findIndex(function (c) { return !c.classList.contains("out"); }); if (k >= 0) blowOut(k); }
+        if (blowMs > 380) { blowMs = 0; blowAll(); }
       } else blowMs = Math.max(0, blowMs - dt * .5);
     }
     F.mic.raf = requestAnimationFrame(listen);
@@ -2667,16 +3466,24 @@ function stopMic() {
 }
 
 // Fireworks: glowing rockets rise from the rooftops and open into long colourful streaks, golden willows and twinkling glitter
-function fireworksShow() {
-  if (reducedMotion) return;
+var FW_STOP = false;
+function fireworksStop() { FW_STOP = true; }
+function fireworksShow(onEnd) {
+  if (reducedMotion) { if (onEnd) setTimeout(onEnd, 6000); return; }
+  var allLaunched = false;
   var cv = $("fireworks"), ctx = cv.getContext("2d"), parts = [], rockets = [], flashes = [], glints = [], running = false, last = 0;
   var PAL = { pink: "#ff6fae", cyan: "#5ee7ff", gold: "#ffcf6b", white: "#fff6e0", lilac: "#c9a7ff", mint: "#8ff0c4", orange: "#ffad5c" };
   var MIXES = [["pink", "cyan", "gold"], ["gold", "white"], ["cyan", "lilac", "white"], ["pink", "gold"], ["mint", "cyan", "gold"], ["lilac", "pink", "white"]];
   var TYPES = ["streak", "streak", "willow", "ring", "streak", "glitter", "willow", "streak"];
-  var shot = 0;
+  var shot = 0, GLOW = .62;                                           // overall brightness of the bursts (1 = full)
   function launch(type) {
+    if (FW_STOP) return;
     var g = rideGeom();
-    var x = g.W * (.14 + Math.random() * .72), ty = g.H * (.12 + Math.random() * .26);
+    var x, tries = 0, cr = F.cake.getBoundingClientRect(), fr = cv.getBoundingClientRect();
+    var cL = cr.left - fr.left - 50, cRt = cr.right - fr.left + 50;   // keep well clear of the cake
+    do { x = g.W * (.1 + Math.random() * .8); } while (x > cL && x < cRt && ++tries < 20);
+    if (x > cL && x < cRt) x = cL > g.W - cRt ? cL * Math.random() : cRt + (g.W - cRt) * Math.random();
+    var ty = g.H * (.12 + Math.random() * .26);
     rockets.push({ x: x, y: g.walkTop - 10, x0: x, y0: g.walkTop - 10, ty: ty, drift: (Math.random() - .5) * g.W * .05,
                    t: 0, dur: 1000 + Math.random() * 450, type: type || TYPES[shot++ % TYPES.length] });
     if (!running) { running = true; last = 0; requestAnimationFrame(frame); }
@@ -2724,7 +3531,7 @@ function fireworksShow() {
     var cx = cr.left - fr.left + cr.width / 2, cy = cr.top - fr.top + cr.height / 2;
     var dx = cx - x, dy = cy - y, dist = Math.sqrt(dx * dx + dy * dy);
     var ang = Math.atan2(dx, -dy) * 180 / Math.PI;                  // light travels from the burst towards the cake
-    var strength = Math.max(.45, Math.min(1, 1.25 - dist / (rideGeom().H * 1.1)));
+    var strength = .6 * Math.max(.45, Math.min(1, 1.25 - dist / (rideGeom().H * 1.1)));
     F.light.style.background = "linear-gradient(" + ang + "deg, " + color + " 0%, " + color + "aa 35%, " + color + "33 75%, transparent 100%)";
     F.spill.style.background = "radial-gradient(ellipse at " + (50 - Math.max(-30, Math.min(30, dx / 6))) + "% 50%, " + color + "aa 0%, " + color + "33 45%, transparent 72%)";
     [F.light, F.spill].forEach(function (el) {
@@ -2746,7 +3553,7 @@ function fireworksShow() {
     rockets = rockets.filter(function (r) {
       r.t += dt; var e = Math.min(1, r.t / r.dur), ee = 1 - Math.pow(1 - e, 2.2);
       var nx = r.x0 + r.drift * ee, ny = r.y0 + (r.ty - r.y0) * ee;
-      ctx.globalAlpha = 1; ctx.strokeStyle = "#ffe7a8"; ctx.lineWidth = 2.2;
+      ctx.globalAlpha = GLOW; ctx.strokeStyle = "#ffe7a8"; ctx.lineWidth = 2.2;
       ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(nx, ny); ctx.stroke();
       r.x = nx; r.y = ny;
       ctx.fillStyle = "#fffaf0"; ctx.beginPath(); ctx.arc(nx, ny, 2.4, 0, 7); ctx.fill();
@@ -2756,7 +3563,7 @@ function fireworksShow() {
     });
     flashes = flashes.filter(function (f) {
       var gr = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-      gr.addColorStop(0, "rgba(255,250,230," + (.55 * f.life) + ")"); gr.addColorStop(1, "rgba(255,240,200,0)");
+      gr.addColorStop(0, "rgba(255,250,230," + (.22 * f.life) + ")"); gr.addColorStop(1, "rgba(255,240,200,0)");
       ctx.globalAlpha = 1; ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 7); ctx.fill();
       f.life -= .09 * k; return f.life > 0;
     });
@@ -2773,7 +3580,7 @@ function fireworksShow() {
       var al = Math.min(1, p.life * 1.4);
       if (p.glit && p.life < .5) al *= Math.random() < .5 ? 1 : .25;   // fading ends twinkle
       if (p.spark) al *= Math.random() < .6 ? 1 : 0;
-      ctx.globalAlpha = al; ctx.strokeStyle = p.color; ctx.lineWidth = p.w;
+      ctx.globalAlpha = al * GLOW; ctx.strokeStyle = p.color; ctx.lineWidth = p.w;
       ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
       return true;
     });
@@ -2781,30 +3588,219 @@ function fireworksShow() {
     glints = glints.filter(function (s) {
       s.t += dt; if (s.t < 0) return true;
       var e = s.t / s.dur; if (e >= 1) return false;
-      star4(s.x, s.y, s.s * Math.sin(e * Math.PI), Math.sin(e * Math.PI));
+      star4(s.x, s.y, s.s * Math.sin(e * Math.PI), Math.sin(e * Math.PI) * GLOW);
       return true;
     });
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
     if (parts.length || rockets.length || flashes.length || glints.length) requestAnimationFrame(frame);
-    else { running = false; ctx.clearRect(0, 0, g.W, g.H); }
+    else { running = false; ctx.clearRect(0, 0, g.W, g.H); if (allLaunched && onEnd) { var cb = onEnd; onEnd = null; cb(); } }
   }
   // the show: a happy opening volley, gentle shots now and then, and a small grand finale at the end
   [0, 700, 1300, 1350, 2300, 3000, 3700, 3750, 4800].forEach(function (t) { setTimeout(function () { launch(); }, t); });
   var n = 0, iv = setInterval(function () {
     launch(); if (Math.random() < .35) setTimeout(function () { launch(); }, 280);
-    if (++n >= 12) {
+    if (++n >= 4) {                                  // a shorter show, so the moon's message comes sooner
       clearInterval(iv);
-      setTimeout(function () { ["streak", "willow", "ring", "streak", "glitter", "willow"].forEach(function (ty, i) { setTimeout(function () { launch(ty); }, i * 260); }); }, 2600);
+      setTimeout(function () { ["streak", "willow", "ring", "streak", "glitter", "willow"].forEach(function (ty, i) { setTimeout(function () { launch(ty); if (i === 5) allLaunched = true; }, i * 260); }); }, 2600);
     }
   }, 2500);
 }
 // Firework sounds: real recorded sky-cracker bursts (sounds/firework-1..3.mp3), picked at random, slightly varied
 var FW_VOL = .5;                          // 0..1, overall loudness of the fireworks
+var FW_DUCK = 1;                          // lowered while the song's last lines are playing
 function fwSound(kind, xFrac, size) {
   var k = "fw" + (1 + ((Math.random() * 3) | 0));
-  setTimeout(function () { sfxPlay(k, FW_VOL * (size || 1) * (.8 + Math.random() * .2), .94 + Math.random() * .12); }, 90);
+  setTimeout(function () { sfxPlay(k, FW_VOL * FW_DUCK * (size || 1) * (.8 + Math.random() * .2), .94 + Math.random() * .12); }, 90);
 }
 
+/* ---------- Tell the moon: after the fireworks and music, the cake and words fade; a bubble pops out of the moon.
+   She taps it, it grows into a card, she writes; her words float up into the moon, and the moon answers. (Sent to your email.) ---------- */
+var RP = { bubble: null, dots: [], card: null, ta: null, sendBtn: null, status: null, busy: false, open: false, done: false };
+(function buildMoonReply() {
+  var C = CONFIG.reply;
+  if (!C || !C.key) return;
+  var bub = document.createElement("button"); bub.type = "button"; bub.className = "moon-bubble"; bub.hidden = true;
+  bub.innerHTML = '<span></span><b class="mb-press"></b>'; bub.querySelector("span").textContent = C.invite; bub.querySelector(".mb-press").textContent = C.press;
+  R.el.appendChild(bub); RP.bubble = bub;
+  [0, 1].forEach(function () { var d = document.createElement("i"); d.className = "moon-dot"; d.hidden = true; R.el.appendChild(d); RP.dots.push(d); });
+  var card = document.createElement("div"); card.className = "moon-card"; card.hidden = true;
+  card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true"); card.setAttribute("aria-label", "Tell the moon something");
+  card.innerHTML = '<p class="to"></p><textarea maxlength="4000" aria-label="Your message"></textarea>' +
+    '<input class="bot" type="checkbox" tabindex="-1" aria-hidden="true"><p class="sign"></p>' +
+    '<div class="row"><button type="button" class="later">Not now</button><button type="button" class="send" disabled></button></div>' +
+    '<p class="status" aria-live="polite"></p>';
+  R.el.appendChild(card); RP.card = card;
+  RP.ta = card.querySelector("textarea"); RP.sendBtn = card.querySelector(".send"); RP.status = card.querySelector(".status");
+  card.querySelector(".to").textContent = "Dear " + (CONFIG.fromName || "you") + ",";
+  card.querySelector(".sign").textContent = "— " + (CONFIG.friendName || "");
+  RP.sendBtn.textContent = C.button; RP.ta.placeholder = C.placeholder;
+  try { RP.ta.value = localStorage.getItem("bdayReplyDraft") || ""; } catch (e) {}
+  RP.sendBtn.disabled = !RP.ta.value.trim();
+  RP.ta.addEventListener("input", function () {
+    RP.sendBtn.disabled = !RP.ta.value.trim(); RP.status.textContent = "";
+    try { localStorage.setItem("bdayReplyDraft", RP.ta.value); } catch (e) {}      // her words are kept if she closes it
+  });
+  bub.addEventListener("click", function () { if (!bub.classList.contains("quiet")) replyOpen(); });
+  MOON.el.addEventListener("click", function () { if (MOON.el.classList.contains("listen") && !RP.open && !RP.busy) replyOpen(); });
+  card.querySelector(".later").addEventListener("click", replyClose);
+  card.addEventListener("keydown", function (e) { if (e.key === "Escape") replyClose(); });
+  RP.sendBtn.addEventListener("click", replySend);
+  addEventListener("resize", function () { if (RP.bubble && !RP.bubble.hidden) placeBubble(); });
+})();
+function moonCenter() {
+  var rr = R.el.getBoundingClientRect(), mr = MOON.el.getBoundingClientRect();
+  return { x: mr.left - rr.left + mr.width / 2, y: mr.top - rr.top + mr.height / 2, d: mr.width };
+}
+// The fireworks and the music are over: the cake and the words fade away, leaving the night, the city and the moon
+function sceneQuiet() {
+  [$("rideSay"), F.cake].forEach(function (el) { if (el) { el.style.transition = "opacity 2.6s ease"; el.style.opacity = "0"; el.style.pointerEvents = "none"; } });
+  setTimeout(function () { $("rideSay").style.visibility = "hidden"; }, 2700);
+  setTimeout(showReplyInvite, 2600 + 600);
+}
+// the bubble sits beside the moon (always fully on screen), with two little dots leading back to the moon
+function placeBubble() {
+  var b = RP.bubble, m = moonCenter(), rr = R.el.getBoundingClientRect();
+  var bw = b.offsetWidth, bh = b.offsetHeight, W = rr.width;
+  var x = m.x - m.d * .55 - bw, y = m.y + m.d * .55;                 // below and to the left of the moon
+  x = Math.max(16, Math.min(W - 16 - bw, x));
+  b.style.left = x.toFixed(1) + "px"; b.style.top = y.toFixed(1) + "px";
+  var cx = Math.min(x + bw - 18, m.x), cy = y;                       // the corner nearest the moon
+  b.style.setProperty("--ox", (cx - x).toFixed(1) + "px");
+  [[.38, 6], [.68, 9]].forEach(function (p, k) {
+    var d = RP.dots[k], px = m.x + (cx - m.x) * p[0] - m.d * .15 * (1 - p[0]), py = m.y + m.d * .45 + (cy - m.y - m.d * .45) * p[0];
+    d.style.width = d.style.height = p[1] + "px";
+    d.style.left = (px - p[1] / 2).toFixed(1) + "px"; d.style.top = (py - p[1] / 2).toFixed(1) + "px";
+  });
+}
+function bubbleShow(text, quiet) {
+  var b = RP.bubble;
+  b.querySelector("span").textContent = text; b.classList.toggle("quiet", !!quiet);
+  b.hidden = false; RP.dots.forEach(function (d) { d.hidden = false; });
+  placeBubble();
+  void b.offsetWidth;
+  RP.dots[0].classList.add("on");
+  setTimeout(function () { RP.dots[1].classList.add("on"); }, 150);
+  setTimeout(function () { b.classList.add("on"); }, 300);            // pops out of the moon
+  setTimeout(function () { b.classList.add("float"); }, 1000);
+}
+function bubbleHide() {
+  RP.bubble.classList.remove("on", "float"); RP.dots.forEach(function (d) { d.classList.remove("on"); });
+}
+function bubbleSay(text, quiet) {                    // change what the bubble says, softly
+  var b = RP.bubble;
+  b.classList.add("swap");
+  setTimeout(function () { b.querySelector("span").textContent = text; b.classList.toggle("quiet", !!quiet); placeBubble(); b.classList.remove("swap"); }, 420);
+}
+function showReplyInvite() {
+  if (!RP.bubble || RP.shown) return; RP.shown = true;
+  if (!MOON.formed) moonInstant();
+  MOON.el.classList.add("listen");                   // the moon glows a little brighter, as if it's listening
+  setTimeout(function () { bubbleShow(CONFIG.reply.invite, false); magicNote(0); }, 600);
+}
+// the bubble grows into the card; "Not now" shrinks it back into the bubble
+function cardFromBubble(c) {
+  var br = RP.bubble.getBoundingClientRect(), cr = c.getBoundingClientRect();
+  var dx = br.left + br.width / 2 - (cr.left + cr.width / 2), dy = br.top + br.height / 2 - (cr.top + cr.height / 2);
+  return "translate(-50%, -50%) translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(" + (br.width / cr.width).toFixed(3) + "," + (br.height / cr.height).toFixed(3) + ")";
+}
+function replyOpen() {
+  if (RP.busy || RP.open) return;
+  RP.open = true;
+  var c = RP.card; c.hidden = false; c.classList.remove("away", "grow");
+  c.style.transition = "none"; c.classList.add("on");
+  c.style.transform = cardFromBubble(c); c.style.opacity = "0";
+  void c.offsetWidth;
+  c.style.transition = ""; c.classList.add("grow");
+  c.style.transform = ""; c.style.opacity = "";
+  bubbleHide();
+  RP.status.textContent = "";
+  magicNote(1);
+  setTimeout(function () { try { RP.ta.focus({ preventScroll: true }); } catch (e) { RP.ta.focus(); } }, reducedMotion ? 0 : 600);
+}
+function replyClose() {
+  if (RP.busy || !RP.open) return;
+  RP.open = false;
+  var c = RP.card;
+  bubbleShow(RP.done ? CONFIG.reply.goodnight : CONFIG.reply.invite, RP.done);   // back to the bubble by the moon
+  setTimeout(function () {
+    c.style.transform = cardFromBubble(c); c.style.opacity = "0";
+    setTimeout(function () { if (!RP.open) { c.hidden = true; c.classList.remove("on", "grow"); c.style.transform = ""; c.style.opacity = ""; } }, 600);
+  }, 20);
+  if (!RP.done) RP.bubble.focus();
+}
+function replySend() {
+  var text = RP.ta.value.trim();
+  if (!text || RP.busy) return;
+  RP.busy = true; RP.sendBtn.disabled = true; RP.status.textContent = "";
+  var C = CONFIG.reply, done = false, layer = null, words = [];
+  var body = { access_key: C.key, subject: "🌙 A birthday message from " + (CONFIG.friendName || "her"),
+    from_name: CONFIG.friendName || "Birthday page", message: text, sent: new Date().toString(), botcheck: RP.card.querySelector(".bot").checked };
+  var ctl = typeof AbortController === "function" ? new AbortController() : null;
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); finish(false); }, 20000);
+  fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { return r.json().catch(function () { return {}; }); })
+    .then(function (j) { finish(!!(j && j.success)); })
+    .catch(function () { finish(false); });
+  if (!reducedMotion) lift();
+  // her words lift off the card exactly where they are and shimmer while the message goes
+  function lift() {
+    var rr = R.el.getBoundingClientRect(), ta = RP.ta, tr = ta.getBoundingClientRect(), cs = getComputedStyle(ta);
+    var probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;left:" + (tr.left - rr.left) + "px;top:" + (tr.top - rr.top - ta.scrollTop) + "px;width:" + tr.width + "px;" +
+      "white-space:pre-wrap;word-wrap:break-word;visibility:hidden;font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize + ";line-height:" + cs.lineHeight + ";";
+    ta.value.split(/(\s+)/).forEach(function (w) { var sp = document.createElement("span"); sp.textContent = w; probe.appendChild(sp); });
+    R.el.appendChild(probe);
+    layer = document.createElement("div"); layer.className = "mw-layer"; R.el.appendChild(layer);
+    Array.prototype.forEach.call(probe.children, function (sp) {
+      if (!sp.textContent.trim()) return;
+      var r = sp.getBoundingClientRect();
+      if (r.bottom < tr.top || r.top > tr.bottom || !r.width) return;     // only the words she can see
+      var w = document.createElement("span"); w.className = "mw-fly"; w.textContent = sp.textContent;
+      w.style.left = (r.left - rr.left) + "px"; w.style.top = (r.top - rr.top) + "px";
+      w.style.animationDelay = (-Math.random() * 1.2).toFixed(2) + "s";
+      layer.appendChild(w); words.push({ el: w, x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 });
+    });
+    probe.remove();
+    RP.card.classList.add("away");
+    magicNote(1);
+  }
+  function finish(ok) {
+    if (done) return; done = true; clearTimeout(timer);
+    if (!ok) {                                       // didn't go: the card comes back with her words still there
+      if (layer) layer.remove();
+      RP.card.classList.remove("away");
+      RP.status.textContent = "Couldn't send. Check your internet and tap Send again.";
+      RP.busy = false; RP.sendBtn.disabled = false;
+      return;
+    }
+    try { localStorage.removeItem("bdayReplyDraft"); } catch (e) {}
+    if (reducedMotion || !words.length) { arrived(); return; }
+    // one by one, the words float up into the moon, shrinking into little points of light
+    var m = moonCenter(), n = words.length, gap = Math.min(70, 2200 / n), last = 0;
+    words.forEach(function (w, k) {
+      var dx = m.x - w.x, dy = m.y - w.y, lift = -18 - Math.random() * 16, side = (Math.random() - .5) * 40;
+      var dur = 1500 + Math.random() * 400, delay = k * gap; last = Math.max(last, delay + dur);
+      w.el.animate([
+        { transform: "translate(0,0) scale(1)", opacity: 1 },
+        { offset: .3, transform: "translate(" + (dx * .1 + side).toFixed(1) + "px," + (lift + dy * .15).toFixed(1) + "px) scale(.85)", opacity: 1 },
+        { transform: "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(.08)", opacity: 0 }
+      ], { duration: dur, delay: delay, easing: "cubic-bezier(.45,0,.35,1)", fill: "forwards" });
+    });
+    setTimeout(function () { if (layer) layer.remove(); arrived(); }, last + 100);
+  }
+  function arrived() {
+    RP.open = false;
+    RP.card.classList.remove("on", "away", "grow"); RP.card.hidden = true; RP.done = true;
+    RP.ta.value = ""; RP.sendBtn.disabled = true;
+    var me = MOON.el; me.classList.remove("gulp"); void me.offsetWidth; me.classList.add("gulp");   // the moon glows as it takes her words in
+    setTimeout(function () { me.classList.remove("gulp"); }, 1200);
+    popNote(2, true);
+    setTimeout(function () { bubbleShow(C.sent, true); }, 700);                  // the moon answers…
+    setTimeout(function () { bubbleSay(C.goodnight, true); }, 5200);           // …and says good night
+    RP.busy = false;
+  }
+}
 say(RC.start, rideText(RC.startLine), "Start the ride");
 led(RC.busNumber + "  " + RC.start);
 
@@ -2999,9 +3995,8 @@ function unwrap(i, holdDimEl) {
       var f = document.createElement("figure"); f.className = "flyer";
       f.innerHTML = '<div class="pola-inner"><div class="pola-img"><img alt="" draggable="false"></div><figcaption>' + (k === 0 ? esc(ph.caption) : "") + '</figcaption></div>';
       var img = f.querySelector("img");
-      img.onerror = function () { img.onerror = null; img.src = placeholder(k); };
-      img.src = ph.src;
-      f.style.setProperty("--w", w + "px");
+      loadPhoto(img, ph.src, k);
+      sizeCard(f, k);
       f.querySelector(".pola-inner").style.setProperty("--fd", (-rand(0, 1.6)).toFixed(2) + "s");
       f.style.opacity = 0;
       f.style.zIndex = k === 0 ? 50 : k;
@@ -3230,8 +4225,51 @@ function quizDone() {
 /* ---------- Gift one: photo story ---------- */
 var reel = $("reel"), stage = $("reelStage");
 var polas = [], idx = -1, mode = "off", paused = false, elapsed = 0, lastT = 0, focused = -1;
-var DUR = (CONFIG.photoSeconds || 4.5) * 1000;
+var BASE_DUR = (CONFIG.photoSeconds || 4.5) * 1000, DUR = BASE_DUR;
+// Time each photo so the last one finishes just as the song ends, and the wall forms on its last notes
+var SONG_SILENT_END = 3;                 // the song file ends with about 3 seconds of silence
+var SONG_TAIL = 13;                      // seconds of singing replayed softly after the candles
+function fitPhotosToSong(fromBox, n) {
+  var full = isFinite(song.duration) && song.duration > 0 && songState !== "failed" ? song.duration : 0;
+  if (!full || !n) return BASE_DUR;
+  var left = fromBox ? full - song.currentTime : full - (CONFIG.songStart || 0) - 2.1;   // 2.1s = the intro line on replays
+  var per = (left - SONG_SILENT_END - .5) / n * 1000;     // the wall forms on the last sung notes
+  return per > 0 ? Math.max(3500, Math.min(7000, per)) : BASE_DUR;
+}
 
+// Each photo's shape (width / height), learned when it loads. Until then cards assume a 4:5 portrait.
+var PHOTO_AR = [];
+function photoAR(i) { return PHOTO_AR[i] || .8; }
+// Card width for a photo of this shape: tall photos are limited by the screen height, wide ones by its width
+function cardW(ar) {
+  var maxW = Math.min(innerWidth * .86, 540);
+  var maxImgH = Math.max(160, Math.min((innerHeight - 230) * .9, 440));
+  return Math.round(Math.min(maxW, maxImgH * ar + 20));           // + 20 = the white polaroid border
+}
+function sizeCard(f, i) {
+  if (!f) return;
+  var ar = photoAR(i), w = cardW(ar);
+  f.style.setProperty(f.classList.contains("flyer") ? "--w" : "--pw", w + "px");
+  var box = f.querySelector(".pola-img"); if (box) box.style.setProperty("--ar", ar);
+}
+// Load a photo; if "photo1.jpg" isn't there, try photo1.jpeg / .png / .webp (any case), then show a placeholder
+function loadPhoto(img, src, i) {
+  img.addEventListener("load", function () {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    PHOTO_AR[i] = img.naturalWidth / img.naturalHeight;
+    var f = img.closest ? img.closest("figure") : null;
+    if (f && !f.classList.contains("hero-in")) sizeCard(f, i);
+    if (f && f.classList.contains("pola") && mode === "wall") layoutWall();
+  });
+  var base = src.replace(/\.[a-z0-9]+$/i, ""), exts = [".jpg", ".jpeg", ".png", ".webp", ".JPG", ".JPEG", ".PNG", ".WEBP"];
+  var tries = [src].concat(exts.map(function (e) { return base + e; }).filter(function (u) { return u !== src; })), n = 0;
+  img.onerror = function () {
+    n++;
+    if (n < tries.length) img.src = tries[n];
+    else { img.onerror = null; img.src = placeholder(i); }
+  };
+  img.src = tries[0];
+}
 function placeholder(i) {
   var c = document.createElement("canvas"); c.width = 800; c.height = 1000;
   var x = c.getContext("2d");
@@ -3270,14 +4308,17 @@ function buildHearts() {
 
 function openReel() {
   buildHearts();
+  var fromBox = skipReelIntro;                       // straight from opening the box (the song is already playing)
+  if (!fromBox) restartSong();                       // "Watch again": song starts over with the photos
+  DUR = fitPhotosToSong(fromBox, CONFIG.photos.length);
   stage.innerHTML = ""; $("bars").innerHTML = "";
   polas = CONFIG.photos.map(function (p, i) {
     var f = document.createElement("figure");
     f.className = "pola";
     f.innerHTML = '<div class="pola-inner"><div class="pola-img"><img alt="" draggable="false"></div><figcaption>' + esc(p.caption) + '</figcaption></div>';
     var img = f.querySelector("img");
-    img.onerror = function () { img.onerror = null; img.src = placeholder(i); };
-    img.src = p.src;
+    loadPhoto(img, p.src, i);
+    sizeCard(f, i);
     f.style.setProperty("--dur", (DUR + 1500) + "ms");
     f.style.zIndex = i + 1;
     stage.appendChild(f);
@@ -3338,9 +4379,7 @@ function go(n) {
   el.style.zIndex = 100 + n;
   void el.offsetWidth;
   el.classList.add("shown"); el.classList.remove("piled");
-  el.style.setProperty("--kx", rand(-4, 4).toFixed(1) + "%");
-  el.style.setProperty("--ky", rand(-4, 4).toFixed(1) + "%");
-  var img = el.querySelector("img"); img.style.animation = "none"; void img.offsetWidth; img.style.animation = "";
+  var inner = el.querySelector(".pola-inner"); inner.style.animation = "none"; void inner.offsetWidth; inner.style.animation = "";
   setPola(el, { x: 0, y: 0, r: rand(-4, 4), s: 1 });
   el.classList.add("center");
   $("reelCaption").textContent = (n + 1) + " of " + polas.length;
@@ -3384,22 +4423,26 @@ function toWall() {
 }
 function layoutWall() {
   var n = polas.length; if (!n) return;
-  var pw = polas[0].offsetWidth, ph = polas[0].offsetHeight;
+  polas.forEach(function (p, i) { sizeCard(p, i); });
+  var dims = polas.map(function (p) { return { w: p.offsetWidth || 1, h: p.offsetHeight || 1 }; });
   var top = 90, bottom = $("wallNote").hidden ? 90 : 160;
   var W = innerWidth - 32, H = innerHeight - top - bottom;
-  var best = { s: 0, cols: 1 };
+  // try every column count; keep the one where the cards (each fitted into its own cell) come out biggest overall
+  var best = null;
   for (var cols = 1; cols <= n; cols++) {
-    var rows = Math.ceil(n / cols);
-    var s = Math.min(W / (cols * pw * 1.06), H / (rows * ph * 1.04));
-    if (s > best.s) best = { s: s, cols: cols };
+    var rows = Math.ceil(n / cols), cw = W / cols, ch = H / rows, area = 0, sc = [];
+    dims.forEach(function (d) {
+      var s = Math.min(.62, cw / (d.w * 1.06), ch / (d.h * 1.06));
+      sc.push(s); area += d.w * d.h * s * s;
+    });
+    if (!best || area > best.area) best = { area: area, cols: cols, cw: cw, ch: ch, sc: sc };
   }
-  var sc = Math.min(best.s, .62), cols2 = best.cols, rows2 = Math.ceil(n / cols2);
-  var cw = pw * sc * 1.06, ch = ph * sc * 1.04;
+  var cols2 = best.cols, rows2 = Math.ceil(n / cols2);
   var areaCenter = top + H / 2, offY = areaCenter - innerHeight * .52;
   polas.forEach(function (p, i) {
     var r = Math.floor(i / cols2), c = i % cols2;
     var inRow = Math.min(cols2, n - r * cols2);
-    setPola(p, { x: (c - (inRow - 1) / 2) * cw, y: (r - (rows2 - 1) / 2) * ch + offY, r: rand(-6, 6), s: sc });
+    setPola(p, { x: (c - (inRow - 1) / 2) * best.cw, y: (r - (rows2 - 1) / 2) * best.ch + offY, r: rand(-5, 5), s: best.sc[i] });
     p.classList.remove("dim");
   });
 }
@@ -3414,6 +4457,7 @@ function focusWall(i) {
 }
 function closeReel() {
   mode = "off"; reel.hidden = true;
+  fadeSongOut(2000); $("soundBtn").hidden = true;    // the song belongs to the photos: it fades away before the bus moves on
   document.body.classList.remove("no-scroll", "reel-open");
   if (boxes[0]) boxes[0].focus();
   maybeFinale();
@@ -3442,13 +4486,21 @@ stage.addEventListener("touchend", function (e) {
   var dx = e.changedTouches[0].clientX - tx; tx = null;
   if (Math.abs(dx) > 50) { e.preventDefault(); go(dx < 0 ? idx + 1 : idx - 1); }
 });
-$("reelPause").addEventListener("click", function () { paused = !paused; reel.classList.toggle("paused", paused); setPauseIcon(); });
+var songHeldByPause = false;
+$("reelPause").addEventListener("click", function () {
+  paused = !paused; reel.classList.toggle("paused", paused); setPauseIcon();
+  if (paused && songState === "playing") { song.pause(); songState = "paused"; songHeldByPause = true; setSoundLabel(); }
+  else if (!paused && songHeldByPause) { songHeldByPause = false; startSong(); }
+});
 $("reelClose").addEventListener("click", closeReel);
 $("reelDone").addEventListener("click", closeReel);
 $("reelReplay").addEventListener("click", openReel);
-addEventListener("resize", function () { if (mode === "wall") { focused = -1; layoutWall(); } });
+addEventListener("resize", function () {
+  if (polas && polas.length) polas.forEach(function (p, i) { sizeCard(p, i); });
+  if (mode === "wall") { focused = -1; layoutWall(); }
+});
 document.addEventListener("visibilitychange", function () {
-  if (document.hidden && mode === "reel" && !paused) { paused = true; reel.classList.add("paused"); setPauseIcon(); }
+  if (document.hidden && mode === "reel" && !paused) $("reelPause").click();   // pauses the photos and the song together
 });
 addEventListener("keydown", function (e) {
   if (!reel.hidden) {
