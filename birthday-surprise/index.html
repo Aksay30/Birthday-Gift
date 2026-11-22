@@ -911,7 +911,21 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .tkt .stamp.on { animation: tkStamp .45s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes tkStamp { from { opacity: 0; transform: rotate(-10deg) scale(2.6); } to { opacity: .92; transform: rotate(-10deg) scale(1); } }
 .ride-hint { margin: 2px 0 0; font-size: 14px; color: #fff4d2; text-shadow: 0 1px 6px rgba(20,10,30,.7); }
-.ride-hint[hidden], #blowMic[hidden] { display: none; }
+.blow-countdown {
+  margin-top: 8px; min-height: 1.2em;
+  font-family: var(--display); font-size: clamp(58px, 16vw, 104px);
+  line-height: 1; font-weight: 800; color: var(--gold);
+  text-shadow: 0 4px 24px rgba(0,0,0,.45);
+  font-variant-numeric: tabular-nums;
+}
+.blow-countdown.pop { animation: countdownPop .72s cubic-bezier(.2,1.5,.4,1); }
+@keyframes countdownPop {
+  0% { opacity: 0; transform: scale(.45); }
+  35% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.ride-hint[hidden] { display: none; }
 .ride-say.big::before { content: ""; position: absolute; left: 50%; top: -10px; width: min(560px, 100%); height: calc(100% + 34px); transform: translateX(-50%); z-index: -1;
   background: radial-gradient(ellipse at 50% 45%, rgba(10,6,24,.55) 0%, rgba(10,6,24,.3) 45%, rgba(10,6,24,0) 72%); pointer-events: none; }
 .ride-say.big #rideLine, .ride-say.big .ride-hint { text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 18px rgba(10,6,24,.7); }
@@ -1202,14 +1216,14 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
         <p id="rideLine"></p>
         <button class="btn-gold" type="button" id="rideGo">Start the ride</button>
         <p class="ride-hint" id="rideHint" hidden></p>
+        <div class="blow-countdown" id="blowCountdown" hidden aria-live="assertive"></div>
         <p class="far-line" id="farLine" hidden></p>
-        <button class="btn-gold" type="button" id="blowMic" hidden>Blow with the mic 🎤</button>
       </div>
     </div>
     <p class="shelf-note" id="shelfNote">Start with the first box. Turn your sound on for this one.</p>
     <section id="finale" hidden aria-labelledby="finale-title">
       <h3 id="finale-title">One more thing. Make a wish.</h3>
-      <p>Close your eyes, think of it, then tap each candle to blow it out.</p>
+      <p>Close your eyes, make a wish, and watch the countdown before the candles go out.</p>
       <div class="cake" aria-label="Birthday cake with candles">
         <div class="candles" id="candles"></div>
         <div class="tier t2"></div>
@@ -1284,7 +1298,7 @@ var CONFIG = {
 
   // Birthday in YYYY-MM-DD. Before midnight on this day, a countdown shows instead of the lock.
   // Leave "" to skip the countdown.
-  birthday: "2026-12-02",
+  birthday: "",
 
   hint: "Think back to September 2023. The day it all started.",
 
@@ -1298,12 +1312,12 @@ var CONFIG = {
   photos: [
     { src: "photos/photo1.jpg", caption: "The very first one" },
     { src: "photos/photo2.jpg", caption: "That smile, though" },
-    { src: "photos/photo3.jpg", caption: "Caught you mid-laugh" },
+    { src: "photos/photo3.jpeg", caption: "Caught you mid-laugh" },
     { src: "photos/photo4.jpg", caption: "The trip we still talk about" },
-    { src: "photos/photo5.jpg", caption: "Main character energy" },
+    { src: "photos/photo5.jpeg", caption: "Main character energy" },
     { src: "photos/photo6.jpg", caption: "Proof you can't pose" },
-    { src: "photos/photo7.jpg", caption: "Our usual spot" },
-    { src: "photos/photo8.jpg", caption: "Still my favourite" },
+    { src: "photos/photo7.webp", caption: "Our usual spot" },
+    { src: "photos/photo8.jpeg", caption: "Still my favourite" },
   ],
 
   // The birthday ride: Bus 28 starts here and drops one gift at each stop.
@@ -1324,10 +1338,8 @@ var CONFIG = {
     nextLine: "Next stop: {stop}",
     endLine: "Back where it all began. End of the ride, but never the end of us",
     banner: "Happy Birthday {name} 🎂",
-    // The finale at Old Bus Stand: a cake appears, make a wish, then blow (into the mic, or tap)
+    // The finale at Old Bus Stand: make a wish, count down from three, then the candles go out
     wishLine: "Close your eyes and make a wish…",
-    blowLine: "Now blow out the candles! 🎂",
-    blowHint: "Blow into your phone, or tap the cake",
     finalTitle: "Happy Birthday, {name}!",
     farLine: "Even from far away, I'm celebrating you today.",   // writes itself in while the song's last lines play
   },
@@ -1354,12 +1366,18 @@ var CONFIG = {
       eyebrow: "Gift three · Written for you",
       // Your kavidhai. Each line appears one by one. An empty line starts a new verse.
       poem: [
-        "இங்கே உங்கள் கவிதை வரும்",
-        "ஒவ்வொரு வரியும்",
-        "மெதுவாகத் தோன்றும்",
+        "உன் வருகையால் நாட்கள் அழகாயின;",
+        "நம் நொடிகள் கவிதையாயின.",
         "",
-        "(Replace these lines with your kavidhai.",
-        "An empty line starts a new verse.)",
+        "சொல்லாமல் போன வார்த்தைகளுக்கும்,",
+        "சொல்லிச் சிரித்த சின்னச் சின்ன கதைகளுக்கும்,",
+        "மறக்க முடியாமல் மனதில் மலர்ந்த நொடிகளுக்கும்,",
+        "மீண்டும் வாழ்ந்திட மனம் ஏங்கும் தருணங்களுக்கும்.",
+        "நன்றி என்ற ஒற்றைச் சொல் போதாதே.",
+        "",
+        "இத்தனையும் என் வாழ்வில் தந்த உனக்கு,",
+        "வார்த்தைகளுக்குள் அடங்குமோ,",
+        "உன்னால் நிறைந்த என் மகிழ்வை...",
       ].join("\n"),
       // After the kavidhai: a short message and birthday wish. {name} becomes friendName.
       wishTitle: "Happy Birthday, {name} 🎂",
@@ -3259,7 +3277,7 @@ $("rideGo").addEventListener("click", function () {
 var rideResizeT = 0;
 addEventListener("resize", function () { clearTimeout(rideResizeT); rideResizeT = setTimeout(rideLayout, 150); });
 /* ---------- Finale in the scene: make a wish, really blow out the candles, fireworks over the city ---------- */
-var F = { cake: null, candles: [], out: 0, mic: null, done: false, started: false };
+var F = { cake: null, candles: [], out: 0, done: false, started: false };
 var FC = { candles: 3 };
 (function buildCake() {
   var c = document.createElement("div"); c.className = "scene-cake"; c.id = "sceneCake";
@@ -3320,19 +3338,39 @@ function sceneFinale() {
   R.bus.classList.remove("banner-on");
   R.bus.classList.add("away");
   boxes[2].parentNode.classList.add("gone");
-  say("One more thing…", "", null);
+  var countdown = $("blowCountdown");
+  countdown.hidden = true;
+  countdown.textContent = "";
+  say("Make a wish", "Close your eyes and make a wish…", null);
+
   setTimeout(function () { F.cake.classList.add("show"); ding(); }, 600);
-  setTimeout(function () { say("Make a wish", rideText(RC.wishLine), null); }, 1600);
+
+  // Pause for the wish, show a simple 3–2–1 countdown, then display the
+  // candle-blowing instruction only after the countdown has finished.
   setTimeout(function () {
+    if (F.done) return;
     F.started = true;
-    say("Now blow", rideText(RC.blowLine), null);
+    var numbers = ["3", "2", "1"];
+
+    numbers.forEach(function (number, index) {
+      setTimeout(function () {
+        if (F.done) return;
+        countdown.hidden = false;
+        countdown.textContent = number;
+        countdown.classList.remove("pop");
+        void countdown.offsetWidth;
+        countdown.classList.add("pop");
+      }, index * 1000);
+    });
+
     setTimeout(function () {
-      if (F.done) return;                                   // candles already out: don't bring the blow hint back
-      var hint = $("rideHint"), mic = $("blowMic");
-      hint.textContent = RC.blowHint; hint.hidden = false;
-      mic.hidden = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    }, 400);
-  }, 5200);
+      if (F.done) return;
+      countdown.hidden = true;
+      countdown.textContent = "";
+      say("And… blow out the candles! 🎂", "", null);
+      setTimeout(function () { if (!F.done) blowAll(); }, 650);
+    }, 3200);
+  }, 6500);
 }
 // one tap (or one breath) puts every candle out, in a quick ripple spreading from where she tapped
 function blowAll(from) {
@@ -3393,7 +3431,6 @@ function showFarLine() {
 }
 function allOut() {
   if (F.done) return; F.done = true;
-  stopMic();
   F.cake.classList.add("dark");
   $("rideDim").classList.add("on");
   var box = $("rideSay");
@@ -3401,7 +3438,7 @@ function allOut() {
   setTimeout(function () {
     $("rideDim").classList.remove("on"); $("rideDim").classList.add("soft");
     // swap the text while it is still invisible, then switch to the big style and fade it in
-    $("blowMic").hidden = true; $("rideHint").hidden = true;   // hidden only now, while invisible, so nothing jumps
+    $("blowCountdown").hidden = true; $("rideHint").hidden = true;   // hidden only now, while invisible, so nothing jumps
     $("rideEyebrow").textContent = ""; $("rideLine").textContent = rideText(RC.finalTitle); $("rideGo").hidden = true;
     box.classList.add("big");
     box.classList.remove("swap");
@@ -3414,55 +3451,6 @@ function allOut() {
     setTimeout(function () { fireworksShow(quiet); }, tail ? 5600 : 4200);  // fireworks once the line has been read
     setTimeout(quiet, tail ? (SONG_TAIL + 6) * 1000 : 14000);           // in case the song's end is never reported
   }, 1300);
-}
-
-// Microphone: blowing makes a loud rush of noise; listen for it rising well above the room's normal level
-$("blowMic").addEventListener("click", function () {
-  var btn = this;
-  btn.disabled = true;
-  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
-    if (F.done) { stream.getTracks().forEach(function (tr) { tr.stop(); }); return; }   // candles were tapped out meanwhile
-    btn.hidden = true;
-    $("rideHint").textContent = "Blow now… 🌬️";
-    startMic(stream);
-  }).catch(function () {
-    if (F.done) return;
-    btn.hidden = true;
-    $("rideHint").textContent = "No problem, just tap the cake 🕯️";
-  });
-});
-function startMic(stream) {
-  try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) { return; }
-  var src = audioCtx.createMediaStreamSource(stream), an = audioCtx.createAnalyser();
-  an.fftSize = 1024; src.connect(an);
-  var buf = new Float32Array(an.fftSize), base = 0, samples = 0, t0 = performance.now(), blowMs = 0, last = t0;
-  try { F.songVol = song.volume; song.volume = Math.min(song.volume, .25); } catch (e) {}   // quieter music so it can't "blow" by itself
-  F.mic = { stream: stream, raf: 0 };
-  (function listen(t) {
-    if (!F.mic) return;
-    an.getFloatTimeDomainData(buf);
-    var sum = 0; for (var q = 0; q < buf.length; q++) sum += buf[q] * buf[q];
-    var rms = Math.sqrt(sum / buf.length), dt = t - last; last = t;
-    if (t - t0 < 700) { base += rms; samples++; }                       // first moment: learn the room's normal level
-    else {
-      var thr = Math.max(.06, (base / Math.max(1, samples)) * 3 + .03);
-      var blowing = rms > thr;
-      F.cake.classList.toggle("wind", blowing);
-      if (blowing) {
-        blowMs += dt * Math.min(3, rms / thr);                           // harder blowing counts faster
-        if (blowMs > 380) { blowMs = 0; blowAll(); }
-      } else blowMs = Math.max(0, blowMs - dt * .5);
-    }
-    F.mic.raf = requestAnimationFrame(listen);
-  })(t0);
-}
-function stopMic() {
-  if (!F.mic) return;
-  cancelAnimationFrame(F.mic.raf);
-  F.mic.stream.getTracks().forEach(function (tr) { tr.stop(); });
-  F.mic = null;
-  F.cake.classList.remove("wind");
-  try { if (F.songVol != null) song.volume = F.songVol; } catch (e) {}
 }
 
 // Fireworks: glowing rockets rise from the rooftops and open into long colourful streaks, golden willows and twinkling glitter
