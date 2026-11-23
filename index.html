@@ -1206,7 +1206,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   <!-- Stage 1: the lock -->
   <section id="lock" hidden aria-labelledby="lock-title">
     <form class="envelope" id="lockForm" autocomplete="off" novalidate>
-      <div class="seal" aria-hidden="true" id="sealInitial">A</div>
+      <div class="seal" aria-hidden="true" id="sealInitial">G</div>
       <p class="eyebrow" id="lockEyebrow">Sealed, for one person only</p>
       <h1 id="lock-title">Something is wrapped and waiting for you</h1>
       <p class="lead">To open it, enter the date that matters most to us.</p>
@@ -1251,7 +1251,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
       <div class="ride-say" id="rideSay" aria-live="polite">
         <div class="ride-hero" id="rideHero">
           <p class="eyebrow">It's your day</p>
-          <h2>Happy Birthday, <span class="name" id="friendName">Friend</span></h2>
+          <h2>Happy Birthday, <span class="name" id="friendName">Gowri</span></h2>
           <div class="since"><span>Friends for</span><b id="daysCount">0</b><span>days and counting</span></div>
         </div>
         <small id="rideEyebrow"></small>
@@ -1334,8 +1334,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
    EDIT EVERYTHING HERE. This is the only part you need to change.
    ====================================================================== */
 var CONFIG = {
-  friendName: "Friend",          // your friend's name
-  fromName: "Aksay",             // your name (shown as the initial on the wax seal)
+  friendName: "Gowri",           // your friend's name
+  fromName: "Aksay",             // your name
+  sealLetter: "G",               // the letter pressed into the wax seal on the password page
   friendsSince: "2023-09-15",    // for the "Friends for N days" counter
 
   hint: "Think back to September 2023. The day it all started.",
@@ -1392,7 +1393,7 @@ var CONFIG = {
       kind: "photos",
       eyebrow: "Gift one · You, through my camera",
       intro: "A few of my favourite pictures of you",
-      wallNote: "Every version of you I've been lucky to know. Happy birthday.",
+      wallNote: "Every version of you I've been lucky to know.",
     },
     {
       tag: "Then me",
@@ -1494,7 +1495,7 @@ var STAR = "M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4
 
 /* ---------- Personalise text ---------- */
 $("friendName").textContent = CONFIG.friendName;
-$("sealInitial").textContent = (CONFIG.fromName || "A").trim().charAt(0).toUpperCase();
+$("sealInitial").textContent = (CONFIG.sealLetter || CONFIG.fromName || "A").trim().charAt(0).toUpperCase();
 $("lockEyebrow").textContent = "Sealed, for " + CONFIG.friendName + " only";
 $("hint").textContent = CONFIG.hint;
 function parseLocalDate(s) {
