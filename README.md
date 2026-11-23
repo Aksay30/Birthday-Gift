@@ -2,13 +2,12 @@
 
 A single-page birthday gift:
 
-1. **Countdown.** Before the birthday, a live timer shows instead of the lock.
-2. **Date lock.** The password is the date 15 / 09 / 2023.
-3. **Three gift boxes:**
+1. **Date lock.** The website opens here. The password is the date 15 / 09 / 2023.
+2. **Three gift boxes:**
    - **Box 1, photo story.** Your song starts, then the photos deal in one at a time as polaroids, slowly zooming, with captions. Each finished photo drops onto a scattered pile behind the next. At the end they settle into a wall, and tapping any photo enlarges it.
    - **Box 2, a coupon.**
    - **Box 3, the real gift.** It's locked behind a three-question quiz.
-4. **Finale.** A cake with candles to blow out.
+3. **Finale.** A cake with candles to blow out.
 
 There's no build step and no libraries.
 
@@ -34,7 +33,6 @@ Everything is in the `CONFIG` block near the top of the `<script>` in `index.htm
 | `friendName`   | Name in the headings |
 | `fromName`     | Your name. **Don't use the quiz answer here**, or the page gives it away. |
 | `friendsSince` | Start date for the "Friends for N days" counter |
-| `birthday`     | `"YYYY-MM-DD"`. The countdown runs until midnight on that day, in the viewer's time zone. Leave `""` to skip it. |
 | `hint`         | Shown after two wrong password tries |
 | `song`         | File name of the song, e.g. `"song.mp3"` |
 | `songStart`    | Second to start the song from, e.g. `42` to jump to the chorus |
@@ -56,11 +54,6 @@ Everything is in the `CONFIG` block near the top of the `<script>` in `index.htm
 - The song starts when your friend taps box 1. Phones only allow audio after a tap, which is why it doesn't start on page load.
 
 ## Test before you share
-
-| Link | What it shows |
-|------|---------------|
-| `index.html?preview` | Skips the countdown, so you can test the whole flow before the birthday |
-| `index.html?test-countdown` | Shows a 10-second countdown, then the lock |
 
 Open `index.html` in your browser to try it. Photos and the song also load when you open the file directly.
 

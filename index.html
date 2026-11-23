@@ -4,11 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Three Gifts for You</title>
+<!-- Link preview (WhatsApp, Instagram, Telegram…): a title and a spoiler-free picture -->
+<meta name="description" content="Open it when you're ready.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aksay30.github.io/Birthday-Gift/">
+<meta property="og:title" content="Something is waiting for you">
+<meta property="og:description" content="Open it when you're ready.">
+<meta property="og:image" content="https://aksay30.github.io/Birthday-Gift/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A glowing gift box under a night sky">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#16123a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&family=Kavivanar&family=Bangers&display=swap">
 <style>
-/* Layout: one stage at a time. Countdown, locked envelope, night sky with three boxes, photo story, quiz, candles. */
+/* Layout: one stage at a time. Locked envelope, night sky with three boxes, photo story, quiz, candles. */
 [hidden] { display: none !important; }
 img { max-width: 100%; }
 :root {
@@ -215,27 +227,6 @@ button { font: inherit; cursor: pointer; }
 #spot-stage .beam.up { animation: beamUp .7s cubic-bezier(.2,.8,.3,1) forwards, beamPulse 1.6s .7s ease-in-out infinite; }
 @keyframes beamUp { 0% { transform: translateX(-50%) scaleY(0); opacity: 0; } 100% { transform: translateX(-50%) scaleY(1); opacity: 1; } }
 @keyframes beamPulse { 50% { opacity: .75; } }
-
-/* ---------- Countdown ---------- */
-#countdown { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 48px; text-align: center; }
-.cd-wrap { display: grid; gap: 14px; justify-items: center; max-width: 560px; }
-.cd-box { width: 130px; margin-bottom: 18px; animation: idle 4s ease-in-out infinite; }
-@keyframes idle {
-  0%, 70%, 100% { transform: rotate(0); }
-  74% { transform: rotate(-7deg); } 78% { transform: rotate(6deg); }
-  82% { transform: rotate(-4deg); } 86% { transform: rotate(2deg); }
-}
-.cd-wrap .eyebrow { color: var(--gold); }
-.cd-wrap h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 7vw, 48px); line-height: 1.05; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-.cd-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 460px; margin-top: 8px; }
-.unit {
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 14px; padding: 14px 4px 10px; display: grid; gap: 2px;
-}
-.unit b { font-family: var(--display); font-weight: 800; font-size: clamp(28px, 8vw, 46px); line-height: 1; font-variant-numeric: tabular-nums; }
-.unit span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.cd-wrap .lead { color: var(--muted); margin: 6px 0 0; max-width: 40ch; }
-.cd-wrap .note { font-family: var(--hand); font-size: 24px; color: var(--text); margin: 0; }
 
 /* ---------- Lock screen ---------- */
 #lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 40px; }
@@ -997,6 +988,32 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 22px rgba(10,6,24,.7); opacity: 0; pointer-events: none; transition: opacity 2.4s ease; }
 .sky-final[hidden] { display: none; }
 .sky-final.on { opacity: 1; }
+/* the very end: a new star, a soft dim, and the last bus ticket */
+.end-dim { position: absolute; inset: 0; z-index: 6; pointer-events: none; background: rgba(6,5,18,.6); opacity: 0; transition: opacity 2.6s ease; }
+.end-dim.on { opacity: 1; }
+.new-star { position: absolute; z-index: 8; left: 0; top: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; pointer-events: none;
+  background: #fff6dc; box-shadow: 0 0 10px 3px rgba(255,222,140,.95), 0 0 22px 8px rgba(255,210,120,.45);
+  transition: transform 2.6s cubic-bezier(.45,0,.3,1); }
+.new-star::before, .new-star::after { content: ""; position: absolute; left: 50%; top: 50%; width: 34px; height: 2px; margin: -1px 0 0 -17px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,246,220,.95), transparent); opacity: 0; transition: opacity .8s ease; }
+.new-star::after { transform: rotate(90deg); }
+.new-star.lit { animation: starBorn 1.2s ease-out, starTwinkle 2.8s ease-in-out 1.2s infinite; }
+.new-star.lit::before, .new-star.lit::after { opacity: 1; }
+@keyframes starBorn { 0% { box-shadow: 0 0 10px 3px rgba(255,222,140,.95), 0 0 22px 8px rgba(255,210,120,.45); }
+  30% { box-shadow: 0 0 26px 10px rgba(255,240,200,1), 0 0 70px 26px rgba(255,214,130,.6); } }
+@keyframes starTwinkle { 50% { box-shadow: 0 0 14px 5px rgba(255,232,170,1), 0 0 34px 12px rgba(255,214,130,.55); } }
+.end-tkt { position: absolute; z-index: 8; left: 50%; top: 46%; width: min(290px, calc(100% - 48px)); pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-2deg); filter: drop-shadow(0 14px 22px rgba(0,0,0,.5)); animation: endTktFall 3.2s cubic-bezier(.35,.1,.3,1) both; }
+@keyframes endTktFall {
+  0% { opacity: 0; transform: translate(-50%, calc(-50% - 46vh)) rotate(-16deg); }
+  12% { opacity: 1; }
+  35% { transform: translate(-46%, calc(-50% - 26vh)) rotate(10deg); }
+  60% { transform: translate(-53%, calc(-50% - 9vh)) rotate(-7deg); }
+  82% { transform: translate(-49%, calc(-50% - 1vh)) rotate(3deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(-2deg); } }
+.end-tkt .tkt-route { margin-bottom: 12px; font-size: clamp(21px, 6vw, 24px); }
+.end-tkt .end-stamp-row { padding: 12px 0 2px 6px; border-top: 2px dashed rgba(43,34,66,.22); text-align: center; }
+.end-tkt .stamp { position: static; display: inline-block; }
 
 .far-line .fl { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(6px);
   animation: farIn .9s ease forwards; animation-delay: var(--d, 0s); }
@@ -1085,6 +1102,23 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .crow.me { background: rgba(244,197,90,.07); }
 .crow.me .crow-mid strong { color: var(--gold); }
 /* Notification banner for your chat, sliding down over whatever is open */
+/* the group photo, opened full screen from the "All of us" chat */
+.ava.grp svg { width: 58%; height: 58%; fill: #1b1433; }
+.gphoto { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 56px) 16px calc(env(safe-area-inset-bottom, 0px) + 28px); background: rgba(8,6,20,.96);
+  opacity: 0; transition: opacity .45s ease; cursor: pointer; }
+.gphoto.on { opacity: 1; }
+.gphoto img { display: block; max-width: 100%; max-height: 68%; border-radius: 12px; object-fit: contain; box-shadow: 0 18px 50px rgba(0,0,0,.6);
+  transform: scale(.86); transition: transform .8s cubic-bezier(.3,1.2,.5,1); }
+.gphoto.on img { transform: scale(1); animation: gpZoom 10s ease-out .8s forwards; }
+@keyframes gpZoom { from { transform: scale(1); } to { transform: scale(1.045); } }
+.gphoto .gp-cap { margin: 0; font-family: var(--hand); font-weight: 700; font-size: clamp(26px, 7vw, 34px); color: #ffe2a8; text-align: center;
+  text-shadow: 0 0 14px rgba(255,214,120,.45); opacity: 0; transform: translateY(8px); transition: opacity .8s ease 1s, transform .8s ease 1s; }
+.gphoto.on .gp-cap { opacity: 1; transform: none; }
+.gphoto .gp-back { margin: 0; font: 500 13px var(--body); color: rgba(233,228,255,.55); opacity: 0; transition: opacity .8s ease 2.6s; }
+.gphoto.on .gp-back { opacity: 1; }
+.gphoto .gp-x { position: absolute; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.1); color: #fff; font: 400 24px/1 var(--body); cursor: pointer; }
 .chat-notif {
   position: absolute; z-index: 5; left: 10px; right: 10px; top: calc(env(safe-area-inset-top, 0px) + 8px);
   display: flex; gap: 12px; align-items: center; padding: 10px 14px; text-align: left; font: inherit; color: inherit; cursor: pointer;
@@ -1153,24 +1187,6 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 <canvas id="confetti" aria-hidden="true"></canvas>
 
 <main>
-  <!-- Stage 0: countdown (only before the birthday) -->
-  <section id="countdown" hidden aria-labelledby="cd-title">
-    <div class="cd-wrap">
-      <div class="gift gift-1 cd-box" aria-hidden="true"><span class="lid"><span class="rib"></span><span class="bow"></span></span><span class="body"><span class="rib"></span></span></div>
-      <p class="eyebrow" id="cdEyebrow">Not yet</p>
-      <h1 id="cd-title">Your surprise unlocks in</h1>
-      <div class="cd-grid" role="timer" aria-live="off">
-        <div class="unit"><b id="cdD">00</b><span>Days</span></div>
-        <div class="unit"><b id="cdH">00</b><span>Hours</span></div>
-        <div class="unit"><b id="cdM">00</b><span>Mins</span></div>
-        <div class="unit"><b id="cdS">00</b><span>Secs</span></div>
-      </div>
-      <p class="lead">It opens at midnight on your birthday. Come back then, or keep this page open and watch it happen.</p>
-      <p class="note">No peeking. The box is taped shut.</p>
-      <p class="phones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v6.5A2.5 2.5 0 0 0 5.5 21H7a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H5v-1a7 7 0 0 1 14 0v1h-2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 0 2.5-2.5V12a9 9 0 0 0-9-9z"/></svg><span>For the best experience, put on your headphones and turn the sound up.</span></p>
-    </div>
-  </section>
-
   <!-- Stage 1: the lock -->
   <section id="lock" hidden aria-labelledby="lock-title">
     <form class="envelope" id="lockForm" autocomplete="off" novalidate>
@@ -1306,15 +1322,12 @@ var CONFIG = {
   fromName: "Aksay",             // your name (shown as the initial on the wax seal)
   friendsSince: "2023-09-15",    // for the "Friends for N days" counter
 
-  // Birthday in YYYY-MM-DD. Before midnight on this day, a countdown shows instead of the lock.
-  // Leave "" to skip the countdown.
-  birthday: "",
-
   hint: "Think back to September 2023. The day it all started.",
 
   // Background song. Put the mp3 next to index.html. It starts when box 1 is opened and keeps playing.
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
+  poemSong: "sounds/gift3-bgm.mp3",   // slow instrumental for box 3 (the kavidhai): low under the lines, swells at the birthday wish
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
   // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
@@ -1352,6 +1365,8 @@ var CONFIG = {
     // The finale at Old Bus Stand: make a wish, count down from three, then the candles go out
     wishLine: "Close your eyes and make a wish…",
     finalTitle: "Happy Birthday, {name}!",
+    // The very end: his sparkles become a new star, the scene dims, and a Bus 28 ticket floats down
+    endTicket: { from: "15.09.2023", to: "02.12.2026", stamp: "Journey complete" },
     farLine: "Even from far away, I'm celebrating you today.",   // writes itself in while the song's last lines play
   },
 
@@ -1397,13 +1412,16 @@ var CONFIG = {
   ],
 
   // Gift two: messages from friends, shown one by one in the group chat, in this order.
-  // Put their photos in a "wishes" folder. If a photo is missing, their initial is shown instead.
+  // Each friend shows as a coloured circle with her first letter.
   wishes: [
-    { name: "Friend 1", photo: "wishes/1.jpg", text: "Happy birthday! (Replace with their message)" },
-    { name: "Friend 2", photo: "wishes/2.jpg", text: "Many many happy returns of the day 🎂" },
-    { name: "Friend 3", photo: "wishes/3.jpg", text: "Have the best year ever! Miss you 🤍" },
-    { name: "Friend 4", photo: "wishes/4.jpg", text: "Happy birthday da! Party when we meet 🥳" },
+    { name: "Harini", text: "Happy birthday! (Replace with their message)" },
+    { name: "Indhu", text: "Many many happy returns of the day 🎂" },
+    { name: "Gopika", text: "Have the best year ever! Miss you 🤍" },
+    { name: "Aathmiga", text: "Happy birthday da! Party when we meet 🥳" },
   ],
+  // After she has read every friend's chat, one more arrives: the group photo. Tapping it opens the photo
+  // full screen with the caption. Your own message comes after it. Leave photo "" to skip.
+  groupPhoto: { photo: "wishes/group.jpg", name: "All of us", preview: "Sent you a photo", caption: "From all of us" },
 
   // The quiz that unlocks box 3. Answers ignore capitals, spaces and punctuation.
   quiz: [
@@ -1416,12 +1434,13 @@ var CONFIG = {
   // At the very end the boy comes out of the bus with a notebook; what she writes arrives in your email (via web3forms.com)
   reply: {
     key: "c7f10b4c-3f17-4293-9713-3b48dc4a70d3",   // your Web3Forms access key (it can only send to your email)
-    ask: "Your turn! Write something for me?",        // what he says, holding the notebook up
+    ask: "May I have a few words from you, to keep forever?",        // what he says, holding the notebook up
     hint: "Press the notebook to write your message", // the line under him, so she knows what to do
     placeholder: "Write anything you'd like to tell me…",
     button: "Give it to him",
-    thanks: "I'll keep this forever. Thank you.",     // what he says after reading it
-    bye: "Bye!"                                       // what he says before he fades away in sparkles
+    thanks: "Thank you. This means so much to me.",     // what he says after reading it
+    byeThanks: "Thank you for your time,",           // once the bus has gone, he says this first…
+    bye: "Byee."                                      // …then this with a big wave, and fades away in sparkles
   },
 
 };
@@ -1593,12 +1612,30 @@ function fadeSongIn() {
     if (v >= SONG_VOL) clearInterval(songFadeId);
   }, 120);
 }
+// Keep the screen awake while the site is open: the ride has long scenes with no tapping,
+// and the phone must not dim or lock in the middle. Asked for on her first touch, and again
+// whenever she comes back to the tab (the phone releases it when the tab is hidden).
+var wakeLock = null;
+function keepAwake() {
+  try {
+    if (!("wakeLock" in navigator) || wakeLock || document.visibilityState !== "visible") return;
+    navigator.wakeLock.request("screen").then(function (l) {
+      wakeLock = l;
+      l.addEventListener("release", function () { wakeLock = null; });
+    }).catch(function () {});
+  } catch (e) {}
+}
+document.addEventListener("pointerdown", keepAwake, { passive: true });
+document.addEventListener("keydown", keepAwake);
+document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") keepAwake(); });
+keepAwake();
 // Phones only allow audio that starts from a touch. unlockAudio() runs when the finger goes down,
 // so the song can start later, when the hold completes.
 var audioPrimed = false, wantSong = false;
 function unlockAudio() {
   try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) {}
   if (typeof bgm2Prime === "function") bgm2Prime();
+  if (typeof BGM3 !== "undefined") BGM3.prime();
   if (typeof sfxLoad === "function") sfxLoad();
   if (audioPrimed || songState !== "idle") return;
   audioPrimed = true;
@@ -1634,32 +1671,7 @@ $("soundBtn").addEventListener("click", function () {
   else startSong();
 });
 
-/* ---------- Countdown ---------- */
 var params = new URLSearchParams(location.search);
-var unlockAt = CONFIG.birthday ? parseLocalDate(CONFIG.birthday) : null;
-if (params.has("test-countdown")) unlockAt = new Date(Date.now() + 10000);
-if (params.has("preview")) unlockAt = null;
-
-function pad(n) { return (n < 10 ? "0" : "") + n; }
-function runCountdown() {
-  $("countdown").hidden = false;
-  function tick() {
-    var ms = unlockAt.getTime() - Date.now();
-    if (ms <= 0) {
-      $("countdown").hidden = true;
-      showLock();
-      confetti(innerWidth / 2, innerHeight / 3, 200);
-      return;
-    }
-    var s = Math.floor(ms / 1000);
-    $("cdD").textContent = pad(Math.floor(s / 86400));
-    $("cdH").textContent = pad(Math.floor(s % 86400 / 3600));
-    $("cdM").textContent = pad(Math.floor(s % 3600 / 60));
-    $("cdS").textContent = pad(s % 60);
-    setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
-  }
-  tick();
-}
 function showLock() { $("lock").hidden = false; $("lock").classList.add("fade-in"); }
 
 /* ---------- Lock screen ---------- */
@@ -3849,9 +3861,11 @@ function boyReads() {
   meAt(8900, busLeaves);
 }
 // The bus leaves without him: he waves it off, then turns to her, says "Bye!" and fades away in magic sparkles
-// he glows softly and dissolves into golden sparkles that drift up into the night; then her birthday wish shows in the sky
+// he glows softly and dissolves into golden sparkles; the last one rises and becomes a new star
 function vanish() {
   var el = ME.el, k = meSize().k * ME.s;
+  var mr = el.getBoundingClientRect(), er = R.el.getBoundingClientRect();
+  var from = { x: mr.left + mr.width / 2 - er.left, y: mr.top + mr.height * .35 - er.top };   // where his last sparkle rises from
   magicNote(1);
   el.style.transition = "opacity 1.6s ease .5s, filter .6s ease";
   el.style.filter = "brightness(1.45) drop-shadow(0 0 8px rgba(255,225,150,.95))";
@@ -3869,8 +3883,53 @@ function vanish() {
   setTimeout(function () {
     meStop(); meReset(); ME.out = false;
     el.classList.remove("front"); el.style.transition = ""; el.style.filter = "";
-    NB.final.textContent = rideText(RC.finalTitle); NB.final.hidden = false; void NB.final.offsetWidth; NB.final.classList.add("on");
   }, 2600);
+  newStar(from);
+}
+// His last sparkle drifts up into the sky and stays there as a new star; then the street dims
+// and the Bus 28 ticket floats down: from the day you met to her birthday, journey complete.
+function newStar(from) {
+  var star = document.createElement("span"); star.className = "new-star";
+  star.style.left = from.x.toFixed(0) + "px"; star.style.top = from.y.toFixed(0) + "px";
+  R.el.appendChild(star);
+  var W = R.el.clientWidth, H = R.el.clientHeight, tx = W * .74, ty = H * .13;
+  if (!MOON.el.hidden) {                                   // keep clear of the moon: take the other side of the sky
+    var mr = MOON.el.getBoundingClientRect(), er = R.el.getBoundingClientRect();
+    if (mr.left + mr.width / 2 - er.left > W / 2) tx = W * .24;
+  }
+  var trail = 0, t0 = 0;
+  setTimeout(function () {
+    void star.offsetWidth;
+    star.style.transform = "translate(" + (tx - from.x).toFixed(0) + "px," + (ty - from.y).toFixed(0) + "px)";
+    t0 = Date.now();
+    trail = setInterval(function () {                     // a faint trail of sparks behind it
+      var r = star.getBoundingClientRect(), er = R.el.getBoundingClientRect(), sp = document.createElement("span");
+      sp.className = "gift-spark"; sp.style.zIndex = 8;
+      sp.style.left = (r.left + r.width / 2 - er.left).toFixed(0) + "px"; sp.style.top = (r.top + r.height / 2 - er.top).toFixed(0) + "px";
+      sp.style.setProperty("--sx", ((Math.random() - .5) * 14).toFixed(0) + "px"); sp.style.setProperty("--sy", (6 + Math.random() * 10).toFixed(0) + "px");
+      sp.style.setProperty("--w", "0s"); sp.style.setProperty("--d", "1s");
+      R.el.appendChild(sp); setTimeout(function () { sp.remove(); }, 1100);
+      if (Date.now() - t0 > 2500) clearInterval(trail);
+    }, 90);
+  }, 1500);
+  setTimeout(function () { clearInterval(trail); star.classList.add("lit"); magicNote(2); }, 1500 + 2650);   // it settles and shines
+  setTimeout(function () {
+    var dim = document.createElement("div"); dim.className = "end-dim"; R.el.appendChild(dim);
+    void dim.offsetWidth; dim.classList.add("on");
+  }, 1500 + 2650 + 1400);
+  setTimeout(endTicket, 1500 + 2650 + 1400 + 2200);
+}
+function endTicket() {
+  var T = RC.endTicket || {};
+  var t = document.createElement("div"); t.className = "end-tkt"; t.setAttribute("role", "img");
+  t.setAttribute("aria-label", "Bus " + RC.busNumber + " ticket, " + T.from + " to " + T.to + ". " + T.stamp + ".");
+  t.innerHTML = '<div class="tkt-card">' +
+    '<div class="tkt-head"><span>Bus ' + esc(RC.busNumber) + ' · Ticket</span><span>No. 0212</span></div>' +
+    '<div class="tkt-route">' + esc(T.from) + ' → ' + esc(T.to) + '</div>' +
+    '<div class="end-stamp-row"><span class="stamp">' + esc(T.stamp) + '</span></div></div>';
+  R.el.appendChild(t);
+  whoosh();
+  setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); }, 3200 + 700);   // the conductor's stamp, one last time
 }
 function busLeaves() {
   var el = ME.el;
@@ -3882,8 +3941,9 @@ function busLeaves() {
     tween(R.cam, R.cam + 1.15, legTime("away"), function () {
       engineStop(1.5); R.bus.classList.remove("accel", "moving"); R.bus.classList.add("away");
       meTo({ wave: 0, hRx: 42.4, hRy: 67.4, turn: 0, gx: 0 }, 300);
-      meAt(500, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Bye!" with a big wave
-      meAt(2400, function () { meSay(""); vanish(); });
+      meAt(500, function () { meTo({ smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.byeThanks, true); });   // "Thank you for your time,"
+      meAt(2900, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Byee." with a big wave
+      meAt(4800, function () { meSay(""); vanish(); });
     }, EASE.away);
   });
 }
@@ -4057,6 +4117,8 @@ function unwrap(i, holdDimEl) {
     copy.classList.add("burst");
     chime();
     sparkles(copy, 30);
+    if (CONFIG.gifts[i].kind === "chat") bgm2Start();   // box 2's music starts with the burst of sparkles
+    if (CONFIG.gifts[i].kind === "poem") BGM3.start(BGM3_VOL.low);   // and box 3's too
   }, 80);
   setTimeout(function () {
     beam.classList.add("up");
@@ -4602,39 +4664,51 @@ addEventListener("keydown", function (e) {
 /* ---------- Gift two: friends' group chat ---------- */
 /* Gift two's background music: fades in as the box opens, plays fully while the wishes arrive,
    drops very soft while she reads, rises a little when your own message arrives, fades out when she closes it */
-var BGM2 = { a: null, primed: false, on: false, fadeT: 0 };
+/* A looping background song with gentle volume glides. Missing file = simply stays quiet. */
+function makeBgm(src) {
+  var B = { a: null, primed: false, on: false, fadeT: 0 };
+  if (src) {
+    var a = new Audio(); a.preload = "auto"; a.loop = true; a.src = src;
+    a.addEventListener("error", function () { B.a = null; });
+    B.a = a;
+  }
+  B.prime = function () {                            // runs on a touch, so the phone lets it play later
+    var a = B.a; if (!a || B.primed) return; B.primed = true;
+    a.muted = true;
+    var p = a.play();
+    var after = function () { if (!B.on) { a.pause(); try { a.currentTime = 0; } catch (e) {} } a.muted = false; };
+    if (p && p.then) p.then(after).catch(function () { a.muted = false; }); else after();
+  };
+  B.to = function (vol, ms, stop) {                  // glide the volume to a new level
+    var a = B.a; if (!a) return;
+    clearInterval(B.fadeT);
+    var v0 = a.volume, steps = Math.max(1, Math.round(ms / 80)), n = 0;
+    B.fadeT = setInterval(function () {
+      n++;
+      try { a.volume = Math.max(0, Math.min(1, v0 + (vol - v0) * n / steps)); } catch (e) {}
+      if (n >= steps) { clearInterval(B.fadeT); if (stop) { a.pause(); try { a.currentTime = 0; } catch (e) {} } }
+    }, 80);
+  };
+  B.start = function (vol) {                         // already playing: carry on
+    var a = B.a; if (!a || B.on) return;
+    B.on = true;
+    try { a.volume = 0; a.currentTime = 0; } catch (e) {}
+    var p = a.play(); if (p && p.catch) p.catch(function () {});
+    B.to(vol, 2200);
+  };
+  B.stop = function () { if (!B.a || !B.on) return; B.on = false; B.to(0, 2000, true); };
+  return B;
+}
+var BGM2 = makeBgm(CONFIG.chatSong);
 var BGM2_VOL = { full: .5, soft: .16, mine: .32 };   // 0..1: while wishes arrive, while she reads, when your message arrives
-(function () {
-  if (!CONFIG.chatSong) return;
-  var a = new Audio(); a.preload = "auto"; a.loop = true; a.src = CONFIG.chatSong;
-  a.addEventListener("error", function () { BGM2.a = null; });   // no file yet: box 2 simply stays quiet
-  BGM2.a = a;
-})();
-function bgm2Prime() {                               // runs on a touch, so the phone lets it play later
-  var a = BGM2.a; if (!a || BGM2.primed) return; BGM2.primed = true;
-  a.muted = true;
-  var p = a.play();
-  var after = function () { if (!BGM2.on) { a.pause(); try { a.currentTime = 0; } catch (e) {} } a.muted = false; };
-  if (p && p.then) p.then(after).catch(function () { a.muted = false; }); else after();
-}
-function bgm2To(vol, ms, stop) {                     // glide the volume to a new level
-  var a = BGM2.a; if (!a) return;
-  clearInterval(BGM2.fadeT);
-  var v0 = a.volume, steps = Math.max(1, Math.round(ms / 80)), n = 0;
-  BGM2.fadeT = setInterval(function () {
-    n++;
-    try { a.volume = Math.max(0, Math.min(1, v0 + (vol - v0) * n / steps)); } catch (e) {}
-    if (n >= steps) { clearInterval(BGM2.fadeT); if (stop) { a.pause(); try { a.currentTime = 0; } catch (e) {} } }
-  }, 80);
-}
-function bgm2Start() {
-  var a = BGM2.a; if (!a) return;
-  BGM2.on = true;
-  try { a.volume = 0; a.currentTime = 0; } catch (e) {}
-  var p = a.play(); if (p && p.catch) p.catch(function () {});
-  bgm2To(BGM2_VOL.full, 2200);
-}
-function bgm2Stop() { if (!BGM2.a || !BGM2.on) return; BGM2.on = false; bgm2To(0, 2000, true); }
+function bgm2Prime() { BGM2.prime(); }
+function bgm2To(vol, ms) { BGM2.to(vol, ms); }
+function bgm2Start() { BGM2.start(BGM2_VOL.full); }
+function bgm2Stop() { BGM2.stop(); }
+/* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
+   the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
+var BGM3 = makeBgm(CONFIG.poemSong);
+var BGM3_VOL = { low: .26, sign: .38, swell: .6, after: .34 };
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
@@ -4668,35 +4742,45 @@ function openChat(i) {
   var items = (CONFIG.wishes || []).map(function (w, k) {
     return { name: w.name, photo: w.photo, text: w.text, color: CHAT_COLORS[k % CHAT_COLORS.length] };
   });
-  var F = items.length;
+  var F = items.length, GP = CONFIG.groupPhoto;
+  // After the friends' chats come the "late" ones, each arriving once everything before it is read:
+  // the group photo, then your own message.
+  if (GP && GP.photo) items.push({ name: GP.name, text: GP.preview, color: "#c4b5fd", group: true, src: GP.photo, caption: GP.caption });
   if (g.closing) items.push({ name: CONFIG.fromName, text: g.closing, color: "#f4c55a", me: true });
   items.forEach(function (m, k) { m.time = "12:" + (k < 10 ? "0" + k : k) + " am"; m.read = false; });
-  chat = { g: g, run: run, items: items, F: F, arrived: 0, mineIn: false, mineTimer: false, view: "list" };
+  chat = { g: g, run: run, items: items, F: F, arrived: 0, lateIn: 0, lateTimer: null, view: "list" };
+  if (GP && GP.photo) {                               // no photo file yet: quietly drop the group-photo chat
+    var pre = new Image();
+    pre.onerror = function () {
+      if (chat && chat.run === run && !chat.lateIn && chat.items[F] && chat.items[F].group) chat.items.splice(F, 1);
+    };
+    pre.src = GP.photo;
+  }
   $("chat").hidden = false;
   document.body.classList.add("no-scroll", "overlay-open");
   chatList();
   $("chatClose").focus();
-  bgm2Start();                                        // the music fades in as the box opens
+  bgm2Start();                                        // usually already playing from the box burst; starts here if not
   for (var k = 0; k < F; k++) (function (k) {
     setTimeout(function () {
       if (run !== chatRun) return;
       chat.arrived = k + 1;
       chatPop();
       if (chat.view === "list") { chatAddTop(k); chatHeader(); chatFooter(); }
-      if (k === F - 1) setTimeout(function () { if (run === chatRun && !chat.mineIn) bgm2To(BGM2_VOL.soft, 3500); }, 1500);   // all in: very soft while she reads
+      if (k === F - 1) setTimeout(function () { if (run === chatRun && !chat.lateIn) bgm2To(BGM2_VOL.soft, 3500); }, 1500);   // all in: very soft while she reads
     }, 800 + k * 750);
   })(k);
-  if (F === 0) chatMineSoon(800);
+  if (F === 0) chatLateSoon(800);
 }
-function chatVisible(k) { return k < chat.F ? k < chat.arrived : chat.mineIn; }
+function chatVisible(k) { return k < chat.F ? k < chat.arrived : k - chat.F < chat.lateIn; }
 function unreadCount() {
   var n = 0;
   for (var k = 0; k < chat.items.length; k++) if (chatVisible(k) && !chat.items[k].read) n++;
   return n;
 }
-function friendsAllRead() {
+function allReadSoFar() {                             // every friend has arrived, and everything that has arrived is read
   if (chat.arrived < chat.F) return false;
-  for (var k = 0; k < chat.F; k++) if (!chat.items[k].read) return false;
+  for (var k = 0; k < chat.items.length; k++) if (chatVisible(k) && !chat.items[k].read) return false;
   return true;
 }
 function chatAddTop(k) {
@@ -4704,36 +4788,45 @@ function chatAddTop(k) {
   body.insertBefore(chatRow(k, true), body.firstChild);
   body.scrollTop = 0;
 }
-// Your chat arrives once all the friends' chats have been read: while the last one is still
-// open it slides down as a notification banner; on the list it lands on top with a badge.
-function chatMineSoon(delay) {
-  if (chat.items.length === chat.F || chat.mineIn) return;
+// The next late chat arrives once everything before it has been read: while a chat is open
+// it slides down as a notification banner; on the list it lands on top with a badge.
+function chatLateSoon(delay) {
+  if (chat.F + chat.lateIn >= chat.items.length) return;
   var due = Date.now() + delay;
-  if (chat.mineTimer && chat.mineDue <= due) return;     // already coming sooner
-  clearTimeout(chat.mineTimer);
-  chat.mineDue = due;
+  if (chat.lateTimer && chat.lateDue <= due) return;     // already coming sooner
+  clearTimeout(chat.lateTimer);
+  chat.lateDue = due;
   var run = chat.run;
-  chat.mineTimer = setTimeout(function () {
+  chat.lateTimer = setTimeout(function () {
     if (!chat || run !== chat.run) return;
-    chat.mineIn = true; chat.mineTimer = null;
+    chat.lateTimer = null;
+    if (chat.F + chat.lateIn >= chat.items.length) return;
+    var k = chat.F + chat.lateIn++;
     chatPop();
-    bgm2To(BGM2_VOL.mine, 2500);                       // your message: the music rises a little
-    if (chat.view === "list") { chatAddTop(chat.F); chatHeader(); chatFooter(); }
-    else chatNotify();
+    if (chat.items[k].me) bgm2To(BGM2_VOL.mine, 2500);   // your message: the music rises a little
+    if (chat.view === "list") { chatAddTop(k); chatHeader(); chatFooter(); }
+    else chatNotify(k);
   }, delay);
 }
-function chatNotify() {
+function avaFor(m) {
+  if (!m.group) return avatarEl(m.name, m.photo, m.color);
+  var d = document.createElement("div"); d.className = "ava grp"; d.style.setProperty("--c", m.color);
+  d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><circle cx="16" cy="8" r="3.2"/>' +
+    '<path d="M2 19c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6z"/><path d="M14.6 13.6c.4-.1.9-.2 1.4-.2 3.3 0 6 2.3 6 5.6h-6.4c0-2.1-.4-3.9-1-5.4z"/></svg>';
+  return d;
+}
+function chatNotify(k) {
   hideNotif();
-  var m = chat.items[chat.F];
+  var m = chat.items[k];
   var n = document.createElement("button"); n.type = "button"; n.className = "chat-notif"; n.id = "chatNotif";
-  n.appendChild(avatarEl(m.name, m.photo, m.color));
+  n.appendChild(avaFor(m));
   var d = document.createElement("div"); d.className = "nt";
   d.innerHTML = "<strong></strong><span></span>";
   d.firstChild.textContent = m.name; d.firstChild.insertAdjacentHTML("beforeend", "<small>now</small>");
   d.lastChild.textContent = String(m.text).replace(/\s+/g, " ");
   n.appendChild(d);
   n.setAttribute("aria-label", "New message from " + m.name + ". Tap to read.");
-  n.addEventListener("click", function () { chatConvo(chat.F); });
+  n.addEventListener("click", function () { chatConvo(k); });
   $("chat").appendChild(n);
   setTimeout(function () { if ($("chatNotif") === n) hideNotif(); }, 4000);   // slides away on its own
 }
@@ -4748,21 +4841,20 @@ function chatHeader() {
   stack.innerHTML = ""; sub.className = "";
   if (chat.view === "list") {
     $("chatName").textContent = fillName(chat.g.groupName);
-    chat.items.slice(0, Math.min(3, chat.F || 1)).forEach(function (m) { stack.appendChild(avatarEl(m.name, m.photo, m.color)); });
+    chat.items.slice(0, Math.min(3, chat.F || 1)).forEach(function (m) { stack.appendChild(avaFor(m)); });
     var n = unreadCount();
-    var waiting = chat.arrived === 0 && !chat.mineIn;
+    var waiting = chat.arrived === 0 && !chat.lateIn;
     sub.textContent = waiting ? "Waiting for messages…" : (n ? n + " unread message" + (n > 1 ? "s" : "") : "All read 🤍");
   } else {
     var m = chat.items[chat.view];
     $("chatName").textContent = m.name;
-    stack.appendChild(avatarEl(m.name, m.photo, m.color));
+    stack.appendChild(avaFor(m));
     sub.textContent = "online"; sub.className = "typing";
   }
 }
 function chatFooter() {
   var foot = $("chatFoot");
-  var mineDone = chat.items.length === chat.F || chat.items[chat.F].read;
-  var allDone = friendsAllRead() && mineDone;
+  var allDone = allReadSoFar() && chat.F + chat.lateIn >= chat.items.length;
   if (chat.view !== "list") {
     foot.innerHTML = '<button class="btn-ghost" type="button" id="chatToList">Back to chats</button>';
     $("chatToList").addEventListener("click", chatList);
@@ -4770,14 +4862,14 @@ function chatFooter() {
     foot.innerHTML = '<button class="btn-gold" type="button" id="chatDone">Back to the boxes</button>';
     $("chatDone").addEventListener("click", closeChat);
   } else {
-    foot.innerHTML = "<p>" + (chat.arrived || chat.mineIn ? "Tap a chat to read it" : "New messages are coming in…") + "</p>";
+    foot.innerHTML = "<p>" + (chat.arrived || chat.lateIn ? "Tap a chat to read it" : "New messages are coming in…") + "</p>";
   }
 }
 function chatRow(k, arriving) {
   var m = chat.items[k];
   var r = document.createElement("button"); r.type = "button";
   r.className = "crow" + (m.me ? " me" : "") + (m.read ? " read" : " unread") + (arriving ? " arrive" : "");
-  r.appendChild(avatarEl(m.name, m.photo, m.color));
+  r.appendChild(avaFor(m));
   var mid = document.createElement("div"); mid.className = "crow-mid";
   mid.innerHTML = "<strong></strong><span></span>";
   mid.firstChild.textContent = m.name;
@@ -4796,22 +4888,42 @@ function chatList() {
   chat.view = "list";
   var body = $("chatBody");
   body.className = "chat-body list"; body.innerHTML = "";
-  if (chat.mineIn) body.appendChild(chatRow(chat.F, false));          // newest on top
+  for (var j = chat.lateIn - 1; j >= 0; j--) body.appendChild(chatRow(chat.F + j, false));   // newest on top
   for (var k = chat.arrived - 1; k >= 0; k--) body.appendChild(chatRow(k, false));
   body.scrollTop = 0;
   chatHeader(); chatFooter();
-  if (friendsAllRead()) chatMineSoon(1200);
+  if (allReadSoFar()) chatLateSoon(1200);
+}
+// "All of us": the group photo opens full screen with a slow zoom and the caption; a tap anywhere goes back
+function groupPhoto(m) {
+  var v = document.createElement("div"); v.className = "gphoto"; v.setAttribute("role", "dialog"); v.setAttribute("aria-label", m.caption || m.name);
+  v.innerHTML = '<button class="gp-x" type="button" aria-label="Back to chats">×</button><img alt=""><p class="gp-cap"></p><p class="gp-back">Tap anywhere to go back</p>';
+  var img = v.querySelector("img"); img.alt = m.caption || "Group photo"; img.onerror = function () { img.remove(); }; img.src = m.src;
+  v.querySelector(".gp-cap").textContent = fillName(m.caption || "");
+  var closed = false;
+  function close() {
+    if (closed) return; closed = true;
+    v.classList.remove("on"); setTimeout(function () { v.remove(); }, 450);
+    chatList();                                         // back to the list; your message follows shortly
+  }
+  v.addEventListener("click", close);
+  $("chat").appendChild(v);
+  void v.offsetWidth; v.classList.add("on");
+  v.querySelector(".gp-x").focus();
+  bgm2To(BGM2_VOL.mine, 2000);                          // the music lifts a little for the photo
 }
 function chatConvo(k) {
   var m = chat.items[k];
   hideNotif();
-  m.read = true; chat.view = k;
-  if (!m.me && friendsAllRead()) chatMineSoon(2000);          // your notification, 2 s after the last chat opens
+  m.read = true;
+  if (m.group) { groupPhoto(m); return; }
+  chat.view = k;
+  if (!m.me && allReadSoFar()) chatLateSoon(2000);      // the next one, 2 s after the last chat opens
   var body = $("chatBody");
   body.className = "chat-body"; void body.offsetWidth; body.classList.add("convo");
   body.innerHTML = '<p class="chat-day">Today</p>';
   var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " me" : "");
-  r.appendChild(avatarEl(m.name, m.photo, m.color));
+  r.appendChild(avaFor(m));
   var b = document.createElement("div"); b.className = "bubble"; b.style.setProperty("--c", m.color);
   if (m.photo) {
     var img = new Image(); img.className = "att"; img.alt = "Photo from " + m.name;
@@ -4862,9 +4974,12 @@ function openPoem(i, withHeart) {
   var items = inner.querySelectorAll(".reveal-line");
   var signIdx = items.length - 3, wishIdx = items.length - 2;
   var shown = 0, celebrated = false;
+  BGM3.start(BGM3_VOL.low);                          // usually already playing from the box burst
   function celebrate() {
     if (celebrated) return; celebrated = true;
     confetti(innerWidth / 2, innerHeight * .4, 170);
+    BGM3.to(BGM3_VOL.swell, 1500);                     // the music swells with the birthday wish…
+    setTimeout(function () { if (BGM3.on) BGM3.to(BGM3_VOL.after, 4000); }, 5000);   // …then settles
   }
   function follow(el) {
     var r = el.getBoundingClientRect();
@@ -4876,6 +4991,7 @@ function openPoem(i, withHeart) {
     el.classList.add("on");
     follow(el);
     if (shown - 1 === wishIdx) celebrate();
+    else if (shown - 1 === signIdx - 1) BGM3.to(BGM3_VOL.sign, 1400);   // a little rise in the pause before the signature
     var d;
     if (shown - 1 === signIdx - 1) d = 1400;                     // pause before the signature
     else if (shown - 1 === signIdx) d = 1800;                    // pause before the birthday message
@@ -4904,6 +5020,7 @@ function openPoem(i, withHeart) {
 }
 function closePoem() {
   poemRun++; poemShowAll = null;
+  BGM3.stop();                                        // fades out over 2 seconds
   $("poem").hidden = true;
   document.body.classList.remove("no-scroll", "overlay-open");
   if (boxes[2]) boxes[2].focus();
@@ -4966,7 +5083,6 @@ function runTest() {
   }
 }
 if (TEST === "ticket" || TEST === "box3") {
-  unlockAt = null;
   openParty();
   setTimeout(function () {
     say("Test", TEST === "box3" ? "Old Bus Stand: falling star and box 3" : "From Four Roads: conductor, ticket and moon", "Start test");
@@ -4978,7 +5094,7 @@ if (TEST === "ticket" || TEST === "box3") {
     $("rideGo").hidden = true;
     runTest();
   }, true);
-} else if (unlockAt && Date.now() < unlockAt.getTime()) runCountdown(); else showLock();
+} else showLock();                                    // the website opens on the password page
 </script>
 </body>
 </html>
