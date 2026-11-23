@@ -1671,6 +1671,7 @@ $("soundBtn").addEventListener("click", function () {
 });
 
 var params = new URLSearchParams(location.search);
+function pad(n) { return (n < 10 ? "0" : "") + n; }   // 5 -> "05" (used by the date lock)
 function showLock() { $("lock").hidden = false; $("lock").classList.add("fade-in"); }
 
 /* ---------- Lock screen ---------- */
