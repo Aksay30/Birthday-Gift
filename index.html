@@ -1038,6 +1038,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   padding: calc(env(safe-area-inset-top, 0px) + 12px) max(14px, env(safe-area-inset-right, 0px)) 12px max(14px, env(safe-area-inset-left, 0px));
   background: #1b1433; border-bottom: 1px solid rgba(255,255,255,.08);
 }
+/* on the chat list the top bar is gone: only a small close button in the corner */
+.chat-head.bare { justify-content: flex-end; background: none; border-bottom: 0; padding-bottom: 4px; }
+.chat-head.bare .chat-stack, .chat-head.bare .chat-title { display: none; }
 .chat-stack { display: flex; flex: none; }
 .chat-stack > * { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #1b1433; margin-left: -12px; object-fit: cover; }
 .chat-stack > *:first-child { margin-left: 0; }
@@ -1051,6 +1054,13 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   display: flex; flex-direction: column; gap: 14px;
   background: radial-gradient(60rem 40rem at 50% 0%, #1d1538 0%, #0f0b1d 70%);
 }
+/* inside a chat: a very faint birthday doodle wallpaper (cakes, balloons, stars, gifts, hearts) */
+.chat-body.convo { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' fill='none' stroke='white' stroke-opacity='.06' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 52h34v-16H14z M14 44c6 4 11-4 17 0s11-4 17 0 M24 36v-7 M38 36v-7 M24 25c-1.5-2 1.5-4 0-6 M38 25c-1.5-2 1.5-4 0-6'/%3E%3Cpath d='M120 14c9 0 15 7 15 15s-7 16-15 16-15-8-15-16 6-15 15-15z M120 45l-2 4h4z M120 49c-4 8 4 12 0 22'/%3E%3Cpath d='M70 92l3.5 7.5 8 1-6 5.5 1.6 8-7.1-4-7.1 4 1.6-8-6-5.5 8-1z'/%3E%3Cpath d='M128 112h30v24h-30z M125 104h36v8h-36z M143 104v32 M143 104c-4-8-12-6-9 0 M143 104c4-8 12-6 9 0'/%3E%3Cpath d='M30 150c-6-5-12-9-12-15a6 6 0 0 1 12-2 6 6 0 0 1 12 2c0 6-6 10-12 15z'/%3E%3Cpath d='M95 40v6 M92 43h6 M160 70v6 M157 73h6 M60 165v6 M57 168h6 M100 160h.01 M170 160h.01 M10 100h.01'/%3E%3C/svg%3E") 0 0 / 180px 180px repeat, radial-gradient(60rem 40rem at 50% 0%, #1d1538 0%, #0f0b1d 70%); }
+/* read ticks: grey, then blue once she has seen the message */
+.bubble .ticks { display: inline-block; width: 17px; height: 11px; margin-left: 4px; vertical-align: -1px; color: #8f86ad; transition: color .5s ease; }
+.bubble .ticks.seen { color: #53bdeb; }
+.bubble .ticks svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bubble.typing-b { padding: 2px; }
 .chat-day { align-self: center; margin: 0 0 4px; font-size: 12px; padding: 5px 12px; border-radius: 8px; background: rgba(255,255,255,.08); color: #d6cdf3; }
 .cmsg { display: flex; gap: 8px; align-items: flex-end; max-width: min(88%, 420px); animation: msgIn .45s cubic-bezier(.2,1.3,.4,1) both; transform-origin: 0 100%; }
 @keyframes msgIn { from { opacity: 0; transform: translateY(14px) scale(.85); } }
@@ -1119,6 +1129,12 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .gphoto.on .gp-back { opacity: 1; }
 .gphoto .gp-x { position: absolute; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); width: 40px; height: 40px; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.1); color: #fff; font: 400 24px/1 var(--body); cursor: pointer; }
+/* the phone's back button on the ride: "press back again to leave" */
+.back-toast { position: fixed; z-index: 100; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); transform: translate(-50%, 10px);
+  max-width: calc(100vw - 32px); padding: 10px 18px 11px; border-radius: 999px; background: rgba(20,14,40,.92); border: 1px solid rgba(255,217,138,.45);
+  color: #fff3d6; font: 600 14px/1.25 var(--body); text-align: center; box-shadow: 0 10px 26px rgba(0,0,0,.4);
+  opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .3s ease; }
+.back-toast.on { opacity: 1; transform: translate(-50%, 0); }
 .chat-notif {
   position: absolute; z-index: 5; left: 10px; right: 10px; top: calc(env(safe-area-inset-top, 0px) + 8px);
   display: flex; gap: 12px; align-items: center; padding: 10px 14px; text-align: left; font: inherit; color: inherit; cursor: pointer;
@@ -1709,6 +1725,7 @@ $("lockForm").addEventListener("submit", function (e) {
 function openParty() {
   $("lock").hidden = true;
   $("party").hidden = false;
+  backPush();                                             // from here on, Back closes screens instead of leaving
   scrollTo(0, 0);
   setTimeout(rideLayout, 30);
   confetti(innerWidth / 2, innerHeight * .25, 220);
@@ -4859,13 +4876,10 @@ function hideNotif() {
 function chatHeader() {
   var stack = $("chatStack"), sub = $("chatSub");
   $("chatBack").hidden = chat.view === "list";
-  stack.innerHTML = ""; sub.className = "";
+  stack.innerHTML = ""; sub.className = ""; sub.textContent = "";
+  document.querySelector("#chat .chat-head").classList.toggle("bare", chat.view === "list");
   if (chat.view === "list") {
-    $("chatName").textContent = fillName(chat.g.groupName);
-    chat.items.slice(0, Math.min(3, chat.F || 1)).forEach(function (m) { stack.appendChild(avaFor(m)); });
-    var n = unreadCount();
-    var waiting = chat.arrived === 0 && !chat.lateIn;
-    sub.textContent = waiting ? "Waiting for messages…" : (n ? n + " unread message" + (n > 1 ? "s" : "") : "All read 🤍");
+    $("chatName").textContent = fillName(chat.g.groupName);   // not shown; it still names the screen for screen readers
   } else {
     var m = chat.items[chat.view];
     $("chatName").textContent = m.name;
@@ -4934,7 +4948,7 @@ function groupPhoto(m) {
   bgm2To(BGM2_VOL.mine, 2000);                          // the music lifts a little for the photo
 }
 function chatConvo(k) {
-  var m = chat.items[k];
+  var m = chat.items[k], firstTime = !m.read;
   hideNotif();
   m.read = true;
   if (m.group) { groupPhoto(m); return; }
@@ -4943,6 +4957,24 @@ function chatConvo(k) {
   var body = $("chatBody");
   body.className = "chat-body"; void body.offsetWidth; body.classList.add("convo");
   body.innerHTML = '<p class="chat-day">Today</p>';
+  var tok = chat.convoTok = (chat.convoTok || 0) + 1;
+  chatHeader(); chatFooter();
+  $("chatBack").focus();
+  if (!firstTime || reducedMotion) { chatShowMsg(k, false); return; }
+  // the first time: "typing…" for a moment, then the message arrives
+  var ty = document.createElement("div"); ty.className = "cmsg" + (m.me ? " me" : "");
+  ty.appendChild(avaFor(m));
+  ty.insertAdjacentHTML("beforeend", '<div class="bubble typing-b" aria-label="' + esc(m.name) + ' is typing"><div class="dots"><i></i><i></i><i></i></div></div>');
+  body.appendChild(ty);
+  $("chatSub").textContent = "typing…";
+  setTimeout(function () {
+    if (!chat || chat.convoTok !== tok || chat.view !== k) return;
+    ty.remove(); $("chatSub").textContent = "online";
+    chatPop(); chatShowMsg(k, true);
+  }, 1300);
+}
+function chatShowMsg(k, fresh) {
+  var m = chat.items[k], body = $("chatBody"), tok = chat.convoTok;
   var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " me" : "");
   r.appendChild(avaFor(m));
   var b = document.createElement("div"); b.className = "bubble"; b.style.setProperty("--c", m.color);
@@ -4953,10 +4985,12 @@ function chatConvo(k) {
   }
   var tx = document.createElement("div"); tx.className = "txt"; tx.textContent = m.text; b.appendChild(tx);
   var tm = document.createElement("div"); tm.className = "time"; tm.textContent = m.time; b.appendChild(tm);
+  var tk = document.createElement("span"); tk.className = "ticks" + (fresh ? "" : " seen"); tk.setAttribute("aria-hidden", "true");
+  tk.innerHTML = '<svg viewBox="0 0 17 11"><path d="M1 6l3 3 6-7M7 8.2l1 .8 6-7"/></svg>';
+  tm.appendChild(tk);
   r.appendChild(b); body.appendChild(r);
   body.scrollTop = 0;
-  chatHeader(); chatFooter();
-  $("chatBack").focus();
+  if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) tk.classList.add("seen"); }, 900);   // ✓✓ turns blue: read
 }
 function closeChat() {
   chatRun++; chat = null;
@@ -5073,6 +5107,42 @@ $("poem").addEventListener("click", function (e) {
     wrap.appendChild(c);
   })(i);
 })();
+
+/* ---------- The phone's back button ----------
+   The whole surprise is one page, so Back would leave the site. Once the ride is open we keep one extra
+   history entry: Back closes whatever is open (photos, chat, group photo, kavidhai, notebook page, card),
+   and on the ride itself it asks "Press back again to leave the ride" first. */
+var BACK = { on: false, armed: false, t: 0, toast: null };
+function backPush() {
+  if (BACK.on || $("party").hidden) return;
+  try { history.pushState({ ride: 1 }, ""); BACK.on = true; } catch (e) {}
+}
+function backCloseTop() {                                // closes the topmost open screen; true if Back was used up
+  var gp = $("chat").hidden ? null : $("chat").querySelector(".gphoto.on");
+  if (gp) { gp.click(); return true; }
+  if (typeof NB !== "undefined" && NB.ov && !NB.ov.hidden) { if (!NB.busy) nbClose(); return true; }
+  if (!reel.hidden) { if (mode === "wall" && focused >= 0) { focused = -1; layoutWall(); } else closeReel(); return true; }
+  if (!$("chat").hidden) { if (chat && chat.view !== "list") chatList(); else closeChat(); return true; }
+  if (!$("poem").hidden) { closePoem(); return true; }
+  if (!$("reveal").hidden) { closeCard(); return true; }
+  return false;
+}
+function backToast(on) {
+  if (!BACK.toast) {
+    BACK.toast = document.createElement("div"); BACK.toast.className = "back-toast"; BACK.toast.setAttribute("role", "status");
+    BACK.toast.textContent = "Press back again to leave the ride"; document.body.appendChild(BACK.toast);
+  }
+  void BACK.toast.offsetWidth; BACK.toast.classList.toggle("on", on);
+}
+addEventListener("popstate", function () {
+  BACK.on = false;
+  if ($("party").hidden) return;
+  if (backCloseTop()) { backPush(); return; }
+  if (BACK.armed) { clearTimeout(BACK.t); backToast(false); history.back(); return; }   // second press: really leave
+  BACK.armed = true; backToast(true); backPush();
+  clearTimeout(BACK.t); BACK.t = setTimeout(function () { BACK.armed = false; backToast(false); }, 3000);
+});
+document.addEventListener("pointerdown", backPush, true);   // keep the extra entry in place (phones only honour it after a touch)
 
 /* ---------- Start ---------- */
 /* ---------- Test shortcuts (for you, while building) ----------
