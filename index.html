@@ -1480,7 +1480,6 @@ var STAR = "M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4
 $("friendName").textContent = CONFIG.friendName;
 $("sealInitial").textContent = (CONFIG.fromName || "A").trim().charAt(0).toUpperCase();
 $("lockEyebrow").textContent = "Sealed, for " + CONFIG.friendName + " only";
-$("cdEyebrow").textContent = "Not yet, " + CONFIG.friendName;
 $("hint").textContent = CONFIG.hint;
 function parseLocalDate(s) {
   var p = String(s).split("-").map(Number);
