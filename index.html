@@ -291,7 +291,9 @@ button { font: inherit; cursor: pointer; }
 .phones svg { width: 22px; height: 22px; flex: 0 0 auto; fill: var(--gold); animation: bob 2.4s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-2px) rotate(-6deg); } }
 /* ---------- Party ---------- */
-#party { padding-block: 0 90px; display: grid; gap: 56px; }
+#party { padding-block: 0; display: grid; gap: 56px; }
+/* during the ride the page doesn't scroll at all: the scene is the whole screen */
+html.ride-on, html.ride-on body { overflow: hidden; overscroll-behavior: none; }
 .hero { text-align: center; display: grid; gap: 10px; justify-items: center; }
 .hero .eyebrow { color: var(--gold); }
 .hero h2 { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 10vw, 84px); line-height: .95; letter-spacing: -.035em; margin: 0; text-wrap: balance; }
@@ -312,7 +314,7 @@ button { font: inherit; cursor: pointer; }
 .ride {
   position: relative; overflow: hidden; isolation: isolate; touch-action: pan-y;
   width: 100vw; margin-left: calc(50% - 50vw);          /* edge to edge, outside the page column */
-  height: 100vh; min-height: 460px;                    /* full screen height, including behind a phone's collapsing address bar */
+  height: 100vh; height: 100svh;                       /* exactly the visible screen (JS sets the precise height), so nothing hides behind a phone's browser bars */
   background: #4b3a8c;
 }
 .ride.no-anim, .ride.no-anim * { transition: none !important; }
@@ -516,6 +518,11 @@ button { font: inherit; cursor: pointer; }
 .bus-banner span { order: 1; background: var(--gold); color: #2b2242; font-family: var(--hand); font-size: 22px; line-height: 1; padding: 6px 14px 7px; border-radius: 6px 2px 2px 6px; white-space: nowrap; box-shadow: 0 6px 16px rgba(0,0,0,.35); animation: flutter .5s ease-in-out infinite alternate; }
 @keyframes flutter { to { transform: skewY(-2deg) translateY(-2px); } }
 .bus.banner-on .bus-banner { opacity: 1; transform: none; }
+/* parked at the last stop, the banner sits on the roof like a sign, so it's on screen */
+.bus.parked .bus-banner { right: auto; left: 50%; top: -34%; transform: translateX(-50%) scale(0); transform-origin: 50% 100%; }
+.bus.parked.banner-on .bus-banner { transform: translateX(-50%); }
+.bus.parked .bus-banner::after { display: none; }
+.bus.parked .bus-banner span { border-radius: 6px; font-size: clamp(15px, 4.4vw, 22px); }
 .ride-say {
   position: absolute; z-index: 6; top: calc(env(safe-area-inset-top, 0px) + 26px);
   left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); text-align: center;
@@ -919,6 +926,12 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   font-variant-numeric: tabular-nums;
 }
 .blow-countdown.pop { animation: countdownPop .72s cubic-bezier(.2,1.5,.4,1); }
+/* after "1": the number fades out and the instruction appears in the same place */
+.blow-countdown { transition: opacity .45s ease; }
+.blow-countdown.fade { opacity: 0; }
+.blow-countdown.word { font-family: var(--hand); font-weight: 700; font-size: clamp(22px, 6vw, 30px); line-height: 1.1; max-width: 18ch; margin-inline: auto;
+  animation: countdownWord .7s ease both; }
+@keyframes countdownWord { from { opacity: 0; transform: translateY(8px) scale(.96); } }
 @keyframes countdownPop {
   0% { opacity: 0; transform: scale(.45); }
   35% { opacity: 1; transform: scale(1.18); }
@@ -934,59 +947,56 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .far-line { margin: 14px 0 0; font-family: var(--hand); font-weight: 700; font-size: clamp(24px, 6.2vw, 34px); line-height: 1.15; color: #ffd98a; max-width: 22ch; text-wrap: balance;
   text-shadow: 0 2px 4px rgba(10,6,24,.85), 0 0 22px rgba(255,200,110,.45); }
 .far-line[hidden] { display: none; }
-/* ---------- Tell the moon: once all is quiet, a little bubble pops out of the moon; she writes, her words float up into it ---------- */
-.moon-bubble { position: absolute; z-index: 8; left: 0; top: 0; max-width: min(240px, calc(100% - 32px)); padding: 10px 16px 11px; border: 0; border-radius: 22px;
-  background: rgba(250,251,255,.95); color: #2b2a4a; cursor: pointer; text-align: center; font-family: var(--hand); font-weight: 700;
-  font-size: clamp(20px, 5.2vw, 25px); line-height: 1.1; box-shadow: 0 0 26px rgba(215,228,255,.55), 0 10px 26px rgba(0,0,0,.35);
-  transform-origin: var(--ox, 100%) 0; opacity: 0; transform: scale(.15); pointer-events: none; -webkit-tap-highlight-color: transparent;
-  transition: opacity .35s ease, transform .6s cubic-bezier(.3,1.6,.5,1); }
-.moon-bubble.on { opacity: 1; transform: none; pointer-events: auto; }
-.moon-bubble.on.float { animation: bubbleFloat 3.4s ease-in-out infinite; }
-@keyframes bubbleFloat { 50% { transform: translateY(-4px); } }
-.moon-bubble.quiet { cursor: default; pointer-events: none; }
-.moon-bubble .mb-press { display: inline-block; margin-top: 8px; padding: 6px 16px 7px; border-radius: 999px; background: #2b3170; color: #fff;
-  font: 700 14px var(--body); letter-spacing: .02em; box-shadow: 0 0 0 0 rgba(120,140,255,.5); animation: pressPulse 2s ease-in-out infinite; }
-@keyframes pressPulse { 50% { box-shadow: 0 0 0 7px rgba(120,140,255,0); transform: scale(1.04); } }
-.moon-bubble.quiet .mb-press { display: none; }
-.moon-bubble span { display: block; transition: opacity .4s ease; }
-.moon-bubble.swap span { opacity: 0; }
-.moon-bubble:focus-visible { outline: 2px solid #dfe8ff; outline-offset: 3px; }
-.moon-dot { position: absolute; z-index: 8; left: 0; top: 0; border-radius: 50%; background: rgba(250,251,255,.92); box-shadow: 0 0 10px rgba(215,228,255,.6);
-  pointer-events: none; opacity: 0; transform: scale(0); transition: opacity .3s ease, transform .4s cubic-bezier(.3,1.6,.5,1); }
-.moon-dot.on { opacity: 1; transform: none; }
-/* the moon glows a little brighter while it waits, and brightens as her words reach it */
-.sky-moon.listen { pointer-events: auto; cursor: pointer; }
-.sky-moon.listen .sm-halo { animation: moonListen 3.4s ease-in-out infinite; }
-@keyframes moonListen { 50% { opacity: 1; transform: scale(1.14); } }
-.sky-moon.gulp .sm-halo { animation: moonGulp 1.1s ease-out; }
-@keyframes moonGulp { 30% { opacity: 1; transform: scale(1.4); } }
-.sky-moon.gulp svg { animation: moonGlow 1.1s ease-out; }
-@keyframes moonGlow { 30% { filter: brightness(1.3) drop-shadow(0 0 20px rgba(230,238,255,.95)); } }
-.moon-card { position: absolute; z-index: 9; left: 50%; top: 52%; width: min(calc(100% - 32px), 420px); max-height: calc(100% - 24px); overflow: auto;
-  padding: 18px 20px 14px; border-radius: 18px; border: 1px solid rgba(220,230,255,.35);
-  background: linear-gradient(160deg, rgba(44,50,96,.74), rgba(18,20,48,.8)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  box-shadow: 0 0 44px rgba(170,190,255,.25), 0 24px 60px rgba(0,0,0,.5); color: #eef2ff;
-  opacity: 0; transform: translate(-50%, -46%) scale(.96); filter: blur(4px); transition: opacity .7s ease, transform .8s cubic-bezier(.3,1.2,.5,1), filter .7s ease; }
-.moon-card.on { opacity: 1; transform: translate(-50%, -50%); filter: none; }
-.moon-card.grow { transition: transform .6s cubic-bezier(.3,1.15,.5,1), opacity .35s ease, filter .4s ease; }
-.moon-card.away { opacity: 0; transition: opacity .25s ease; }
-.moon-card[hidden] { display: none; }
-.moon-card .to { margin: 0 0 6px; font-family: var(--hand); font-size: 26px; color: #cfd9ff; }
-.moon-card textarea, .mw-fly { font-family: var(--hand); font-size: 25px; line-height: 1.3; color: #f2f5ff; text-shadow: 0 0 10px rgba(200,215,255,.45); }
-.moon-card textarea { display: block; width: 100%; min-height: 150px; resize: none; border: 0; outline: 0; padding: 0; margin: 0; background: transparent; }
-.moon-card textarea::placeholder { color: rgba(220,228,255,.45); text-shadow: none; }
-.moon-card .sign { margin: 6px 0 0; text-align: right; font-family: var(--hand); font-size: 24px; color: #cfd9ff; }
-.moon-card .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
-.moon-card .later { background: none; border: 0; padding: 8px 4px; font: 500 15px var(--body); color: rgba(220,228,255,.7); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.moon-card .send { padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(230,238,255,.6); background: linear-gradient(#f6f8ff, #d2dcf6); color: #1d2147;
-  font: 700 16px var(--body); cursor: pointer; box-shadow: 0 0 18px rgba(200,215,255,.45); }
-.moon-card .send[disabled] { opacity: .4; cursor: default; }
-.moon-card .status { min-height: 1.2em; margin: 8px 0 0; font: 500 14px var(--body); color: #ffb3a7; text-align: center; }
-.moon-card .bot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-/* her words, lifted off the card: they shimmer, then float up into the moon one by one */
-.mw-layer { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
-.mw-fly { position: absolute; white-space: pre; animation: mwShimmer 1.2s ease-in-out infinite alternate; }
-@keyframes mwShimmer { to { text-shadow: 0 0 14px rgba(230,238,255,.95), 0 0 3px #fff; } }
+/* ---------- Her reply: once the fireworks are over, the boy comes out of the parked bus with a notebook ---------- */
+.nb-spot { position: absolute; z-index: 7; left: 0; top: 0; width: 66px; height: 66px; margin: -33px 0 0 -33px; padding: 0; border: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,230,150,.38), rgba(255,230,150,0) 66%); cursor: pointer; opacity: 0; pointer-events: none;
+  transition: opacity .6s ease; -webkit-tap-highlight-color: transparent; }
+.nb-spot[hidden] { display: none; }
+.nb-spot.on { opacity: 1; pointer-events: auto; }
+.nb-spot::after { content: ""; position: absolute; inset: 15px; border-radius: 50%; border: 2px solid rgba(255,226,150,.9); animation: nbRing 1.8s ease-out infinite; }
+@keyframes nbRing { 0% { transform: scale(.55); opacity: 1; } 100% { transform: scale(1.65); opacity: 0; } }
+.nb-spot:focus-visible { outline: 2px solid #ffd98a; outline-offset: 2px; }
+.nb-hint { position: absolute; z-index: 7; left: 0; top: 0; width: max-content; max-width: min(320px, calc(100vw - 32px)); padding: 8px 15px 9px; border-radius: 999px;
+  background: rgba(20,14,40,.8); border: 1px solid rgba(255,217,138,.55); color: #ffe2a8; font: 600 14px/1.25 var(--body); text-align: center;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35), 0 0 16px rgba(255,214,120,.25); transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity .6s ease; }
+.nb-hint[hidden] { display: none; }
+.nb-hint.on { opacity: 1; animation: nbHint 2.2s ease-in-out infinite; }
+@keyframes nbHint { 50% { transform: translateX(-50%) translateY(-3px); } }
+.nb-heart { position: absolute; z-index: 7; pointer-events: none; color: #ff6f91; font-size: 15px; line-height: 1; text-shadow: 0 0 8px rgba(255,120,150,.6);
+  animation: nbHeart 1.8s ease-out forwards; }
+@keyframes nbHeart { 0% { opacity: 0; transform: translate(-50%, 0) scale(.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--hx, 0px)), -60px) scale(1.15); } }
+/* the notebook page she writes on: school paper, spiral rings, a red margin, a little doodled star */
+.nb-ov { position: fixed; z-index: 9; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(8,6,20,.5); opacity: 0; transition: opacity .4s ease; }
+.nb-ov[hidden] { display: none; }
+.nb-ov.on { opacity: 1; }
+.nb-page { position: relative; display: flex; flex-direction: column; width: min(100%, 440px); max-height: calc(100% - 20px); margin-top: 12px;
+  padding: 30px 20px 14px 50px; border-radius: 4px 4px 8px 8px; color: #1f2a66;
+  background: linear-gradient(90deg, transparent 38px, rgba(229,120,120,.75) 38px, rgba(229,120,120,.75) 39.5px, transparent 39.5px), #fffdf6;
+  box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 -3px 0 rgba(0,0,0,.04);
+  transition: transform .55s cubic-bezier(.3,1.15,.5,1), opacity .35s ease; }
+.nb-page .nb-rings { position: absolute; left: 12px; right: 12px; top: -11px; height: 26px; pointer-events: none;
+  background: radial-gradient(circle at 11px 18px, #2a2242 0 3.2px, transparent 3.8px) 0 0 / 22px 26px repeat-x,
+              radial-gradient(circle at 11px 9px, transparent 0 4.6px, #868b98 4.8px 6.4px, transparent 6.8px) 0 0 / 22px 26px repeat-x; }
+.nb-page .nb-star { position: absolute; right: 16px; top: 16px; width: 26px; height: 26px; transform: rotate(12deg); }
+.nb-page .nb-to { margin: 0 0 2px; font-family: var(--hand); font-size: 28px; line-height: 32px; color: #1f2a66; }
+.nb-page textarea { flex: 1 1 auto; display: block; width: 100%; min-height: 160px; resize: none; border: 0; outline: 0; padding: 0; margin: 0; caret-color: #1f2a66;
+  font-family: var(--hand); font-size: 24px; line-height: 32px; color: #1f2a66; background-color: transparent; background-attachment: local;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(110,150,215,.5) 31px, rgba(110,150,215,.5) 32px); }
+.nb-page textarea::placeholder { color: rgba(31,42,102,.4); }
+.nb-page .nb-sign { margin: 6px 0 0; text-align: right; font-family: var(--hand); font-size: 26px; color: #1f2a66; }
+.nb-page .nb-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.nb-page .nb-later { background: none; border: 0; padding: 8px 4px; font: 500 15px var(--body); color: #6a6f8f; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.nb-page .nb-give { padding: 11px 20px; border: 0; border-radius: 999px; background: #2b3170; color: #fff; font: 700 16px var(--body); cursor: pointer; box-shadow: 0 8px 18px rgba(43,49,112,.35); }
+.nb-page .nb-give[disabled] { opacity: .4; cursor: default; box-shadow: none; }
+.nb-page .nb-status { min-height: 1.2em; margin: 8px 0 0; font: 500 14px var(--body); color: #b23a2c; text-align: center; }
+.nb-page .bot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+/* the closing title in the sky while he sits on the kerb */
+.sky-final { position: absolute; z-index: 6; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 7%); width: max-content; max-width: calc(100% - 32px);
+  transform: translateX(-50%); text-align: center; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8vw, 54px); line-height: 1.02;
+  letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 22px rgba(10,6,24,.7); opacity: 0; pointer-events: none; transition: opacity 2.4s ease; }
+.sky-final[hidden] { display: none; }
+.sky-final.on { opacity: 1; }
 
 .far-line .fl { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(6px);
   animation: farIn .9s ease forwards; animation-delay: var(--d, 0s); }
@@ -1304,6 +1314,7 @@ var CONFIG = {
 
   // Background song. Put the mp3 next to index.html. It starts when box 1 is opened and keeps playing.
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
+  chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
   // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
@@ -1402,16 +1413,17 @@ var CONFIG = {
   ],
 
   finaleWish: "Happy birthday. Here's to many more years of us.",
-  // At the very end she can tell the moon something: her words float up into the moon and arrive in your email (via web3forms.com)
+  // At the very end the boy comes out of the bus with a notebook; what she writes arrives in your email (via web3forms.com)
   reply: {
     key: "c7f10b4c-3f17-4293-9713-3b48dc4a70d3",   // your Web3Forms access key (it can only send to your email)
-    invite: "Tell the moon something… it'll reach me",   // in a little bubble from the moon, once the song has ended
-    press: "Press me",
+    ask: "Your turn! Write something for me?",        // what he says, holding the notebook up
+    hint: "Press the notebook to write your message", // the line under him, so she knows what to do
     placeholder: "Write anything you'd like to tell me…",
-    button: "Send",
-    sent: "It reached him.",                          // the moon's answer after her words float into it
-    goodnight: "Happy birthday. Good night."
+    button: "Give it to him",
+    thanks: "I'll keep this forever. Thank you.",     // what he says after reading it
+    bye: "Bye!"                                       // what he says before he fades away in sparkles
   },
+
 };
 /* ====================================================================== */
 
@@ -1586,6 +1598,7 @@ function fadeSongIn() {
 var audioPrimed = false, wantSong = false;
 function unlockAudio() {
   try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) {}
+  if (typeof bgm2Prime === "function") bgm2Prime();
   if (typeof sfxLoad === "function") sfxLoad();
   if (audioPrimed || songState !== "idle") return;
   audioPrimed = true;
@@ -1787,7 +1800,17 @@ function rideGeom() {
     signX: W * .57, slotW: slotW, slotX: W * .79, boxH: slotW * 1.05
   };
 }
+// The scene is exactly as tall as the part of the screen you can see (between the phone's address bar and its bottom bar)
+function fitRide() {
+  if ($("party").hidden) return;
+  document.documentElement.classList.add("ride-on");
+  var a = document.activeElement;
+  if (a && /^(TEXTAREA|INPUT)$/.test(a.tagName) && R.H) return;    // the keyboard is open: keep the scene as it is
+  R.el.style.height = window.innerHeight + "px";
+  if (window.scrollY) scrollTo(0, 0);
+}
 function rideLayout() {
+  fitRide();
   var r = R.el.getBoundingClientRect();
   if (!r.width) return;
   if (Math.abs(r.width - R.W) < 1 && Math.abs(r.height - R.H) < 1) return;
@@ -1857,7 +1880,8 @@ function lmBoard(cx, y, w, h, text, green) {
 }
 function lmWin(x, y, w, h) { return '<rect class="cw" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="1.5"/>'; }
 function landmark(k, g) {
-  var name = RC.stops[k - 1].name, cw = Math.min(g.W * .62, 340), ch = Math.min(g.H * .25, 170);
+  // on a phone (tall screen) the stop buildings grow taller into the empty sky; same width, so the street isn't crowded
+  var name = RC.stops[k - 1].name, cw = Math.min(g.W * .62, 340), ch = g.H > g.W ? Math.min(g.H * .31, 215) : Math.min(g.H * .25, 170);
   var bh = Math.max(24, ch * .2), bw = Math.min(cw * .9, Math.max(cw * .5, name.length * Math.min(15, bh * .5) * .78 + 30));
   var T = ch + bh + 14, x0 = k * g.W + g.W * .04, top = g.walkTop - T, svg = "", extra = "";
   var C = "#4b2f66", Cl = "#5e3d7d", Cd = "#24163a";
@@ -2234,7 +2258,7 @@ var ME = { el: null, out: false, idle: false, x: 0, y: 0, s: 1, lift: 0, raf: 0,
   p: null, tw: [], walk: 0, walkOn: false, ph: 0, dir: 1, lx: null, ly: null, talkTill: 0, blinkAt: 0, blinkT: -9999,
   timers: [], idleT: 0, Q: null, dimNow: -1, mouth: "", backNow: -1, behindNow: -1 };
 var ME_REST = { bob: 0, lean: 0, shift: 0, sx: 1, sy: 1, turn: 0, tilt: 0, gx: 0, gy: 0, lid: 0, smile: .4,
-  hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4, gift: 0, wave: 0, tuck: 0, dim: 0, pb: 0, back: 0, behind: 0 };
+  hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4, gift: 0, wave: 0, tuck: 0, dim: 0, pb: 0, back: 0, behind: 0, note: 0, noteBack: 0 };
 var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
 (function buildMe() {
   var SKF = "#f3c9a8", SKD = "#e0a684", HAIR = "#16121a", HL = "#433b4c", OL = "#f7f8fa", OLD = "#cdd3dd", OLL = "#ffffff",
@@ -2261,6 +2285,12 @@ var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
       '<circle cx="' + (cx + .9) + '" cy="24.2" r=".75" fill="#fff"/><circle cx="' + (cx - .7) + '" cy="26.2" r=".35" fill="#fff" opacity=".8"/></g></g>' +
       '<path d="M' + (cx - 3.1) + ' 23.6Q' + cx + ' 20.6 ' + (cx + 3.1) + ' 23.6" stroke="#2a1c16" stroke-width=".95" fill="none" stroke-linecap="round"/></g>';
   }
+  var lines = ""; [-3.2, -1.4, .4, 2.2, 4].forEach(function (y) { lines += '<path d="M-4.1 ' + y + 'H4.1" stroke="#9db4e0" stroke-width=".35"/>'; });
+  var rings = ""; [-3.6, -1.8, 0, 1.8, 3.6].forEach(function (x) { rings += '<circle cx="' + x + '" cy="-6.1" r=".6" fill="none" stroke="#6b6f7a" stroke-width=".4"/>'; });
+  var note = '<g class="m-note"><g class="nb-front"><rect x="-5" y="-6.2" width="10" height="12.4" rx=".8" fill="#fffdf4" stroke="#c9c2ae" stroke-width=".4"/>' + lines +
+    '<path d="M-2.9 -5.4V5.6" stroke="#e58b8b" stroke-width=".35"/>' + rings + '</g>' +
+    '<g class="nb-back"><rect x="-5" y="-6.2" width="10" height="12.4" rx=".8" fill="#3e5ea8" stroke="#2c4380" stroke-width=".4"/>' +
+    '<rect x="-3.3" y="-2.2" width="6.6" height="2.8" rx=".4" fill="#f3efe2"/>' + rings + '</g></g>';
   var gift = '<g class="m-gift"><rect x="-5.5" y="-3.4" width="11" height="8.4" rx="1.1" fill="' + W + '"/>' +
     '<rect x="-6.2" y="-5.4" width="12.4" height="2.8" rx=".8" fill="' + WD + '"/><rect x="-.7" y="-5.4" width="1.4" height="10.4" fill="' + RB + '"/>' +
     '<ellipse cx="-1.9" cy="-6.2" rx="2.1" ry="1.3" fill="none" stroke="' + RB + '" stroke-width="1.1" transform="rotate(-20 -1.9 -6.2)"/>' +
@@ -2329,7 +2359,7 @@ var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
             '<path d="M14.6 23.2L18 23.6M45.4 23.2L42 23.6" stroke="#111" stroke-width="1.1" stroke-linecap="round"/>' +
           '</g>' +
         '</g>' +
-        gift + arm("m-armr", false) + arm("m-arml", true) +
+        gift + note + arm("m-armr", false) + arm("m-arml", true) +
       '</g>' +
     '</g></svg>';
   R.world.appendChild(el);
@@ -2340,7 +2370,7 @@ var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
   var eyes = el.querySelectorAll(".m-eye"), iris = el.querySelectorAll(".m-iris");
   ME.Q = { root: q(".m-root"), shadow: q(".m-shadow"), legL: legQ(".m-legl"), legR: legQ(".m-legr"), pelvis: q(".m-pelvis"),
     torso: q(".m-torso"), front: q(".m-front"), head: q(".m-head"), face: q(".m-face"), hairf: q(".m-hairf"), hairb: q(".m-hairb"),
-    earL: q(".m-earl"), earR: q(".m-earr"), eyes: eyes, iris: iris, gift: q(".m-gift"), armL: armQ(".m-arml"), armR: armQ(".m-armr"),
+    earL: q(".m-earl"), earR: q(".m-earr"), eyes: eyes, iris: iris, gift: q(".m-gift"), note: q(".m-note"), nbFront: q(".nb-front"), nbBack: q(".nb-back"), armL: armQ(".m-arml"), armR: armQ(".m-armr"),
     ms: q(".m-ms"), mb: q(".m-mb"), mo: q(".m-mo"), back: q(".m-back"), backc: q(".m-backc") };
   ME.p = meCopy(ME_REST);
 })();
@@ -2356,7 +2386,7 @@ function ik2(sx, sy, tx, ty, L1, L2, bend) {
   var D = 180 / Math.PI;
   return [-(line + bend * a) * D, bend * (Math.PI - b) * D];
 }
-function meSize() { var g = rideGeom(), h = Math.min(g.busH * .6, 82);   // a child is about half as tall as a bus
+function meSize() { var g = rideGeom(), h = Math.min(g.busH * .66, 90);   // a child, about two-thirds of the bus's height
   return { h: h, w: h * 60 / 110, k: h / 110 }; }
 function mePut(x, y, s) {                       // x = centre of his feet, y = ground under his feet (world px)
   ME.x = x; ME.y = y; if (s != null) ME.s = s;
@@ -2481,6 +2511,12 @@ function meRender(now) {
     Q.gift.setAttribute("visibility", "visible");
     Q.gift.setAttribute("transform", "translate(" + f2((hl[0] + hr[0]) / 2) + " " + f2((hl[1] + hr[1]) / 2 - .6) + ") scale(" + f2(P.gift) + ")");
   } else Q.gift.setAttribute("visibility", "hidden");
+  if (P.note > .02) {
+    Q.note.setAttribute("visibility", "visible");
+    Q.note.setAttribute("transform", "translate(" + f2((hl[0] + hr[0]) / 2) + " " + f2((hl[1] + hr[1]) / 2 - 1) + ") scale(" + f2(P.note) + ")");
+    var nbk = P.noteBack > .5;
+    Q.nbFront.setAttribute("visibility", nbk ? "hidden" : "inherit"); Q.nbBack.setAttribute("visibility", nbk ? "inherit" : "hidden");
+  } else Q.note.setAttribute("visibility", "hidden");
   var m = now < ME.talkTill ? (Math.sin(now * .036) > -.2 ? "o" : (P.smile > .6 ? "b" : "s")) : (P.smile > .6 ? "b" : "s");
   if (m !== ME.mouth) {
     ME.mouth = m;
@@ -2491,8 +2527,8 @@ function meRender(now) {
   var bh = P.behind > .5 ? 1 : 0;
   if (bh !== ME.behindNow) {                      // hands hidden behind his back, or in front
     ME.behindNow = bh;
-    [Q.armL.g, Q.armR.g, Q.gift].forEach(function (n) { if (bh) Q.torso.insertBefore(n, Q.torso.firstChild); });
-    if (!bh) [Q.gift, Q.armR.g, Q.armL.g].forEach(function (n) { Q.torso.appendChild(n); });
+    [Q.armL.g, Q.armR.g, Q.note, Q.gift].forEach(function (n) { if (bh) Q.torso.insertBefore(n, Q.torso.firstChild); });
+    if (!bh) [Q.gift, Q.note, Q.armR.g, Q.armL.g].forEach(function (n) { Q.torso.appendChild(n); });
   }
   var bk = P.back > .5 ? 1 : 0;
   if (bk !== ME.backNow) {                        // front or back view
@@ -3247,21 +3283,13 @@ function rideAfterGift() {
 function rideEnd() {
   R.done = true;
   R.bus.classList.remove("door-open");
-  R.bus.classList.add("banner-on");
-  led("Happy birthday " + CONFIG.friendName);
+  R.bus.classList.add("parked");
+  led();
   honk(2);
-  setTimeout(function () {
-    R.bus.classList.add("moving");
+  setTimeout(function () {                          // the bus stays parked here with its banner, through the cake and the fireworks
     rideSky();
     say("End of the ride", rideText(RC.endLine), null);
-    R.bus.classList.add("accel");
-    engineStart();
-    tween(3, 4.15, legTime("away") + 600, function () {
-      engineStop(1.5);
-      R.bus.classList.remove("accel");
-      R.bus.classList.remove("moving");
-      sceneFinale();
-    }, EASE.away);
+    setTimeout(sceneFinale, 2600);
   }, 900);
 }
 $("rideGo").addEventListener("click", function () {
@@ -3276,6 +3304,7 @@ $("rideGo").addEventListener("click", function () {
 });
 var rideResizeT = 0;
 addEventListener("resize", function () { clearTimeout(rideResizeT); rideResizeT = setTimeout(rideLayout, 150); });
+addEventListener("orientationchange", function () { setTimeout(rideLayout, 300); });
 /* ---------- Finale in the scene: make a wish, really blow out the candles, fireworks over the city ---------- */
 var F = { cake: null, candles: [], out: 0, done: false, started: false };
 var FC = { candles: 3 };
@@ -3325,7 +3354,9 @@ function placeCake() {
   if (!R.W) return;
   var g = rideGeom(), w = Math.min(g.W * .4, 220, g.H * .3);
   F.cake.style.width = w + "px";
-  F.cake.style.left = (3 * g.W + g.slotX - w / 2) + "px";          // where the (opened) third box stood, clear of the sign
+  var cx = Math.max(g.slotX - w / 2, g.busX + g.busW + Math.max(28, meSize().w * 1.6));   // where box 3 stood, always well clear of the parked bus
+  cx = Math.min(cx, g.W - w - 8);
+  F.cake.style.left = (3 * g.W + cx) + "px";
   F.cake.style.top = (g.walkTop + 10 - w * 172 / 200) + "px";
   var cv = $("fireworks"), dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = Math.round(g.W * dpr); cv.height = Math.round(g.H * dpr);
@@ -3335,8 +3366,6 @@ function placeCake() {
 
 function sceneFinale() {
   placeCake();
-  R.bus.classList.remove("banner-on");
-  R.bus.classList.add("away");
   boxes[2].parentNode.classList.add("gone");
   var countdown = $("blowCountdown");
   countdown.hidden = true;
@@ -3365,10 +3394,14 @@ function sceneFinale() {
 
     setTimeout(function () {
       if (F.done) return;
-      countdown.hidden = true;
-      countdown.textContent = "";
-      say("And… blow out the candles! 🎂", "", null);
-      setTimeout(function () { if (!F.done) blowAll(); }, 650);
+      countdown.classList.add("fade");                                    // the "1" fades away…
+      setTimeout(function () {
+        if (F.done) return;
+        countdown.classList.remove("pop", "fade");
+        countdown.textContent = "And… blow out the candles!";         // …and the instruction appears in its place
+        countdown.classList.add("word");
+      }, 450);
+      setTimeout(function () { if (!F.done) blowAll(); }, 450 + 2300);    // a short pause to read it, then the candles go out
     }, 3200);
   }, 6500);
 }
@@ -3601,193 +3634,258 @@ function fwSound(kind, xFrac, size) {
   setTimeout(function () { sfxPlay(k, FW_VOL * FW_DUCK * (size || 1) * (.8 + Math.random() * .2), .94 + Math.random() * .12); }, 90);
 }
 
-/* ---------- Tell the moon: after the fireworks and music, the cake and words fade; a bubble pops out of the moon.
-   She taps it, it grows into a card, she writes; her words float up into the moon, and the moon answers. (Sent to your email.) ---------- */
-var RP = { bubble: null, dots: [], card: null, ta: null, sendBtn: null, status: null, busy: false, open: false, done: false };
-(function buildMoonReply() {
+/* ---------- Her reply: when the song ends the words fade; the boy steps out of the parked bus with a notebook and asks her to write.
+   She presses the notebook, writes on the page, gives it to him; he reads it, holds it to his heart, keeps it in his pocket.
+   The bus leaves without him; he waves it off, waves to her, and sits on the kerb under the moon. (The message arrives in your email.) ---------- */
+var NB = { spot: null, hint: null, ov: null, page: null, ta: null, give: null, status: null, final: null,
+  busy: false, open: false, done: false, shown: false, bounceT: 0, idleT: 0 };
+(function buildNotebook() {
   var C = CONFIG.reply;
   if (!C || !C.key) return;
-  var bub = document.createElement("button"); bub.type = "button"; bub.className = "moon-bubble"; bub.hidden = true;
-  bub.innerHTML = '<span></span><b class="mb-press"></b>'; bub.querySelector("span").textContent = C.invite; bub.querySelector(".mb-press").textContent = C.press;
-  R.el.appendChild(bub); RP.bubble = bub;
-  [0, 1].forEach(function () { var d = document.createElement("i"); d.className = "moon-dot"; d.hidden = true; R.el.appendChild(d); RP.dots.push(d); });
-  var card = document.createElement("div"); card.className = "moon-card"; card.hidden = true;
-  card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true"); card.setAttribute("aria-label", "Tell the moon something");
-  card.innerHTML = '<p class="to"></p><textarea maxlength="4000" aria-label="Your message"></textarea>' +
-    '<input class="bot" type="checkbox" tabindex="-1" aria-hidden="true"><p class="sign"></p>' +
-    '<div class="row"><button type="button" class="later">Not now</button><button type="button" class="send" disabled></button></div>' +
-    '<p class="status" aria-live="polite"></p>';
-  R.el.appendChild(card); RP.card = card;
-  RP.ta = card.querySelector("textarea"); RP.sendBtn = card.querySelector(".send"); RP.status = card.querySelector(".status");
-  card.querySelector(".to").textContent = "Dear " + (CONFIG.fromName || "you") + ",";
-  card.querySelector(".sign").textContent = "— " + (CONFIG.friendName || "");
-  RP.sendBtn.textContent = C.button; RP.ta.placeholder = C.placeholder;
-  try { RP.ta.value = localStorage.getItem("bdayReplyDraft") || ""; } catch (e) {}
-  RP.sendBtn.disabled = !RP.ta.value.trim();
-  RP.ta.addEventListener("input", function () {
-    RP.sendBtn.disabled = !RP.ta.value.trim(); RP.status.textContent = "";
-    try { localStorage.setItem("bdayReplyDraft", RP.ta.value); } catch (e) {}      // her words are kept if she closes it
+  var spot = document.createElement("button"); spot.type = "button"; spot.className = "nb-spot"; spot.hidden = true;
+  spot.setAttribute("aria-label", C.hint);
+  R.world.appendChild(spot); NB.spot = spot;
+  var hint = document.createElement("div"); hint.className = "nb-hint"; hint.hidden = true; hint.textContent = C.hint;
+  R.world.appendChild(hint); NB.hint = hint;
+  var ov = document.createElement("div"); ov.className = "nb-ov"; ov.hidden = true;
+  ov.innerHTML = '<div class="nb-page" role="dialog" aria-modal="true" aria-label="Write in his notebook"><div class="nb-rings" aria-hidden="true"></div>' +
+    '<svg class="nb-star" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2.5L15.8 9.6L23.4 10L17.5 14.8L19.5 22.2L13 18.1L6.5 22.2L8.5 14.8L2.6 10L10.2 9.6Z" fill="none" stroke="#e0a33a" stroke-width="1.6" stroke-linejoin="round"/></svg>' +
+    '<p class="nb-to"></p><textarea maxlength="4000" aria-label="Your message"></textarea>' +
+    '<input class="bot" type="checkbox" tabindex="-1" aria-hidden="true"><p class="nb-sign"></p>' +
+    '<div class="nb-row"><button type="button" class="nb-later">Not now</button><button type="button" class="nb-give" disabled></button></div>' +
+    '<p class="nb-status" aria-live="polite"></p></div>';
+  R.el.appendChild(ov); NB.ov = ov; NB.page = ov.querySelector(".nb-page");
+  NB.ta = ov.querySelector("textarea"); NB.give = ov.querySelector(".nb-give"); NB.status = ov.querySelector(".nb-status");
+  ov.querySelector(".nb-to").textContent = "Dear " + (CONFIG.fromName || "you") + ",";
+  ov.querySelector(".nb-sign").textContent = "— " + (CONFIG.friendName || "");
+  NB.give.textContent = C.button; NB.ta.placeholder = C.placeholder;
+  try { NB.ta.value = localStorage.getItem("bdayReplyDraft") || ""; } catch (e) {}
+  NB.give.disabled = !NB.ta.value.trim();
+  NB.ta.addEventListener("input", function () {
+    NB.give.disabled = !NB.ta.value.trim(); NB.status.textContent = "";
+    try { localStorage.setItem("bdayReplyDraft", NB.ta.value); } catch (e) {}      // her words are kept if she closes it
   });
-  bub.addEventListener("click", function () { if (!bub.classList.contains("quiet")) replyOpen(); });
-  MOON.el.addEventListener("click", function () { if (MOON.el.classList.contains("listen") && !RP.open && !RP.busy) replyOpen(); });
-  card.querySelector(".later").addEventListener("click", replyClose);
-  card.addEventListener("keydown", function (e) { if (e.key === "Escape") replyClose(); });
-  RP.sendBtn.addEventListener("click", replySend);
-  addEventListener("resize", function () { if (RP.bubble && !RP.bubble.hidden) placeBubble(); });
+  spot.addEventListener("click", nbOpen);
+  ov.querySelector(".nb-later").addEventListener("click", nbClose);
+  ov.addEventListener("keydown", function (e) { if (e.key === "Escape") nbClose(); });
+  NB.give.addEventListener("click", nbGive);
+  var fin = document.createElement("div"); fin.className = "sky-final"; fin.hidden = true; R.el.appendChild(fin); NB.final = fin;
+  addEventListener("resize", function () { if (!NB.spot.hidden) setTimeout(nbPlace, 200); });
+  if (window.visualViewport) visualViewport.addEventListener("resize", nbFit);    // the page stays above the phone's keyboard
 })();
-function moonCenter() {
-  var rr = R.el.getBoundingClientRect(), mr = MOON.el.getBoundingClientRect();
-  return { x: mr.left - rr.left + mr.width / 2, y: mr.top - rr.top + mr.height / 2, d: mr.width };
-}
-// The fireworks and the music are over: the cake and the words fade away, leaving the night, the city and the moon
+// The song has ended: the words fade; once the last bursts are gone, he comes out of the bus
 function sceneQuiet() {
-  [$("rideSay"), F.cake].forEach(function (el) { if (el) { el.style.transition = "opacity 2.6s ease"; el.style.opacity = "0"; el.style.pointerEvents = "none"; } });
-  setTimeout(function () { $("rideSay").style.visibility = "hidden"; }, 2700);
-  setTimeout(showReplyInvite, 2600 + 600);
+  var rs = $("rideSay");
+  rs.style.transition = "opacity 2.2s ease"; rs.style.opacity = "0"; rs.style.pointerEvents = "none";
+  setTimeout(function () { rs.style.visibility = "hidden"; }, 2300);
+  setTimeout(boyReply, 3200);
 }
-// the bubble sits beside the moon (always fully on screen), with two little dots leading back to the moon
-function placeBubble() {
-  var b = RP.bubble, m = moonCenter(), rr = R.el.getBoundingClientRect();
-  var bw = b.offsetWidth, bh = b.offsetHeight, W = rr.width;
-  var x = m.x - m.d * .55 - bw, y = m.y + m.d * .55;                 // below and to the left of the moon
-  x = Math.max(16, Math.min(W - 16 - bw, x));
-  b.style.left = x.toFixed(1) + "px"; b.style.top = y.toFixed(1) + "px";
-  var cx = Math.min(x + bw - 18, m.x), cy = y;                       // the corner nearest the moon
-  b.style.setProperty("--ox", (cx - x).toFixed(1) + "px");
-  [[.38, 6], [.68, 9]].forEach(function (p, k) {
-    var d = RP.dots[k], px = m.x + (cx - m.x) * p[0] - m.d * .15 * (1 - p[0]), py = m.y + m.d * .45 + (cy - m.y - m.d * .45) * p[0];
-    d.style.width = d.style.height = p[1] + "px";
-    d.style.left = (px - p[1] / 2).toFixed(1) + "px"; d.style.top = (py - p[1] / 2).toFixed(1) + "px";
+// where he stands: on the road just past the front of the bus, a little nearer to her, never touching the bus or the cake
+function nbSpots() {
+  var S = meSpots(), d = S.d, g = S.g, cakeL = parseFloat(F.cake.style.left) || (S.out.x + d.w * 3);
+  var x = S.out.x + d.w * .5;                         // on the road, clear of the bus front (lower than the cake, so never in its way)
+  var kx = Math.max(S.out.x, Math.min(x, cakeL - d.w * .7));   // up at the kerb he stays left of the cake
+  return { S: S, talk: { x: x, y: Math.min(g.H - 12, S.ground.y + d.h * .28) }, kerb: { x: kx, y: g.roadTop + 3 } };
+}
+function boyReply() {
+  if (!NB.spot || NB.shown) return; NB.shown = true;
+  var P = nbSpots(), S = P.S, el = ME.el;
+  meReset(); ME.out = true; ME.dir = 1;
+  meSet({ dim: 1, turn: .25, gy: .6, smile: .8, note: 1.4, hLx: 26, hLy: 58, hRx: 34, hRy: 58 });
+  R.bus.classList.add("door-open"); boxDrop(.25);
+  meAt(450, function () { el.classList.add("front"); mePut(S.door.x, S.door.y, .9); ME.lift = 0; meStart(); el.classList.add("show"); });
+  meAt(800, function () { meTo({ gy: 1.3, tilt: 6, turn: .1 }, 300); });              // looks down at the step
+  meAt(1150, function () {
+    meTo({ dim: .4 }, 400);
+    meStepTo(S.stepP.x, S.stepP.y, .95, 420, S.d.h * .08, function () {
+      meAt(160, function () {
+        meDipBus(); meTo({ dim: 0 }, 400);
+        meStepTo(S.ground.x, S.ground.y, 1, 460, S.d.h * .1, function () {
+          meAt(200, function () { meTo({ gy: 0, tilt: 0 }, 250); meWalkPath([P.talk], nbAsk); });
+        });
+      });
+    });
   });
 }
-function bubbleShow(text, quiet) {
-  var b = RP.bubble;
-  b.querySelector("span").textContent = text; b.classList.toggle("quiet", !!quiet);
-  b.hidden = false; RP.dots.forEach(function (d) { d.hidden = false; });
-  placeBubble();
-  void b.offsetWidth;
-  RP.dots[0].classList.add("on");
-  setTimeout(function () { RP.dots[1].classList.add("on"); }, 150);
-  setTimeout(function () { b.classList.add("on"); }, 300);            // pops out of the moon
-  setTimeout(function () { b.classList.add("float"); }, 1000);
+function nbAsk() {
+  meTo({ turn: 0, gx: 0, gy: 0, tilt: -3, smile: 1 }, 300);
+  meAt(300, function () { meTo({ hLx: 26, hLy: 49, hRx: 34, hRy: 49, note: 1.7 }, 350); meSay(CONFIG.reply.ask, false); });   // holds the notebook up to her
+  meAt(1500, nbOffer);
 }
-function bubbleHide() {
-  RP.bubble.classList.remove("on", "float"); RP.dots.forEach(function (d) { d.classList.remove("on"); });
+// the notebook glows, with a line under him saying what to do
+function nbOffer() {
+  NB.spot.hidden = false; NB.hint.hidden = false; nbPlace();
+  void NB.spot.offsetWidth; NB.spot.classList.add("on"); NB.hint.classList.add("on");
+  chime();
+  clearInterval(NB.bounceT);
+  NB.bounceT = setInterval(function () {             // he lifts it a little now and then
+    if (NB.open || NB.busy || NB.done) return;
+    meTo({ hLy: 47.2, hRy: 47.2 }, 180); setTimeout(function () { if (!NB.open && !NB.busy) meTo({ hLy: 49, hRy: 49 }, 260); }, 190);
+  }, 1900);
 }
-function bubbleSay(text, quiet) {                    // change what the bubble says, softly
-  var b = RP.bubble;
-  b.classList.add("swap");
-  setTimeout(function () { b.querySelector("span").textContent = text; b.classList.toggle("quiet", !!quiet); placeBubble(); b.classList.remove("swap"); }, 420);
+function nbPlace() {
+  var g = rideGeom(), c = meToWorld(30, 49), h = NB.hint;
+  NB.spot.style.left = c.x.toFixed(1) + "px"; NB.spot.style.top = c.y.toFixed(1) + "px";
+  var hw = h.offsetWidth, camL = R.cam * g.W;
+  h.style.left = Math.max(camL + 16 + hw / 2, Math.min(camL + g.W - 16 - hw / 2, ME.x)).toFixed(1) + "px";
+  h.style.top = Math.min(ME.y + 10, g.H - h.offsetHeight - 10).toFixed(1) + "px";
 }
-function showReplyInvite() {
-  if (!RP.bubble || RP.shown) return; RP.shown = true;
-  if (!MOON.formed) moonInstant();
-  MOON.el.classList.add("listen");                   // the moon glows a little brighter, as if it's listening
-  setTimeout(function () { bubbleShow(CONFIG.reply.invite, false); magicNote(0); }, 600);
+function nbFit() {
+  if (!NB.ov || NB.ov.hidden) return;
+  var vv = window.visualViewport;
+  NB.ov.style.height = (vv ? vv.height : innerHeight) + "px"; NB.ov.style.top = (vv ? vv.offsetTop : 0) + "px";
 }
-// the bubble grows into the card; "Not now" shrinks it back into the bubble
-function cardFromBubble(c) {
-  var br = RP.bubble.getBoundingClientRect(), cr = c.getBoundingClientRect();
-  var dx = br.left + br.width / 2 - (cr.left + cr.width / 2), dy = br.top + br.height / 2 - (cr.top + cr.height / 2);
-  return "translate(-50%, -50%) translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(" + (br.width / cr.width).toFixed(3) + "," + (br.height / cr.height).toFixed(3) + ")";
+function nbFromSpot() {                              // where the page starts from / goes back to: the notebook in his hands
+  var sr = NB.spot.getBoundingClientRect(), pr = NB.page.getBoundingClientRect();
+  var dx = sr.left + sr.width / 2 - (pr.left + pr.width / 2), dy = sr.top + sr.height / 2 - (pr.top + pr.height / 2);
+  return "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(" + Math.max(.04, sr.width * .4 / pr.width).toFixed(3) + ")";
 }
-function replyOpen() {
-  if (RP.busy || RP.open) return;
-  RP.open = true;
-  var c = RP.card; c.hidden = false; c.classList.remove("away", "grow");
-  c.style.transition = "none"; c.classList.add("on");
-  c.style.transform = cardFromBubble(c); c.style.opacity = "0";
-  void c.offsetWidth;
-  c.style.transition = ""; c.classList.add("grow");
-  c.style.transform = ""; c.style.opacity = "";
-  bubbleHide();
-  RP.status.textContent = "";
-  magicNote(1);
-  setTimeout(function () { try { RP.ta.focus({ preventScroll: true }); } catch (e) { RP.ta.focus(); } }, reducedMotion ? 0 : 600);
+function nbRustle() {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime, n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    n.buffer = noiseBuf(.45); f.type = "bandpass"; f.frequency.value = 3200; f.Q.value = .7;
+    g.gain.setValueAtTime(0, t);
+    [0, .09, .2, .3].forEach(function (d) { g.gain.linearRampToValueAtTime(.05, t + d + .02); g.gain.linearRampToValueAtTime(.008, t + d + .08); });
+    g.gain.linearRampToValueAtTime(0, t + .42);
+    n.connect(f); f.connect(g); g.connect(audioCtx.destination); n.start(t);
+  } catch (e) {}
 }
-function replyClose() {
-  if (RP.busy || !RP.open) return;
-  RP.open = false;
-  var c = RP.card;
-  bubbleShow(RP.done ? CONFIG.reply.goodnight : CONFIG.reply.invite, RP.done);   // back to the bubble by the moon
-  setTimeout(function () {
-    c.style.transform = cardFromBubble(c); c.style.opacity = "0";
-    setTimeout(function () { if (!RP.open) { c.hidden = true; c.classList.remove("on", "grow"); c.style.transform = ""; c.style.opacity = ""; } }, 600);
-  }, 20);
-  if (!RP.done) RP.bubble.focus();
+// the page opens out of his notebook
+function nbShow(fromHands) {
+  var ov = NB.ov, pg = NB.page;
+  ov.hidden = false; nbFit();
+  pg.style.transition = "none"; pg.style.transform = nbFromSpot(); pg.style.opacity = "0";
+  void pg.offsetWidth;
+  pg.style.transition = ""; ov.classList.add("on"); pg.style.transform = ""; pg.style.opacity = "";
+  nbRustle();
+  setTimeout(function () { try { NB.ta.focus({ preventScroll: true }); } catch (e) { NB.ta.focus(); } }, reducedMotion ? 0 : 600);
 }
-function replySend() {
-  var text = RP.ta.value.trim();
-  if (!text || RP.busy) return;
-  RP.busy = true; RP.sendBtn.disabled = true; RP.status.textContent = "";
-  var C = CONFIG.reply, done = false, layer = null, words = [];
-  var body = { access_key: C.key, subject: "🌙 A birthday message from " + (CONFIG.friendName || "her"),
-    from_name: CONFIG.friendName || "Birthday page", message: text, sent: new Date().toString(), botcheck: RP.card.querySelector(".bot").checked };
+function nbShrink(done) {                            // and closes back into it
+  var pg = NB.page;
+  try { NB.ta.blur(); } catch (e) {}
+  pg.style.transform = nbFromSpot(); pg.style.opacity = "0"; NB.ov.classList.remove("on");
+  setTimeout(function () { NB.ov.hidden = true; pg.style.transition = "none"; pg.style.transform = ""; pg.style.opacity = ""; void pg.offsetWidth; pg.style.transition = ""; if (done) done(); }, 560);
+}
+function nbOpen() {
+  if (NB.busy || NB.open || NB.done) return;
+  NB.open = true;
+  NB.spot.classList.remove("on"); NB.hint.classList.remove("on"); meSay("");
+  NB.status.textContent = "";
+  nbShow();
+  meTo({ note: 0, hLx: 26, hLy: 56, hRx: 34, hRy: 56, gy: .3 }, 300);                 // he's handed it to her
+}
+function nbClose() {
+  if (NB.busy || !NB.open) return;
+  NB.open = false;
+  nbShrink(function () {
+    meTo({ note: 1.7, hLx: 26, hLy: 49, hRx: 34, hRy: 49, gy: 0 }, 260);             // he holds it up again
+    NB.spot.classList.add("on"); NB.hint.classList.add("on");
+  });
+}
+function nbGive() {
+  var text = NB.ta.value.trim();
+  if (!text || NB.busy) return;
+  NB.busy = true; NB.give.disabled = true; NB.status.textContent = "";
+  var C = CONFIG.reply, result = null, closed = false;
+  var body = { access_key: C.key, subject: "📒 A birthday message from " + (CONFIG.friendName || "her"),
+    from_name: CONFIG.friendName || "Birthday page", message: text, sent: new Date().toString(), botcheck: NB.ov.querySelector(".bot").checked };
   var ctl = typeof AbortController === "function" ? new AbortController() : null;
-  var timer = setTimeout(function () { if (ctl) ctl.abort(); finish(false); }, 20000);
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); got(false); }, 20000);
   fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
     body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
     .then(function (r) { return r.json().catch(function () { return {}; }); })
-    .then(function (j) { finish(!!(j && j.success)); })
-    .catch(function () { finish(false); });
-  if (!reducedMotion) lift();
-  // her words lift off the card exactly where they are and shimmer while the message goes
-  function lift() {
-    var rr = R.el.getBoundingClientRect(), ta = RP.ta, tr = ta.getBoundingClientRect(), cs = getComputedStyle(ta);
-    var probe = document.createElement("div");
-    probe.style.cssText = "position:absolute;left:" + (tr.left - rr.left) + "px;top:" + (tr.top - rr.top - ta.scrollTop) + "px;width:" + tr.width + "px;" +
-      "white-space:pre-wrap;word-wrap:break-word;visibility:hidden;font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize + ";line-height:" + cs.lineHeight + ";";
-    ta.value.split(/(\s+)/).forEach(function (w) { var sp = document.createElement("span"); sp.textContent = w; probe.appendChild(sp); });
-    R.el.appendChild(probe);
-    layer = document.createElement("div"); layer.className = "mw-layer"; R.el.appendChild(layer);
-    Array.prototype.forEach.call(probe.children, function (sp) {
-      if (!sp.textContent.trim()) return;
-      var r = sp.getBoundingClientRect();
-      if (r.bottom < tr.top || r.top > tr.bottom || !r.width) return;     // only the words she can see
-      var w = document.createElement("span"); w.className = "mw-fly"; w.textContent = sp.textContent;
-      w.style.left = (r.left - rr.left) + "px"; w.style.top = (r.top - rr.top) + "px";
-      w.style.animationDelay = (-Math.random() * 1.2).toFixed(2) + "s";
-      layer.appendChild(w); words.push({ el: w, x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 });
-    });
-    probe.remove();
-    RP.card.classList.add("away");
-    magicNote(1);
-  }
-  function finish(ok) {
-    if (done) return; done = true; clearTimeout(timer);
-    if (!ok) {                                       // didn't go: the card comes back with her words still there
-      if (layer) layer.remove();
-      RP.card.classList.remove("away");
-      RP.status.textContent = "Couldn't send. Check your internet and tap Send again.";
-      RP.busy = false; RP.sendBtn.disabled = false;
+    .then(function (j) { got(!!(j && j.success)); })
+    .catch(function () { got(false); });
+  // the page closes back into the notebook; he takes it and looks at it while it goes
+  nbShrink(function () {
+    meTo({ note: 1.7, hLx: 26.5, hLy: 54, hRx: 33.5, hRy: 54, gy: 1.2, tilt: 5 }, 300);
+    closed = true; next();
+  });
+  function got(ok) { if (result !== null) return; clearTimeout(timer); result = ok; next(); }
+  function next() {
+    if (!closed || result === null) return;
+    if (!result) {                                   // didn't go: the page opens again with her words still on it
+      NB.status.textContent = "Couldn't send. Check your internet and tap the button again.";
+      NB.busy = false; NB.give.disabled = false; NB.open = true;
+      meTo({ note: 0, hLx: 26, hLy: 56, hRx: 34, hRy: 56 }, 260);
+      nbShow();
       return;
     }
     try { localStorage.removeItem("bdayReplyDraft"); } catch (e) {}
-    if (reducedMotion || !words.length) { arrived(); return; }
-    // one by one, the words float up into the moon, shrinking into little points of light
-    var m = moonCenter(), n = words.length, gap = Math.min(70, 2200 / n), last = 0;
-    words.forEach(function (w, k) {
-      var dx = m.x - w.x, dy = m.y - w.y, lift = -18 - Math.random() * 16, side = (Math.random() - .5) * 40;
-      var dur = 1500 + Math.random() * 400, delay = k * gap; last = Math.max(last, delay + dur);
-      w.el.animate([
-        { transform: "translate(0,0) scale(1)", opacity: 1 },
-        { offset: .3, transform: "translate(" + (dx * .1 + side).toFixed(1) + "px," + (lift + dy * .15).toFixed(1) + "px) scale(.85)", opacity: 1 },
-        { transform: "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(.08)", opacity: 0 }
-      ], { duration: dur, delay: delay, easing: "cubic-bezier(.45,0,.35,1)", fill: "forwards" });
-    });
-    setTimeout(function () { if (layer) layer.remove(); arrived(); }, last + 100);
+    NB.ta.value = ""; NB.open = false; NB.done = true;
+    boyReads();
   }
-  function arrived() {
-    RP.open = false;
-    RP.card.classList.remove("on", "away", "grow"); RP.card.hidden = true; RP.done = true;
-    RP.ta.value = ""; RP.sendBtn.disabled = true;
-    var me = MOON.el; me.classList.remove("gulp"); void me.offsetWidth; me.classList.add("gulp");   // the moon glows as it takes her words in
-    setTimeout(function () { me.classList.remove("gulp"); }, 1200);
-    popNote(2, true);
-    setTimeout(function () { bubbleShow(C.sent, true); }, 700);                  // the moon answers…
-    setTimeout(function () { bubbleSay(C.goodnight, true); }, 5200);           // …and says good night
-    RP.busy = false;
-  }
+}
+function hearts() {
+  chime();
+  for (var i = 0; i < 6; i++) setTimeout(function () {
+    var c = meToWorld(36, 49), h = document.createElement("span"); h.className = "nb-heart"; h.textContent = "❤";
+    h.style.left = (c.x + (Math.random() - .5) * 14).toFixed(0) + "px"; h.style.top = c.y.toFixed(0) + "px";
+    h.style.setProperty("--hx", ((Math.random() - .5) * 34).toFixed(0) + "px");
+    R.world.appendChild(h); setTimeout(function () { h.remove(); }, 1900);
+  }, i * 230);
+}
+// He tears the page out and reads it there; his face lights up; he holds it to his heart and keeps it in his pocket
+function boyReads() {
+  var C = CONFIG.reply;
+  clearInterval(NB.bounceT); NB.spot.hidden = true; NB.hint.hidden = true;
+  nbRustle();
+  meTo({ hLx: 23, hLy: 53, hRx: 37, hRy: 53, gy: .8 }, 150);                          // tears the page out
+  meAt(170, function () { meTo({ hLx: 26.6, hLy: 51, hRx: 33.4, hRy: 51, note: 1.4, noteBack: 1 }, 260); });
+  meAt(550, function () { meTo({ tilt: 7, gy: 1.3, smile: .3, lid: .1 }, 300); });      // reads it…
+  for (var i = 0; i < 4; i++) (function (i) {
+    meAt(850 + i * 620, function () { meTo({ gx: -1.1 }, 130); meAt(150, function () { meTo({ gx: 1.1 }, 450); }); });
+  })(i);
+  meAt(850 + 4 * 620, function () { meTo({ smile: 1, lid: .3, tilt: 2, gy: .3, gx: 0 }, 450); });   // …and his face lights up
+  meAt(4000, function () { meTo({ hLx: 33, hLy: 50, hRx: 37.6, hRy: 49, lid: .78, tilt: -4, gy: 0 }, 420); hearts(); });   // to his heart
+  meAt(4600, function () { meSay(C.thanks, false); });
+  meAt(7000, function () { meSay(""); meTo({ lid: 0, hLx: 34, hLy: 53.4, hRx: 37.2, hRy: 52.6, note: .7 }, 380); });   // into his shirt pocket
+  meAt(7420, function () { meTo({ note: 0, hLx: 17.6, hLy: 67.4 }, 260); });
+  [7650, 7950].forEach(function (t) {                                                   // a little pat on the pocket
+    meAt(t, function () { meTo({ hRy: 53.8 }, 110); meAt(130, function () { meTo({ hRy: 52.6 }, 120); }); });
+  });
+  meAt(8400, function () { meTo({ hRx: 42.4, hRy: 67.4, noteBack: 0, smile: 1 }, 300); });
+  meAt(8900, busLeaves);
+}
+// The bus leaves without him: he waves it off, then turns to her, says "Bye!" and fades away in magic sparkles
+// he glows softly and dissolves into golden sparkles that drift up into the night; then her birthday wish shows in the sky
+function vanish() {
+  var el = ME.el, k = meSize().k * ME.s;
+  magicNote(1);
+  el.style.transition = "opacity 1.6s ease .5s, filter .6s ease";
+  el.style.filter = "brightness(1.45) drop-shadow(0 0 8px rgba(255,225,150,.95))";
+  el.classList.remove("show");
+  for (var i = 0; i < 34; i++) setTimeout(function () {
+    var p = meToWorld(16 + Math.random() * 28, 6 + Math.random() * 100), sp = document.createElement("span");
+    sp.className = "gift-spark"; sp.style.zIndex = 7;
+    sp.style.left = p.x.toFixed(0) + "px"; sp.style.top = p.y.toFixed(0) + "px";
+    sp.style.setProperty("--sx", ((Math.random() - .5) * 40).toFixed(0) + "px");
+    sp.style.setProperty("--sy", (-(30 + Math.random() * 70)).toFixed(0) + "px");
+    sp.style.setProperty("--w", "0s"); sp.style.setProperty("--d", (1 + Math.random() * .8).toFixed(2) + "s");
+    R.world.appendChild(sp); setTimeout(function () { sp.remove(); }, 2000);
+  }, i * 55);
+  setTimeout(function () { popNote(2, true); }, 900);
+  setTimeout(function () {
+    meStop(); meReset(); ME.out = false;
+    el.classList.remove("front"); el.style.transition = ""; el.style.filter = "";
+    NB.final.textContent = rideText(RC.finalTitle); NB.final.hidden = false; void NB.final.offsetWidth; NB.final.classList.add("on");
+  }, 2600);
+}
+function busLeaves() {
+  var el = ME.el;
+  R.bus.classList.remove("door-open"); boxDrop(.25);
+  meAt(500, function () { honk(2); meTo({ turn: .6, gx: 1.4, tilt: 0 }, 300); });
+  meAt(1100, function () {
+    R.bus.classList.remove("idle", "brake", "parked"); R.bus.classList.add("moving", "accel"); engineStart(); puffs(900);
+    meTo({ hRx: 47.4, hRy: 22.6, wave: 1 }, 300);                                       // bye, bus!
+    tween(R.cam, R.cam + 1.15, legTime("away"), function () {
+      engineStop(1.5); R.bus.classList.remove("accel", "moving"); R.bus.classList.add("away");
+      meTo({ wave: 0, hRx: 42.4, hRy: 67.4, turn: 0, gx: 0 }, 300);
+      meAt(500, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Bye!" with a big wave
+      meAt(2400, function () { meSay(""); vanish(); });
+    }, EASE.away);
+  });
 }
 say(RC.start, rideText(RC.startLine), "Start the ride");
 led(RC.busNumber + "  " + RC.start);
@@ -4502,6 +4600,41 @@ addEventListener("keydown", function (e) {
 });
 
 /* ---------- Gift two: friends' group chat ---------- */
+/* Gift two's background music: fades in as the box opens, plays fully while the wishes arrive,
+   drops very soft while she reads, rises a little when your own message arrives, fades out when she closes it */
+var BGM2 = { a: null, primed: false, on: false, fadeT: 0 };
+var BGM2_VOL = { full: .5, soft: .16, mine: .32 };   // 0..1: while wishes arrive, while she reads, when your message arrives
+(function () {
+  if (!CONFIG.chatSong) return;
+  var a = new Audio(); a.preload = "auto"; a.loop = true; a.src = CONFIG.chatSong;
+  a.addEventListener("error", function () { BGM2.a = null; });   // no file yet: box 2 simply stays quiet
+  BGM2.a = a;
+})();
+function bgm2Prime() {                               // runs on a touch, so the phone lets it play later
+  var a = BGM2.a; if (!a || BGM2.primed) return; BGM2.primed = true;
+  a.muted = true;
+  var p = a.play();
+  var after = function () { if (!BGM2.on) { a.pause(); try { a.currentTime = 0; } catch (e) {} } a.muted = false; };
+  if (p && p.then) p.then(after).catch(function () { a.muted = false; }); else after();
+}
+function bgm2To(vol, ms, stop) {                     // glide the volume to a new level
+  var a = BGM2.a; if (!a) return;
+  clearInterval(BGM2.fadeT);
+  var v0 = a.volume, steps = Math.max(1, Math.round(ms / 80)), n = 0;
+  BGM2.fadeT = setInterval(function () {
+    n++;
+    try { a.volume = Math.max(0, Math.min(1, v0 + (vol - v0) * n / steps)); } catch (e) {}
+    if (n >= steps) { clearInterval(BGM2.fadeT); if (stop) { a.pause(); try { a.currentTime = 0; } catch (e) {} } }
+  }, 80);
+}
+function bgm2Start() {
+  var a = BGM2.a; if (!a) return;
+  BGM2.on = true;
+  try { a.volume = 0; a.currentTime = 0; } catch (e) {}
+  var p = a.play(); if (p && p.catch) p.catch(function () {});
+  bgm2To(BGM2_VOL.full, 2200);
+}
+function bgm2Stop() { if (!BGM2.a || !BGM2.on) return; BGM2.on = false; bgm2To(0, 2000, true); }
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
@@ -4543,12 +4676,14 @@ function openChat(i) {
   document.body.classList.add("no-scroll", "overlay-open");
   chatList();
   $("chatClose").focus();
+  bgm2Start();                                        // the music fades in as the box opens
   for (var k = 0; k < F; k++) (function (k) {
     setTimeout(function () {
       if (run !== chatRun) return;
       chat.arrived = k + 1;
       chatPop();
       if (chat.view === "list") { chatAddTop(k); chatHeader(); chatFooter(); }
+      if (k === F - 1) setTimeout(function () { if (run === chatRun && !chat.mineIn) bgm2To(BGM2_VOL.soft, 3500); }, 1500);   // all in: very soft while she reads
     }, 800 + k * 750);
   })(k);
   if (F === 0) chatMineSoon(800);
@@ -4582,6 +4717,7 @@ function chatMineSoon(delay) {
     if (!chat || run !== chat.run) return;
     chat.mineIn = true; chat.mineTimer = null;
     chatPop();
+    bgm2To(BGM2_VOL.mine, 2500);                       // your message: the music rises a little
     if (chat.view === "list") { chatAddTop(chat.F); chatHeader(); chatFooter(); }
     else chatNotify();
   }, delay);
@@ -4691,6 +4827,7 @@ function chatConvo(k) {
 }
 function closeChat() {
   chatRun++; chat = null;
+  bgm2Stop();                                         // fades out over 2 seconds
   hideNotif();
   $("chat").hidden = true;
   document.body.classList.remove("no-scroll", "overlay-open");
