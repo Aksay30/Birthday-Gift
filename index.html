@@ -904,9 +904,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .tkt-spot.x::after { content: "✗"; position: absolute; inset: 0; display: grid; place-items: center; font: 800 30px "DM Sans", sans-serif; color: #d2453f; }
 .tkt-spot.picked { pointer-events: none; }
 .tkt-foot { padding-left: 6px; font: 500 11px "DM Sans", sans-serif; color: #7b6a80; text-align: center; }
-.tkt .stamp { position: absolute; right: 12px; top: 12px; padding: 3px 9px; border: 3px solid #d2453f; border-radius: 8px; color: #d2453f;
+.tkt .stamp, .end-tkt .stamp { position: absolute; right: 12px; top: 12px; padding: 3px 9px; border: 3px solid #d2453f; border-radius: 8px; color: #d2453f;
   font: 800 14px "Bricolage Grotesque", sans-serif; letter-spacing: .08em; text-transform: uppercase; opacity: 0; mix-blend-mode: multiply; transform: rotate(-10deg); }
-.tkt .stamp.on { animation: tkStamp .45s cubic-bezier(.2,1.6,.4,1) forwards; }
+.tkt .stamp.on, .end-tkt .stamp.on { animation: tkStamp .45s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes tkStamp { from { opacity: 0; transform: rotate(-10deg) scale(2.6); } to { opacity: .92; transform: rotate(-10deg) scale(1); } }
 .ride-hint { margin: 2px 0 0; font-size: 14px; color: #fff4d2; text-shadow: 0 1px 6px rgba(20,10,30,.7); }
 .blow-countdown {
@@ -1880,7 +1880,10 @@ function rideLayout() {
   R.bus.style.setProperty("--ledf", Math.max(8, g.busW * .046).toFixed(1) + "px");
   R.bus.style.top = (g.roadTop + (H - g.roadTop) * .62 - g.busH) + "px";
   placeBus();
-  if (typeof ME !== "undefined" && ME && ME.out && ME.idle) { var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the boy keeps his spot
+  if (typeof ME !== "undefined" && ME && ME.out) {
+    if (ME.idle) { var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the boy keeps his spot
+    else ME.needPut = true;                               // mid-walk: put him right once he is standing again
+  }
   void R.el.offsetWidth;
   R.el.classList.remove("no-anim");
 }
@@ -2430,7 +2433,7 @@ function meTo(o, dur, ease) {
 function meAt(ms, fn) { var id = setTimeout(fn, ms); ME.timers.push(id); return id; }
 function meReset() {
   ME.timers.forEach(clearTimeout); ME.timers = []; clearTimeout(ME.idleT);
-  ME.tw = []; ME.walkOn = false; ME.idle = false; ME.p = meCopy(ME_REST);
+  ME.tw = []; ME.walkOn = false; ME.idle = false; ME.needPut = false; ME.p = meCopy(ME_REST);
 }
 function meStart() {
   if (ME.live) return;
@@ -2604,6 +2607,7 @@ var ME_ACTS = {
 function meIdle(on) {
   clearTimeout(ME.idleT); ME.idle = on;
   if (!on) return;
+  if (ME.needPut) { ME.needPut = false; var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the screen turned while he was walking
   meTo(ME_IDLE_REST, 450);
   var last = "";
   function next() {
@@ -2827,8 +2831,9 @@ function meClap(n, done) {
 }
 // After she closes the photos: he talks to her, points at the bus, waves, walks back and climbs in
 function meFarewell(done) {
-  var el = ME.el, S = meSpots();
+  ME.timers.forEach(clearTimeout); ME.timers = [];       // drop any queued "start idling" from the delivery
   meIdle(false);
+  var el = ME.el, S = meSpots();
   meTo({ turn: 0, gx: 0, gy: 0, tilt: -2, lean: 0, shift: 0, smile: 1, lid: .25, hLx: 17.6, hLy: 67.4, hRx: 42.4, hRy: 67.4 }, 380);
   meFlash("glint", 800);
   meSay("I could see you smile 😊", false);
@@ -2876,7 +2881,7 @@ function meFarewell(done) {
 }
 // Ticket check: "Ticket checking!", the door opens, a ticket pops out; the right heart gets punched and stamped
 function ticketCheck(done) {
-  var t = COND.ticket, qn = 0, wrong = 0;
+  var t = COND.ticket, qn = 0, wrong = 0, picking = false;
   say("On the way to " + RC.stops[2].name, "", null);
   setTimeout(function () { COND.el.classList.remove("wave"); comic("Ticket checking!", true); honk(1); }, 600);
   setTimeout(function () { R.bus.classList.add("door-open"); boxDrop(.3); }, 2300);
@@ -2934,6 +2939,7 @@ function ticketCheck(done) {
     if (f) f.addEventListener("submit", function (e) { e.preventDefault(); pick($("tktInput").value, $("tktInput")); });
   }
   function pick(v, el) {
+    if (picking || qn >= CONFIG.quiz.length) return;       // a quick double tap on the right answer counts once
     var q = CONFIG.quiz[qn];
     if (!norm(v)) return;
     var ok = q.answers.some(function (a) { return norm(a) === norm(v); });
@@ -2948,8 +2954,8 @@ function ticketCheck(done) {
     // the right heart stays its own colour, just lifted like a hover
     if (el.classList.contains("tkt-spot")) el.classList.add("picked");
     sfxPlay("drop", .45, 2.1);
-    qn++; wrong = 0;
-    if (qn < CONFIG.quiz.length) { comic("Correct! One more 😊"); setTimeout(function () { render(); }, 1200); return; }
+    qn++; wrong = 0; picking = true;
+    if (qn < CONFIG.quiz.length) { comic("Correct! One more 😊"); setTimeout(function () { picking = false; render(); }, 1200); return; }
     quizPassed = true;
     setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); comic("Correct! Happy journey 😊"); COND.el.classList.remove("point"); }, 650);
     if (el.classList.contains("tkt-spot")) setTimeout(function () { skyMoonStart(el.querySelector("svg")); }, 1300);   // the heart pops out, rises and becomes the moon
@@ -3159,15 +3165,16 @@ function ding() {
 var SFX = {
   files: { horn: "sounds/bus-horn.mp3", horn2: "sounds/bus-horn-double.mp3", engine: "sounds/bus-engine.mp3", drop: "sounds/box-drop.mp3",
            fw1: "sounds/firework-1.mp3", fw2: "sounds/firework-2.mp3", fw3: "sounds/firework-3.mp3" },
-  buf: {}, loading: false, web: /^https?:$/.test(location.protocol)
+  buf: {}, pending: {}, loading: false, web: /^https?:$/.test(location.protocol)
 };
 function sfxLoad() {
   if (SFX.loading) return; SFX.loading = true;
   Object.keys(SFX.files).forEach(function (k) {
     if (SFX.web && window.fetch && audioCtx) {
+      SFX.pending[k] = true;
       fetch(SFX.files[k]).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
         .then(function (ab) { return new Promise(function (res, rej) { audioCtx.decodeAudioData(ab, res, rej); }); })
-        .then(function (b) { SFX.buf[k] = b; }).catch(function () {});
+        .then(function (b) { SFX.buf[k] = b; SFX.pending[k] = false; }).catch(function () { SFX.pending[k] = false; });   // failed: fall back to <audio>
     }
   });
 }
@@ -3180,7 +3187,7 @@ function sfxPlay(k, vol, rate) {
       s.connect(g); g.connect(audioCtx.destination); s.start();
       return;
     }
-    if (SFX.web && SFX.loading) return;                    // still decoding on the live site: skip rather than double up
+    if (SFX.pending[k]) return;                            // still decoding on the live site: skip rather than double up
     var a = new Audio(SFX.files[k]); a.volume = Math.min(1, vol == null ? 1 : vol);
     try { a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false; } catch (e) {}
     a.playbackRate = rate || 1; var p = a.play(); if (p && p.catch) p.catch(function () {});
@@ -3682,8 +3689,17 @@ var NB = { spot: null, hint: null, ov: null, page: null, ta: null, give: null, s
   ov.addEventListener("keydown", function (e) { if (e.key === "Escape") nbClose(); });
   NB.give.addEventListener("click", nbGive);
   var fin = document.createElement("div"); fin.className = "sky-final"; fin.hidden = true; R.el.appendChild(fin); NB.final = fin;
-  addEventListener("resize", function () { if (!NB.spot.hidden) setTimeout(nbPlace, 200); });
-  if (window.visualViewport) visualViewport.addEventListener("resize", nbFit);    // the page stays above the phone's keyboard
+  addEventListener("resize", function () {                // after the scene re-lays out (150/300 ms), put him and the notebook back in view
+    setTimeout(function () {
+      if (NB.spot.hidden) return;
+      if (NB.shown && !NB.done && !NB.open && !NB.busy) { var P = nbSpots(); mePut(P.talk.x, P.talk.y, 1); }
+      nbPlace();
+    }, 400);
+  });
+  if (window.visualViewport) {                             // the page stays above the phone's keyboard
+    visualViewport.addEventListener("resize", nbFit);
+    visualViewport.addEventListener("scroll", nbFit);
+  }
 })();
 // The song has ended: the words fade; once the last bursts are gone, he comes out of the bus
 function sceneQuiet() {
@@ -3912,7 +3928,11 @@ function newStar(from) {
       if (Date.now() - t0 > 2500) clearInterval(trail);
     }, 90);
   }, 1500);
-  setTimeout(function () { clearInterval(trail); star.classList.add("lit"); magicNote(2); }, 1500 + 2650);   // it settles and shines
+  setTimeout(function () {                                 // it settles and shines; pinned in % so it stays in the sky if the phone turns
+    clearInterval(trail); star.classList.add("lit"); magicNote(2);
+    star.style.transition = "none"; star.style.transform = "";
+    star.style.left = (tx / W * 100).toFixed(2) + "%"; star.style.top = (ty / H * 100).toFixed(2) + "%";
+  }, 1500 + 2650);
   setTimeout(function () {
     var dim = document.createElement("div"); dim.className = "end-dim"; R.el.appendChild(dim);
     void dim.offsetWidth; dim.classList.add("on");
@@ -4341,6 +4361,7 @@ function renderQuestion() {
 var wrongQuiz = ["Hmm, no. Try again.", "Nope. Think about it.", "Not quite. Here's a hint."];
 function checkAnswer(val, el) {
   var q = CONFIG.quiz[qi];
+  if (!q) return;                                         // a quick double tap after the last right answer
   if (!norm(val)) { $("quizMsg").className = "quiz-msg bad"; $("quizMsg").textContent = "Type an answer first."; return; }
   var ok = q.answers.some(function (a) { return norm(a) === norm(val); });
   if (ok) {
@@ -4939,6 +4960,7 @@ function chatConvo(k) {
 }
 function closeChat() {
   chatRun++; chat = null;
+  Array.prototype.forEach.call($("chat").querySelectorAll(".gphoto"), function (v) { v.remove(); });   // a group photo left open
   bgm2Stop();                                         // fades out over 2 seconds
   hideNotif();
   $("chat").hidden = true;
