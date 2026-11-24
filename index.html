@@ -1377,6 +1377,7 @@ var CONFIG = {
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
   poemSong: "sounds/gift3-bgm.mp3",   // music for box 3 (the kavidhai): starts when the box is tapped, swells at your birthday message
+  poemSongFrom: 6,                     // box 3's song starts at 0:06 (and repeats from there)
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
   // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
@@ -4744,11 +4745,16 @@ addEventListener("keydown", function (e) {
 /* Gift two's background music: fades in as the box opens, plays fully while the wishes arrive,
    drops very soft while she reads, rises a little when your own message arrives, fades out when she closes it */
 /* A looping background song with gentle volume glides. Missing file = simply stays quiet. */
-function makeBgm(src) {
-  var B = { a: null, primed: false, on: false, fadeT: 0 };
+function makeBgm(src, from) {                       // from: second the song starts at (and goes back to when it repeats)
+  var B = { a: null, primed: false, on: false, fadeT: 0 }, at = from || 0;
   if (src) {
-    var a = new Audio(); a.preload = "auto"; a.loop = true; a.src = src;
+    var a = new Audio(); a.preload = "auto"; a.loop = !at; a.src = src;
     a.addEventListener("error", function () { B.a = null; });
+    if (at) a.addEventListener("ended", function () {  // repeat from the same point, not from the very beginning
+      if (!B.on) return;
+      try { a.currentTime = at; } catch (e) {}
+      var p = a.play(); if (p && p.catch) p.catch(function () {});
+    });
     B.a = a;
   }
   B.prime = function () {                            // runs on a touch, so the phone lets it play later
@@ -4771,8 +4777,9 @@ function makeBgm(src) {
   B.start = function (vol, fadeMs) {                 // already playing: carry on
     var a = B.a; if (!a || B.on) return;
     B.on = true;
-    try { a.volume = 0; a.currentTime = 0; } catch (e) {}
+    try { a.volume = 0; a.currentTime = at; } catch (e) {}
     var p = a.play(); if (p && p.catch) p.catch(function () {});
+    if (at && a.readyState < 1) a.addEventListener("loadedmetadata", function () { try { if (a.currentTime < at) a.currentTime = at; } catch (e) {} }, { once: true });
     B.to(vol, fadeMs || 2200);
   };
   B.stop = function () { if (!B.a || !B.on) return; B.on = false; B.to(0, 2000, true); };
@@ -4786,7 +4793,7 @@ function bgm2Start() { BGM2.start(BGM2_VOL.full); }
 function bgm2Stop() { BGM2.stop(); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
-var BGM3 = makeBgm(CONFIG.poemSong);
+var BGM3 = makeBgm(CONFIG.poemSong, CONFIG.poemSongFrom);
 var BGM3_VOL = { read: .42, swell: .62, after: .42 };
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
