@@ -1076,8 +1076,8 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .bubble img.att { display: block; width: 100%; max-width: 260px; max-height: 320px; object-fit: cover; border-radius: 10px; background: #1b1433; }
 .bubble .txt { padding: 7px 6px 2px; font-size: 15.5px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
 .bubble .time { text-align: right; font-size: 11px; color: #a79cc9; padding: 0 6px 1px; }
-.cmsg.me .bubble { background: linear-gradient(160deg, #3a2a63, #2a2147); border: 1px solid rgba(244,197,90,.45); }
-.cmsg.me .bubble .who { color: var(--gold); }
+.cmsg.mine .bubble { background: linear-gradient(160deg, #3a2a63, #2a2147); border: 1px solid rgba(244,197,90,.45); }
+.cmsg.mine .bubble .who { color: var(--gold); }
 .dots { display: flex; gap: 5px; padding: 12px 14px; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: #b9afd8; animation: dot 1s ease-in-out infinite; }
 .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
@@ -1112,28 +1112,12 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 @keyframes badgePop { from { transform: scale(0); } }
 .crow.unread .crow-end time { color: #25d366; font-weight: 700; }
 .crow.unread .crow-mid span { color: #e9e4ff; }
-.crow.me { background: rgba(244,197,90,.07); }
-.crow.me .crow-mid strong { color: var(--gold); }
+.crow.mine { background: rgba(244,197,90,.07); }
+.crow.mine .crow-mid strong { color: var(--gold); }
 /* Notification banner for your chat, sliding down over whatever is open */
 /* the group photo, opened full screen from the "All of us" chat */
+/* the "All of us" group icon */
 .ava.grp svg { width: 58%; height: 58%; fill: #1b1433; }
-.gphoto { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-  padding: calc(env(safe-area-inset-top, 0px) + 56px) 16px calc(env(safe-area-inset-bottom, 0px) + 28px); background: rgba(8,6,20,.96);
-  opacity: 0; transition: opacity .45s ease; cursor: pointer; }
-.gphoto.on { opacity: 1; }
-.gphoto .gp-view { position: relative; width: 100%; max-width: 620px; overflow: hidden; touch-action: pan-y; }
-.gphoto .gp-track { display: flex; transition: transform .45s cubic-bezier(.3,1,.4,1); }
-.gphoto .gp-slide { flex: 0 0 100%; display: flex; align-items: center; justify-content: center; height: min(60vh, 520px); padding: 0 4px; }
-.gphoto img { display: block; max-width: 100%; max-height: 100%; border-radius: 12px; object-fit: contain; box-shadow: 0 18px 50px rgba(0,0,0,.6);
-  transform: scale(.86); transition: transform .8s cubic-bezier(.3,1.2,.5,1); }
-.gphoto.on img { transform: scale(1); }
-.gphoto.on .gp-slide.cur img { animation: gpZoom 10s ease-out .8s forwards; }
-.gphoto .gp-count { margin: -6px 0 0; min-height: 1em; font: 600 13px var(--body); letter-spacing: .1em; color: rgba(233,228,255,.7); }
-.gphoto .gp-nav { position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.12);
-  color: #fff; font: 400 30px/1 var(--body); cursor: pointer; }
-.gphoto .gp-nav.prev { left: max(12px, env(safe-area-inset-left, 0px)); } .gphoto .gp-nav.next { right: max(12px, env(safe-area-inset-right, 0px)); }
-.gphoto .gp-nav[disabled] { opacity: .25; cursor: default; }
-@media (hover: none) { .gphoto .gp-nav { display: none; } }   /* on a phone she swipes */
 /* the photos in the chat bubble: two polaroids, tossed in slightly tilted, loading then coming into focus */
 .bubble.pics-b { padding: 6px 6px 4px; }
 .pics { display: flex; justify-content: center; align-items: flex-start; padding: 12px 16px 6px; }
@@ -1160,14 +1144,18 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 @keyframes ringFill { to { stroke-dashoffset: 0; } }
 .cpola.drop { animation: cpolaDrop .7s cubic-bezier(.3,1.4,.5,1) var(--d, 0s) both; }
 @keyframes cpolaDrop { from { opacity: 0; transform: translateY(-60px) rotate(calc(var(--r) * -2.5)) scale(1.1); } }
-@keyframes gpZoom { from { transform: scale(1); } to { transform: scale(1.045); } }
-.gphoto .gp-cap { margin: 0; font-family: var(--hand); font-weight: 700; font-size: clamp(26px, 7vw, 34px); color: #ffe2a8; text-align: center;
-  text-shadow: 0 0 14px rgba(255,214,120,.45); opacity: 0; transform: translateY(8px); transition: opacity .8s ease 1s, transform .8s ease 1s; }
-.gphoto.on .gp-cap { opacity: 1; transform: none; }
-.gphoto .gp-back { margin: 0; font: 500 13px var(--body); color: rgba(233,228,255,.55); opacity: 0; transition: opacity .8s ease 2.6s; }
-.gphoto.on .gp-back { opacity: 1; }
-.gphoto .gp-x { position: absolute; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); width: 40px; height: 40px; border: 0; border-radius: 50%;
-  background: rgba(255,255,255,.1); color: #fff; font: 400 24px/1 var(--body); cursor: pointer; }
+/* one by one, each polaroid lifts out of the fan, grows, and its caption writes itself on the strip; then it drops back */
+.clift-dim { position: absolute; inset: 0; z-index: 5; background: rgba(8,6,20,.55); opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+.clift-dim.on { opacity: 1; }
+.clift { position: absolute; z-index: 6; left: 0; top: 0; width: min(78vw, 330px); padding: 12px 12px 0; border-radius: 4px; background: #fffdf6;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6); transform-origin: 50% 50%; transition: transform .7s cubic-bezier(.3,1.15,.5,1); pointer-events: none; }
+.clift .pf { position: relative; display: block; height: 0; padding-top: 100%; overflow: hidden; background: #2a2147; }
+.clift .pf img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+.clift .cap { margin: 0; min-height: 64px; display: flex; align-items: center; justify-content: center; padding: 8px 6px 10px;
+  font-family: var(--hand); font-weight: 700; font-size: clamp(20px, 5.6vw, 26px); line-height: 1.15; color: #2b3170; text-align: center; }
+.clift .cap > span { display: block; max-width: 100%; text-wrap: balance; }
+.clift .cap .ch { opacity: 0; animation: inkIn .35s ease forwards; animation-delay: var(--d, 0s); }
+@keyframes inkIn { to { opacity: 1; } }
 /* the phone's back button on the ride: "press back again to leave" */
 .back-toast { position: fixed; z-index: 100; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); transform: translate(-50%, 10px);
   max-width: calc(100vw - 32px); padding: 10px 18px 11px; border-radius: 999px; background: rgba(20,14,40,.92); border: 1px solid rgba(255,217,138,.45);
@@ -1445,7 +1433,7 @@ var CONFIG = {
       // Title above the list of chats. {name} becomes friendName.
       groupName: "Birthday wishes for {name} 🎉",
       // Your own message. It arrives as a new chat only after all the friends' chats are read. Leave "" to skip it.
-      closing: "Happy birthday from all of us 🤍\nOne more box left… but you'll have to answer a question first 😉",
+      closing: "All these people, all this love, all for you.\nOne more surprise left.",
     },
     {
       tag: "",
@@ -1495,7 +1483,7 @@ var CONFIG = {
       hint: "Pure and simple." },
   ],
 
-  finaleWish: "Happy birthday. Here's to many more years of us.",
+  finaleWish: "Here's to many more years of us.",
   // At the very end the boy comes out of the bus with a notebook; what she writes arrives in your email (via web3forms.com)
   reply: {
     key: "c7f10b4c-3f17-4293-9713-3b48dc4a70d3",   // your Web3Forms access key (it can only send to your email)
@@ -4742,13 +4730,6 @@ document.addEventListener("visibilitychange", function () {
   if (document.hidden && mode === "reel" && !paused) $("reelPause").click();   // pauses the photos and the song together
 });
 addEventListener("keydown", function (e) {
-  var gpv = $("chat").hidden ? null : $("chat").querySelector(".gphoto.on");
-  if (gpv) {                                            // the group photos: arrows between them, Escape back to the chat
-    if (e.key === "Escape") gpv.gpClose();
-    else if (e.key === "ArrowRight") gpv.gpGo(1);
-    else if (e.key === "ArrowLeft") gpv.gpGo(-1);
-    return;
-  }
   if (!reel.hidden) {
     if (e.key === "Escape") closeReel();
     else if (mode === "reel" && e.key === "ArrowRight") go(idx + 1);
@@ -4848,8 +4829,11 @@ function openChat(i) {
     gpItem = { name: GP.name, color: "#c4b5fd", group: true, caption: GP.caption, pics: GP.photos.map(function (p) { return { src: p.src, cap: p.caption || "" }; }) };
     gpItem.text = gpText(gpItem); items.push(gpItem);
   }
-  if (g.closing) items.push({ name: CONFIG.fromName, text: g.closing, color: "#f4c55a", me: true });
+  // your own message: the last bubble in the "All of us" chat, right after the photos (its own chat only if there are no photos)
+  var mine = g.closing ? { name: CONFIG.fromName, text: g.closing, color: "#f4c55a", me: true, read: false } : null;
+  if (mine && gpItem) gpItem.after = mine; else if (mine) items.push(mine);
   items.forEach(function (m, k) { m.time = "12:" + (k < 10 ? "0" + k : k) + " am"; m.read = false; });
+  if (mine && gpItem) mine.time = "12:" + (items.length < 10 ? "0" : "") + items.length + " am";
   chat = { g: g, run: run, items: items, F: F, arrived: 0, lateIn: 0, lateTimer: null, view: "list" };
   if (gpItem) gpItem.pics.slice().forEach(function (p) {   // a photo that isn't there is quietly left out; with none, so is the chat
     var pre = new Image();
@@ -4858,7 +4842,9 @@ function openChat(i) {
       var j = gpItem.pics.indexOf(p); if (j >= 0) gpItem.pics.splice(j, 1);
       gpItem.text = gpText(gpItem);
       var k = chat.items.indexOf(gpItem);
-      if (!gpItem.pics.length && k >= 0 && k - chat.F >= chat.lateIn) chat.items.splice(k, 1);
+      if (!gpItem.pics.length && k >= 0 && k - chat.F >= chat.lateIn) {
+        if (gpItem.after) chat.items.splice(k, 1, gpItem.after); else chat.items.splice(k, 1);   // no photos: your message comes as its own chat
+      }
     };
     pre.src = p.src;
   });
@@ -4908,7 +4894,7 @@ function chatLateSoon(delay) {
     if (!chat || run !== chat.run) return;
     chat.lateTimer = null;
     if (chat.F + chat.lateIn >= chat.items.length) return;
-    if ($("chat").querySelector(".gphoto.on")) { chatLateSoon(1500); return; }   // she's looking at the photos: wait
+    if (chat.lifting) { chatLateSoon(1500); return; }   // the photos are still showing: wait
     var k = chat.F + chat.lateIn++;
     chatPop();
     if (chat.items[k].me) bgm2To(BGM2_VOL.mine, 2500);   // your message: the music rises a little
@@ -4973,7 +4959,7 @@ function chatFooter() {
 function chatRow(k, arriving) {
   var m = chat.items[k];
   var r = document.createElement("button"); r.type = "button";
-  r.className = "crow" + (m.me ? " me" : "") + (m.read ? " read" : " unread") + (arriving ? " arrive" : "");
+  r.className = "crow" + (m.me ? " mine" : "") + (m.read ? " read" : " unread") + (arriving ? " arrive" : "");
   r.appendChild(avaFor(m));
   var mid = document.createElement("div"); mid.className = "crow-mid";
   mid.innerHTML = "<strong></strong><span></span>";
@@ -4989,7 +4975,7 @@ function chatRow(k, arriving) {
 }
 function chatList() {
   if (!chat) return;
-  hideNotif();
+  hideNotif(); liftStop();
   chat.view = "list";
   var body = $("chatBody");
   body.className = "chat-body list"; body.innerHTML = "";
@@ -4999,62 +4985,75 @@ function chatList() {
   chatHeader(); chatFooter();
   if (allReadSoFar()) chatLateSoon(1200);
 }
-// "All of us": a photo opens full screen; with two, she swipes (or taps the sides / arrows) between them
-function groupPhoto(m, start) {
-  var pics = m.pics, n = pics.length, at = -1;
-  if (!n) return;
-  var v = document.createElement("div"); v.className = "gphoto"; v.setAttribute("role", "dialog"); v.setAttribute("aria-label", fillName(m.caption || m.name));
-  var slides = pics.map(function () { return '<div class="gp-slide"><img alt=""></div>'; }).join("");
-  v.innerHTML = '<button class="gp-x" type="button" aria-label="Back to the chat">×</button>' +
-    '<div class="gp-view"><div class="gp-track">' + slides + '</div></div>' +
-    (n > 1 ? '<button class="gp-nav prev" type="button" aria-label="Previous photo">‹</button><button class="gp-nav next" type="button" aria-label="Next photo">›</button>' : '') +
-    '<p class="gp-cap"></p><p class="gp-count"></p><p class="gp-back">' + (n > 1 ? "Swipe to see the other photo" : "Tap anywhere to go back") + '</p>';
-  var track = v.querySelector(".gp-track"), sl = v.querySelectorAll(".gp-slide");
-  pics.forEach(function (p, j) { var im = sl[j].querySelector("img"); im.alt = p.cap || "Photo " + (j + 1); im.src = p.src; });
-  var cap = v.querySelector(".gp-cap"), cnt = v.querySelector(".gp-count");
-  function go(j) {
-    if (j < 0 || j >= n || j === at) return;
-    at = j;
-    track.style.transform = "translateX(" + (-100 * at) + "%)";
-    Array.prototype.forEach.call(sl, function (s, i) { s.classList.toggle("cur", i === at); });
-    cap.textContent = fillName(pics[at].cap || m.caption || "");
-    cnt.textContent = n > 1 ? (at + 1) + " / " + n : "";
-    if (n > 1) { v.querySelector(".prev").disabled = at === 0; v.querySelector(".next").disabled = at === n - 1; }
+// "All of us": once the polaroids have loaded, each one in turn lifts out of the fan, grows to fill the screen,
+// its caption writes itself on the white strip, and after a moment it drops back. No tapping needed (a tap plays it again).
+function liftStop() {
+  if (!chat) return;
+  chat.liftRun = (chat.liftRun || 0) + 1; chat.lifting = false;
+  Array.prototype.forEach.call($("chat").querySelectorAll(".clift, .clift-dim"), function (e) { e.remove(); });
+  Array.prototype.forEach.call($("chat").querySelectorAll(".cpola"), function (e) { e.style.visibility = ""; });
+}
+function liftSeq(pw, m) {
+  if (!chat || chat.lifting || !document.body.contains(pw)) return;
+  var fr = pw.querySelectorAll(".cpola"), j = 0, run = chat.liftRun = (chat.liftRun || 0) + 1;
+  chat.lifting = true;
+  var dim = document.createElement("div"); dim.className = "clift-dim"; $("chat").appendChild(dim);
+  void dim.offsetWidth; dim.classList.add("on");
+  bgm2To(BGM2_VOL.mine, 1500);                          // the music lifts a little for the photos
+  function alive() { return chat && chat.liftRun === run && document.body.contains(pw); }
+  function one() {
+    if (!alive()) return;
+    if (j >= fr.length) {
+      chat.lifting = false;
+      dim.classList.remove("on"); setTimeout(function () { dim.remove(); }, 500);
+      var k = chat.items.indexOf(m);
+      setTimeout(function () { if (chat && k >= 0) chatAfter(k); }, 1200);   // all the photos seen: your message follows in this chat
+      return;
+    }
+    var src = fr[j], p = m.pics[j]; j++;
+    liftOne(src, p, j % 2 ? -2 : 2, alive, function () { setTimeout(one, 350); });
   }
-  var closed = false;
-  function close() {
-    if (closed) return; closed = true;
-    v.classList.remove("on"); setTimeout(function () { v.remove(); }, 450);
-    if (chat && allReadSoFar()) chatLateSoon(2500);     // back in the chat; your message follows shortly
+  one();
+}
+function liftOne(src, p, tilt, alive, done) {
+  var host = $("chat"), big = document.createElement("div"); big.className = "clift"; big.setAttribute("aria-hidden", "true");
+  big.innerHTML = '<span class="pf"><img alt=""></span><p class="cap"></p>';
+  big.querySelector("img").src = p.src;
+  var t = fillName(p.cap || ""), html = "", d = .75;      // the caption starts writing once it has lifted
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charAt(i);
+    if (c === " ") html += " ";
+    else { html += '<span class="ch" style="--d:' + d.toFixed(2) + 's">' + esc(c) + '</span>'; d += .045; }
   }
-  v.gpClose = close; v.gpGo = function (d) { go(at + d); };
-  var sx = null, swiped = 0;
-  v.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
-  v.addEventListener("touchend", function (e) {
-    if (sx === null) return;
-    var dx = e.changedTouches[0].clientX - sx; sx = null;
-    if (Math.abs(dx) > 40 && n > 1) { swiped = Date.now(); go(at + (dx < 0 ? 1 : -1)); }
-  });
-  v.addEventListener("click", function (e) {
-    if (Date.now() - swiped < 500) return;
-    if (e.target.closest(".gp-x")) close();
-    else if (e.target.closest(".prev")) go(at - 1);
-    else if (e.target.closest(".next")) go(at + 1);
-    else if (n > 1 && e.target.closest(".gp-view")) { var r = v.getBoundingClientRect(); go(at + (e.clientX > r.left + r.width / 2 ? 1 : -1)); }
-    else close();
-  });
-  $("chat").appendChild(v);
-  track.style.transition = "none"; go(start || 0); void v.offsetWidth; track.style.transition = "";
-  v.classList.add("on");
-  v.querySelector(".gp-x").focus();
-  bgm2To(BGM2_VOL.mine, 2000);                          // the music lifts a little for the photos
+  big.querySelector(".cap").innerHTML = '<span>' + html + '</span>';   // one line box, so the spaces between words stay
+  big.style.visibility = "hidden"; host.appendChild(big);
+  var cr = host.getBoundingClientRect(), bw = big.offsetWidth, bh = big.offsetHeight;
+  var fx = (cr.width - bw) / 2, fy = Math.max(64, (cr.height - bh) / 2 - 12);
+  big.style.left = fx.toFixed(1) + "px"; big.style.top = fy.toFixed(1) + "px";
+  function from() {                                     // exactly over its little polaroid in the fan
+    var sr = src.getBoundingClientRect(), k = src.offsetWidth / bw;
+    var r = parseFloat(getComputedStyle(src).getPropertyValue("--r")) || 0;
+    return "translate(" + (sr.left + sr.width / 2 - cr.left - fx - bw / 2).toFixed(1) + "px," + (sr.top + sr.height / 2 - cr.top - fy - bh / 2).toFixed(1) +
+      "px) scale(" + k.toFixed(3) + ") rotate(" + r + "deg)";
+  }
+  big.style.transition = "none"; big.style.transform = from(); void big.offsetWidth;
+  big.style.visibility = ""; src.style.visibility = "hidden";
+  big.style.transition = ""; big.style.transform = "rotate(" + tilt + "deg)";
+  nbRustle();
+  setTimeout(function () {
+    if (!alive()) return;
+    big.style.transform = from();                       // and back into the fan
+    setTimeout(function () { src.style.visibility = ""; big.remove(); if (alive()) done(); }, 700);
+  }, d * 1000 + 2600);
 }
 function chatConvo(k) {
-  var m = chat.items[k], firstTime = !m.read;
+  var m = chat.items[k], firstTime = m.group ? !m.opened : !m.read;
   hideNotif();
-  m.read = true;
+  m.opened = true;
+  m.read = !(m.group && m.after && !m.afterShown);      // "All of us" stays unread until she has seen your message in it
   chat.view = k;
-  if (!m.me && allReadSoFar()) chatLateSoon(m.group ? 9000 : 2000);   // the next one, 2 s after the last chat opens (longer for the photos)
+  liftStop();
+  if (!m.me && allReadSoFar()) chatLateSoon(m.group ? 20000 : 2000);   // the next one, 2 s after the last chat opens (after the photos for "All of us")
   var body = $("chatBody");
   body.className = "chat-body"; void body.offsetWidth; body.classList.add("convo");
   body.innerHTML = '<p class="chat-day">Today</p>';
@@ -5063,7 +5062,7 @@ function chatConvo(k) {
   $("chatBack").focus();
   if (!firstTime || reducedMotion) { chatShowMsg(k, false); return; }
   // the first time: "typing…" for a moment, then the message arrives
-  var ty = document.createElement("div"); ty.className = "cmsg" + (m.me ? " me" : "");
+  var ty = document.createElement("div"); ty.className = "cmsg" + (m.me ? " mine" : "");
   ty.appendChild(avaFor(m));
   ty.insertAdjacentHTML("beforeend", '<div class="bubble typing-b" aria-label="' + esc(m.name) + ' is typing"><div class="dots"><i></i><i></i><i></i></div></div>');
   body.appendChild(ty);
@@ -5074,9 +5073,9 @@ function chatConvo(k) {
     chatPop(); chatShowMsg(k, true);
   }, 1300);
 }
-function chatShowMsg(k, fresh) {
-  var m = chat.items[k], body = $("chatBody"), tok = chat.convoTok;
-  var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " me" : "");
+function chatShowMsg(k, fresh, mo) {
+  var m = mo || chat.items[k], body = $("chatBody"), tok = chat.convoTok;
+  var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " mine" : "");
   r.appendChild(avaFor(m));
   var b = document.createElement("div"); b.className = "bubble"; b.style.setProperty("--c", m.color);
   if (m.group) {                                      // two polaroids drop in, blurred with a loading ring, then come into focus
@@ -5087,11 +5086,12 @@ function chatShowMsg(k, fresh) {
       f.setAttribute("aria-label", "Open photo " + (j + 1) + " of " + m.pics.length);
       f.innerHTML = '<span class="pf"><img alt=""><svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><circle class="fill" cx="18" cy="18" r="15"/></svg></span>';
       var im = f.querySelector("img"); im.alt = p.cap || "Photo " + (j + 1); im.src = p.src;
-      f.addEventListener("click", function () { groupPhoto(m, j); });
+      f.addEventListener("click", function () { liftSeq(pw, m); });   // a tap plays the photos again
       pw.appendChild(f);
       if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) f.classList.remove("loading"); }, 1800 + j * 700);
     });
     b.classList.add("pics-b"); b.appendChild(pw);
+    if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) liftSeq(pw, m); }, 1800 + (m.pics.length - 1) * 700 + 900);
   }
   if (m.photo) {
     var img = new Image(); img.className = "att"; img.alt = "Photo from " + m.name;
@@ -5105,12 +5105,39 @@ function chatShowMsg(k, fresh) {
   tk.innerHTML = '<svg viewBox="0 0 17 11"><path d="M1 6l3 3 6-7M7 8.2l1 .8 6-7"/></svg>';
   tm.appendChild(tk);
   r.appendChild(b); body.appendChild(r);
-  body.scrollTop = 0;
+  if (mo) { try { r.scrollIntoView({ block: "end", behavior: "smooth" }); } catch (e) { body.scrollTop = body.scrollHeight; } }
+  else body.scrollTop = 0;
   if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) tk.classList.add("seen"); }, 900);   // ✓✓ turns blue: read
+  if (m.group && m.after) {
+    if (m.afterShown) chatShowMsg(k, false, m.after);                 // seen before: it's simply there
+    else if (!fresh) setTimeout(function () { if (chat && chat.convoTok === tok) chatAfter(k); }, 1500);   // photos already seen: it comes now
+  }
+}
+// your message arrives in the "All of us" chat once the photos are done: "Aksay is typing…", then the bubble
+function chatAfter(k) {
+  var m = chat && chat.items[k];
+  if (!m || !m.after || m.afterShown || m.afterComing || chat.view !== k) return;
+  var a = m.after, body = $("chatBody"), tok = chat.convoTok;
+  m.afterComing = true;
+  var ty = document.createElement("div"); ty.className = "cmsg mine";
+  ty.appendChild(avaFor(a));
+  ty.insertAdjacentHTML("beforeend", '<div class="bubble typing-b" aria-label="' + esc(a.name) + ' is typing"><div class="dots"><i></i><i></i><i></i></div></div>');
+  body.appendChild(ty);
+  try { ty.scrollIntoView({ block: "end", behavior: "smooth" }); } catch (e) {}
+  $("chatSub").textContent = a.name + " is typing…";
+  setTimeout(function () {
+    m.afterComing = false;
+    if (!chat || chat.convoTok !== tok || chat.view !== k) return;
+    ty.remove(); $("chatSub").textContent = "online";
+    m.afterShown = true; m.read = true; a.read = true;
+    m.text = a.name + ": " + String(a.text).replace(/\s+/g, " ");   // the chat list now shows your line as the last message
+    chatPop(); bgm2To(BGM2_VOL.mine, 2500);
+    chatShowMsg(k, true, a);
+  }, reducedMotion ? 200 : 1600);
 }
 function closeChat() {
+  liftStop();                                         // the photos, if they're still showing
   chatRun++; chat = null;
-  Array.prototype.forEach.call($("chat").querySelectorAll(".gphoto"), function (v) { v.remove(); });   // a group photo left open
   bgm2Stop();                                         // fades out over 2 seconds
   hideNotif();
   $("chat").hidden = true;
@@ -5222,8 +5249,6 @@ function backPush() {
   try { history.pushState({ ride: 1 }, ""); BACK.on = true; } catch (e) {}
 }
 function backCloseTop() {                                // closes the topmost open screen; true if Back was used up
-  var gp = $("chat").hidden ? null : $("chat").querySelector(".gphoto.on");
-  if (gp) { gp.gpClose(); return true; }
   if (typeof NB !== "undefined" && NB.ov && !NB.ov.hidden) { if (!NB.busy) nbClose(); return true; }
   if (!reel.hidden) { if (mode === "wall" && focused >= 0) { focused = -1; layoutWall(); } else closeReel(); return true; }
   if (!$("chat").hidden) { if (chat && chat.view !== "list") chatList(); else closeChat(); return true; }
