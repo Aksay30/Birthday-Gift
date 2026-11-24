@@ -844,6 +844,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .me { position: absolute; left: 0; top: 0; z-index: 3; opacity: 0; transition: opacity .35s ease; pointer-events: none; will-change: transform; }
 .me.show { opacity: 1; }
 .me.front { z-index: 5; }
+.me .nb-halo { opacity: 0; transition: opacity .6s ease; }
+.me.nb-glow .nb-halo { opacity: 1; animation: nbHalo 1.8s ease-in-out infinite; }
+@keyframes nbHalo { 50% { opacity: .5; } }
 .me svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .me .b-glint { opacity: 0; }
 .me.glint .b-glint { animation: meGlint .8s ease-out; }
@@ -1899,7 +1902,8 @@ function rideLayout() {
   R.bus.style.top = (g.roadTop + (H - g.roadTop) * .62 - g.busH) + "px";
   placeBus();
   if (typeof ME !== "undefined" && ME && ME.out) {
-    if (ME.idle) { var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the boy keeps his spot
+    if (typeof NB !== "undefined" && NB.pin) { mePut(R.cam * W + NB.pin.u * W, NB.pin.v * H); ME.needPut = false; }   // the notebook scene: he stays on his spot on the road, in view
+    else if (ME.idle) { var MS = meSpots(); mePut(MS.stand.x, MS.stand.y, 1); }   // the boy keeps his spot
     else ME.needPut = true;                               // mid-walk: put him right once he is standing again
   }
   void R.el.offsetWidth;
@@ -2320,10 +2324,12 @@ var ME_HOLD = { hLx: 24.4, hLy: 60.5, hRx: 35.6, hRy: 60.5 };
   }
   var lines = ""; [-3.2, -1.4, .4, 2.2, 4].forEach(function (y) { lines += '<path d="M-4.1 ' + y + 'H4.1" stroke="#9db4e0" stroke-width=".35"/>'; });
   var rings = ""; [-3.6, -1.8, 0, 1.8, 3.6].forEach(function (x) { rings += '<circle cx="' + x + '" cy="-6.1" r=".6" fill="none" stroke="#6b6f7a" stroke-width=".4"/>'; });
-  var note = '<g class="m-note"><g class="nb-front"><rect x="-5" y="-6.2" width="10" height="12.4" rx=".8" fill="#fffdf4" stroke="#c9c2ae" stroke-width=".4"/>' + lines +
+  var note = '<g class="m-note"><defs><radialGradient id="nbHalo"><stop offset="0" stop-color="#fff1c4" stop-opacity=".95"/><stop offset=".5" stop-color="#ffd27a" stop-opacity=".5"/><stop offset="1" stop-color="#ffc85a" stop-opacity="0"/></radialGradient></defs>' +
+    '<circle class="nb-halo" r="11.5" fill="url(#nbHalo)"/><g class="nb-front"><rect x="-5" y="-6.2" width="10" height="12.4" rx=".8" fill="#fffdf4" stroke="#c9c2ae" stroke-width=".4"/>' + lines +
     '<path d="M-2.9 -5.4V5.6" stroke="#e58b8b" stroke-width=".35"/>' + rings + '</g>' +
     '<g class="nb-back"><rect x="-5" y="-6.2" width="10" height="12.4" rx=".8" fill="#3e5ea8" stroke="#2c4380" stroke-width=".4"/>' +
-    '<rect x="-3.3" y="-2.2" width="6.6" height="2.8" rx=".4" fill="#f3efe2"/>' + rings + '</g></g>';
+    '<rect x="-3.3" y="-2.2" width="6.6" height="2.8" rx=".4" fill="#f3efe2"/>' +
+    '<path d="M0 1.7L.62 3.05L2.1 3.2L1 4.2L1.3 5.65L0 4.9L-1.3 5.65L-1 4.2L-2.1 3.2L-.62 3.05Z" fill="#f4c55a"/>' + rings + '</g></g>';
   var gift = '<g class="m-gift"><rect x="-5.5" y="-3.4" width="11" height="8.4" rx="1.1" fill="' + W + '"/>' +
     '<rect x="-6.2" y="-5.4" width="12.4" height="2.8" rx=".8" fill="' + WD + '"/><rect x="-.7" y="-5.4" width="1.4" height="10.4" fill="' + RB + '"/>' +
     '<ellipse cx="-1.9" cy="-6.2" rx="2.1" ry="1.3" fill="none" stroke="' + RB + '" stroke-width="1.1" transform="rotate(-20 -1.9 -6.2)"/>' +
@@ -3710,7 +3716,6 @@ var NB = { spot: null, hint: null, ov: null, page: null, ta: null, give: null, s
   addEventListener("resize", function () {                // after the scene re-lays out (150/300 ms), put him and the notebook back in view
     setTimeout(function () {
       if (NB.spot.hidden) return;
-      if (NB.shown && !NB.done && !NB.open && !NB.busy) { var P = nbSpots(); mePut(P.talk.x, P.talk.y, 1); }
       nbPlace();
     }, 400);
   });
@@ -3737,7 +3742,7 @@ function boyReply() {
   if (!NB.spot || NB.shown) return; NB.shown = true;
   var P = nbSpots(), S = P.S, el = ME.el;
   meReset(); ME.out = true; ME.dir = 1;
-  meSet({ dim: 1, turn: .25, gy: .6, smile: .8, note: 1.4, hLx: 26, hLy: 58, hRx: 34, hRy: 58 });
+  meSet({ dim: 1, turn: .25, gy: .6, smile: .8, note: 1.8, noteBack: 1, hLx: 21.5, hLy: 59, hRx: 38.5, hRy: 59 });
   R.bus.classList.add("door-open"); boxDrop(.25);
   meAt(450, function () { el.classList.add("front"); mePut(S.door.x, S.door.y, .9); ME.lift = 0; meStart(); el.classList.add("show"); });
   meAt(800, function () { meTo({ gy: 1.3, tilt: 6, turn: .1 }, 300); });              // looks down at the step
@@ -3754,23 +3759,24 @@ function boyReply() {
   });
 }
 function nbAsk() {
+  NB.pin = { u: (ME.x - R.cam * R.W) / R.W, v: ME.y / R.H };     // his spot as a share of the screen, so a resize (keyboard, address bar) keeps him in view
   meTo({ turn: 0, gx: 0, gy: 0, tilt: -3, smile: 1 }, 300);
-  meAt(300, function () { meTo({ hLx: 26, hLy: 49, hRx: 34, hRy: 49, note: 1.7 }, 350); meSay(CONFIG.reply.ask, false); });   // holds the notebook up to her
+  meAt(300, function () { meTo({ hLx: 19, hLy: 57.5, hRx: 41, hRy: 57.5, note: 2.3, noteBack: 1 }, 350); meSay(CONFIG.reply.ask, false); });   // holds the notebook up to her
   meAt(1500, nbOffer);
 }
 // the notebook glows, with a line under him saying what to do
 function nbOffer() {
-  NB.spot.hidden = false; NB.hint.hidden = false; nbPlace();
+  NB.spot.hidden = false; NB.hint.hidden = false; nbPlace(); ME.el.classList.add("nb-glow");
   void NB.spot.offsetWidth; NB.spot.classList.add("on"); NB.hint.classList.add("on");
   chime();
   clearInterval(NB.bounceT);
   NB.bounceT = setInterval(function () {             // he lifts it a little now and then
     if (NB.open || NB.busy || NB.done) return;
-    meTo({ hLy: 47.2, hRy: 47.2 }, 180); setTimeout(function () { if (!NB.open && !NB.busy) meTo({ hLy: 49, hRy: 49 }, 260); }, 190);
+    meTo({ hLy: 55.3, hRy: 55.3 }, 180); setTimeout(function () { if (!NB.open && !NB.busy) meTo({ hLy: 57.5, hRy: 57.5 }, 260); }, 190);
   }, 1900);
 }
 function nbPlace() {
-  var g = rideGeom(), c = meToWorld(30, 49), h = NB.hint;
+  var g = rideGeom(), c = meToWorld(30, 56.5), h = NB.hint;
   NB.spot.style.left = c.x.toFixed(1) + "px"; NB.spot.style.top = c.y.toFixed(1) + "px";
   var hw = h.offsetWidth, camL = R.cam * g.W;
   h.style.left = Math.max(camL + 16 + hw / 2, Math.min(camL + g.W - 16 - hw / 2, ME.x)).toFixed(1) + "px";
@@ -3812,11 +3818,12 @@ function nbShrink(done) {                            // and closes back into it
   try { NB.ta.blur(); } catch (e) {}
   pg.style.transform = nbFromSpot(); pg.style.opacity = "0"; NB.ov.classList.remove("on");
   setTimeout(function () { NB.ov.hidden = true; pg.style.transition = "none"; pg.style.transform = ""; pg.style.opacity = ""; void pg.offsetWidth; pg.style.transition = ""; if (done) done(); }, 560);
+  setTimeout(rideLayout, 400); setTimeout(rideLayout, 1100);   // the keyboard has gone: fit the scene to the screen again
 }
 function nbOpen() {
   if (NB.busy || NB.open || NB.done) return;
   NB.open = true;
-  NB.spot.classList.remove("on"); NB.hint.classList.remove("on"); meSay("");
+  NB.spot.classList.remove("on"); NB.hint.classList.remove("on"); meSay(""); ME.el.classList.remove("nb-glow");
   NB.status.textContent = "";
   nbShow();
   meTo({ note: 0, hLx: 26, hLy: 56, hRx: 34, hRy: 56, gy: .3 }, 300);                 // he's handed it to her
@@ -3825,8 +3832,8 @@ function nbClose() {
   if (NB.busy || !NB.open) return;
   NB.open = false;
   nbShrink(function () {
-    meTo({ note: 1.7, hLx: 26, hLy: 49, hRx: 34, hRy: 49, gy: 0 }, 260);             // he holds it up again
-    NB.spot.classList.add("on"); NB.hint.classList.add("on");
+    meTo({ note: 2.3, noteBack: 1, hLx: 19, hLy: 57.5, hRx: 41, hRy: 57.5, gy: 0 }, 260);   // he holds it up again
+    ME.el.classList.add("nb-glow"); NB.spot.classList.add("on"); NB.hint.classList.add("on");
   });
 }
 function nbGive() {
@@ -3845,7 +3852,7 @@ function nbGive() {
     .catch(function () { got(false); });
   // the page closes back into the notebook; he takes it and looks at it while it goes
   nbShrink(function () {
-    meTo({ note: 1.7, hLx: 26.5, hLy: 54, hRx: 33.5, hRy: 54, gy: 1.2, tilt: 5 }, 300);
+    meTo({ note: 1.9, noteBack: 1, hLx: 21, hLy: 55, hRx: 39, hRy: 55, gy: 1.2, tilt: 5 }, 300);
     closed = true; next();
   });
   function got(ok) { if (result !== null) return; clearTimeout(timer); result = ok; next(); }
@@ -3875,7 +3882,7 @@ function hearts() {
 // He tears the page out and reads it there; his face lights up; he holds it to his heart and keeps it in his pocket
 function boyReads() {
   var C = CONFIG.reply;
-  clearInterval(NB.bounceT); NB.spot.hidden = true; NB.hint.hidden = true;
+  clearInterval(NB.bounceT); NB.spot.hidden = true; NB.hint.hidden = true; ME.el.classList.remove("nb-glow");
   nbRustle();
   meTo({ hLx: 23, hLy: 53, hRx: 37, hRy: 53, gy: .8 }, 150);                          // tears the page out
   meAt(170, function () { meTo({ hLx: 26.6, hLy: 51, hRx: 33.4, hRy: 51, note: 1.4, noteBack: 1 }, 260); });
@@ -3915,7 +3922,7 @@ function vanish() {
   }, i * 55);
   setTimeout(function () { popNote(2, true); }, 900);
   setTimeout(function () {
-    meStop(); meReset(); ME.out = false;
+    meStop(); meReset(); ME.out = false; NB.pin = null;
     el.classList.remove("front"); el.style.transition = ""; el.style.filter = "";
   }, 2600);
   newStar(from);
