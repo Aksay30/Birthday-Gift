@@ -871,6 +871,9 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 /* the gift settling after its roll */
 .ride .gift.plop { animation: plop .5s ease-out; transform-origin: 50% 100%; }
 @keyframes plop { 0% { transform: scale(1.08, .86); } 45% { transform: scale(.96, 1.05); } 75% { transform: scale(1.02, .98); } 100% { transform: none; } }
+.comic .comic-tap { display: block; margin: 5px 0 1px; font: 700 13px/1.2 var(--body); letter-spacing: .01em; color: #a8700c;
+  opacity: 0; animation: comicTap .8s ease .15s forwards; }
+@keyframes comicTap { to { opacity: 1; } }
 .comic { position: absolute; z-index: 8; pointer-events: none; width: max-content; max-width: min(250px, 72vw); text-align: center;
   --bb: #fff; background: var(--bb); color: #1b1424; border: 3px solid #1b1424; border-radius: 22px; padding: 8px 14px 6px;
   font: 400 19px/1.05 "Bangers", "Bricolage Grotesque", sans-serif; letter-spacing: .05em; box-shadow: 4px 4px 0 #1b1424;
@@ -1005,6 +1008,12 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 @keyframes starBorn { 0% { box-shadow: 0 0 10px 3px rgba(255,222,140,.95), 0 0 22px 8px rgba(255,210,120,.45); }
   30% { box-shadow: 0 0 26px 10px rgba(255,240,200,1), 0 0 70px 26px rgba(255,214,130,.6); } }
 @keyframes starTwinkle { 50% { box-shadow: 0 0 14px 5px rgba(255,232,170,1), 0 0 34px 12px rgba(255,214,130,.55); } }
+/* after the song has ended: a small, faint way to ride again (the ticket stays as the keepsake) */
+.ride-again { position: absolute; z-index: 9; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); transform: translateX(-50%);
+  padding: 10px 16px; border: 0; background: none; color: rgba(255,240,215,.5); font: 500 14px var(--body); letter-spacing: .04em; white-space: nowrap;
+  cursor: pointer; opacity: 0; transition: opacity 2s ease, color .3s ease; -webkit-tap-highlight-color: transparent; }
+.ride-again.on { opacity: 1; }
+.ride-again:hover, .ride-again:focus-visible { color: rgba(255,240,215,.85); }
 .end-tkt { position: absolute; z-index: 8; left: 50%; top: 46%; width: min(290px, calc(100% - 48px)); pointer-events: none;
   transform: translate(-50%, -50%) rotate(-2deg); filter: drop-shadow(0 14px 22px rgba(0,0,0,.5)); animation: endTktFall 3.2s cubic-bezier(.35,.1,.3,1) both; }
 @keyframes endTktFall {
@@ -1376,7 +1385,7 @@ var CONFIG = {
   // Background song. Put the mp3 next to index.html. It starts when box 1 is opened and keeps playing.
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
-  poemSong: "sounds/gift3-bgm.mp3",   // music for box 3 (the kavidhai): starts when the box is tapped, swells at your birthday message
+  poemSong: "sounds/gift3-bgm-long.mp3",   // music for box 3 (the kavidhai): your 20 s clip, made into a seamless 2.5 min piece; starts when the box is tapped
   poemSongFrom: 0,                     // second box 3's song starts at (0 = from the beginning)
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
@@ -1489,11 +1498,10 @@ var CONFIG = {
   reply: {
     key: "c7f10b4c-3f17-4293-9713-3b48dc4a70d3",   // your Web3Forms access key (it can only send to your email)
     ask: "May I have a few words from you, to keep forever?",        // what he says, holding the notebook up
-    hint: "Press the notebook to write your message", // the line under him, so she knows what to do
+    hint: "✎ Tap the notebook",                       // a small gold line inside his speech bubble, so she knows what to do
     placeholder: "Write anything you'd like to tell me…",
     button: "Give it to him",
     thanks: "Thank you. This means so much to me.",     // what he says after reading it
-    byeThanks: "Thank you for your time,",           // once the bus has gone, he says this first…
     bye: "Byee."                                      // …then this with a big wave, and fades away in sparkles
   },
 
@@ -1725,6 +1733,7 @@ $("soundBtn").addEventListener("click", function () {
 });
 
 var params = new URLSearchParams(location.search);
+var REPLAY = false;                                     // true on a "Ride again": no password, no notebook
 function pad(n) { return (n < 10 ? "0" : "") + n; }   // 5 -> "05" (used by the date lock)
 function showLock() { $("lock").hidden = false; $("lock").classList.add("fade-in"); }
 
@@ -3776,7 +3785,8 @@ function boyReply() {
   if (!NB.spot || NB.shown) return; NB.shown = true;
   var P = nbSpots(), S = P.S, el = ME.el;
   meReset(); ME.out = true; ME.dir = 1;
-  meSet({ dim: 1, turn: .25, gy: .6, smile: .8, note: 1.8, noteBack: 1, hLx: 21.5, hLy: 59, hRx: 38.5, hRy: 59 });
+  if (REPLAY) meSet({ dim: 1, turn: .25, gy: .6, smile: .8 });      // a replay: he comes out empty-handed, just to say goodbye
+  else meSet({ dim: 1, turn: .25, gy: .6, smile: .8, note: 1.8, noteBack: 1, hLx: 21.5, hLy: 59, hRx: 38.5, hRy: 59 });
   R.bus.classList.add("door-open"); boxDrop(.25);
   meAt(450, function () { el.classList.add("front"); mePut(S.door.x, S.door.y, .9); ME.lift = 0; meStart(); el.classList.add("show"); });
   meAt(800, function () { meTo({ gy: 1.3, tilt: 6, turn: .1 }, 300); });              // looks down at the step
@@ -3794,13 +3804,15 @@ function boyReply() {
 }
 function nbAsk() {
   NB.pin = { u: (ME.x - R.cam * R.W) / R.W, v: ME.y / R.H };     // his spot as a share of the screen, so a resize (keyboard, address bar) keeps him in view
+  if (REPLAY) { meTo({ turn: 0, gx: 0, gy: 0, tilt: 0, smile: 1 }, 300); meAt(900, busLeaves); return; }   // a replay: no notebook, straight to the goodbye
   meTo({ turn: 0, gx: 0, gy: 0, tilt: -3, smile: 1 }, 300);
   meAt(300, function () { meTo({ hLx: 19, hLy: 57.5, hRx: 41, hRy: 57.5, note: 2.3, noteBack: 1 }, 350); meSay(CONFIG.reply.ask, false); });   // holds the notebook up to her
   meAt(1500, nbOffer);
 }
 // the notebook glows, with a line under him saying what to do
 function nbOffer() {
-  NB.spot.hidden = false; NB.hint.hidden = false; nbPlace(); ME.el.classList.add("nb-glow");
+  NB.spot.hidden = false; nbPlace(); ME.el.classList.add("nb-glow");
+  nbTapLine();
   void NB.spot.offsetWidth; NB.spot.classList.add("on"); NB.hint.classList.add("on");
   chime();
   clearInterval(NB.bounceT);
@@ -3808,6 +3820,15 @@ function nbOffer() {
     if (NB.open || NB.busy || NB.done) return;
     meTo({ hLy: 55.3, hRy: 55.3 }, 180); setTimeout(function () { if (!NB.open && !NB.busy) meTo({ hLy: 57.5, hRy: 57.5 }, 260); }, 190);
   }, 1900);
+}
+// "✎ Tap the notebook": a second, smaller line inside his speech bubble (instead of a line low under his feet)
+function nbTapLine() {
+  var b = COND.bubble;
+  if (!b.classList.contains("on") || b.querySelector(".comic-tap")) return;
+  var t = document.createElement("span"); t.className = "comic-tap"; t.textContent = CONFIG.reply.hint;
+  b.appendChild(t);
+  var rr = R.el.getBoundingClientRect(), cr = ME.el.getBoundingClientRect(), w = b.offsetWidth, cx = cr.left - rr.left + cr.width / 2;
+  b.style.left = Math.max(10 + w / 2, Math.min(rr.width - w / 2 - 10, cx)) + "px";   // still centred over him, still on screen
 }
 function nbPlace() {
   var g = rideGeom(), c = meToWorld(30, 56.5), h = NB.hint;
@@ -3867,7 +3888,8 @@ function nbClose() {
   NB.open = false;
   nbShrink(function () {
     meTo({ note: 2.3, noteBack: 1, hLx: 19, hLy: 57.5, hRx: 41, hRy: 57.5, gy: 0 }, 260);   // he holds it up again
-    ME.el.classList.add("nb-glow"); NB.spot.classList.add("on"); NB.hint.classList.add("on");
+    ME.el.classList.add("nb-glow"); NB.spot.classList.add("on");
+    meSay(CONFIG.reply.ask, false); nbTapLine();
   });
 }
 function nbGive() {
@@ -4010,7 +4032,20 @@ function endTicket() {
   R.el.appendChild(t);
   whoosh();
   endingSongTo(END_VOL.stamp, 3800);                  // fullest as the ticket is stamped
+  setTimeout(function () {                            // once the song has played to its end, a faint "Ride again" appears
+    var w = setInterval(function () { if (!ENDSONG.on) { clearInterval(w); setTimeout(rideAgain, 3000); } }, 500);
+  }, 3900 + 4000);
   setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); }, 3200 + 700);   // the conductor's stamp, one last time
+}
+function rideAgain() {
+  if (R.el.querySelector(".ride-again")) return;
+  var b = document.createElement("button"); b.type = "button"; b.className = "ride-again"; b.textContent = "↻ Ride again";
+  b.addEventListener("click", function () {
+    try { sessionStorage.setItem("bdayReplay", "1"); } catch (e) {}
+    location.reload();
+  });
+  R.el.appendChild(b);
+  void b.offsetWidth; b.classList.add("on");
 }
 function busLeaves() {
   var el = ME.el;
@@ -4022,9 +4057,9 @@ function busLeaves() {
     tween(R.cam, R.cam + 1.15, legTime("away"), function () {
       engineStop(1.5); R.bus.classList.remove("accel", "moving"); R.bus.classList.add("away");
       meTo({ wave: 0, hRx: 42.4, hRy: 67.4, turn: 0, gx: 0 }, 300);
-      meAt(500, function () { meTo({ smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.byeThanks, true); endingSong(); });   // "Thank you for your time," and the song comes back
-      meAt(2900, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Byee." with a big wave
-      meAt(4800, function () { meSay(""); vanish(); });
+      meAt(500, function () { meTo({ smile: 1, lid: .2 }, 300); endingSong(); });   // he turns to her, smiling, and the song comes back
+      meAt(1700, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Byee." with a big wave
+      meAt(3600, function () { meSay(""); vanish(); });
     }, EASE.away);
   });
 }
@@ -5356,7 +5391,11 @@ if (TEST === "ticket" || TEST === "box3") {
     $("rideGo").hidden = true;
     runTest();
   }, true);
-} else showLock();                                    // the website opens on the password page
+} else {
+  try { REPLAY = sessionStorage.getItem("bdayReplay") === "1"; sessionStorage.removeItem("bdayReplay"); } catch (e) {}
+  if (REPLAY) openParty();                              // "Ride again": straight back to the start of the ride
+  else showLock();                                      // the website opens on the password page
+}
 </script>
 </body>
 </html>
