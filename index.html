@@ -1377,7 +1377,7 @@ var CONFIG = {
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
   poemSong: "sounds/gift3-bgm.mp3",   // music for box 3 (the kavidhai): starts when the box is tapped, swells at your birthday message
-  poemSongFrom: 6,                     // box 3's song starts at 0:06 (and repeats from there)
+  poemSongFrom: 0,                     // second box 3's song starts at (0 = from the beginning)
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
   // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
@@ -3960,6 +3960,7 @@ function vanish() {
     el.classList.remove("front"); el.style.transition = ""; el.style.filter = "";
   }, 2600);
   newStar(from);
+  endingSongTo(END_VOL.star, 4000);                   // the music grows as his sparkle rises
 }
 // His last sparkle drifts up into the sky and stays there as a new star; then the street dims
 // and the Bus 28 ticket floats down: from the day you met to her birthday, journey complete.
@@ -4008,6 +4009,7 @@ function endTicket() {
     '<div class="end-stamp-row"><span class="stamp">' + esc(T.stamp) + '</span></div></div>';
   R.el.appendChild(t);
   whoosh();
+  endingSongTo(END_VOL.stamp, 3800);                  // fullest as the ticket is stamped
   setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); }, 3200 + 700);   // the conductor's stamp, one last time
 }
 function busLeaves() {
@@ -4020,7 +4022,7 @@ function busLeaves() {
     tween(R.cam, R.cam + 1.15, legTime("away"), function () {
       engineStop(1.5); R.bus.classList.remove("accel", "moving"); R.bus.classList.add("away");
       meTo({ wave: 0, hRx: 42.4, hRy: 67.4, turn: 0, gx: 0 }, 300);
-      meAt(500, function () { meTo({ smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.byeThanks, true); });   // "Thank you for your time,"
+      meAt(500, function () { meTo({ smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.byeThanks, true); endingSong(); });   // "Thank you for your time," and the song comes back
       meAt(2900, function () { meTo({ hRx: 47.4, hRy: 22.6, wave: 1, smile: 1, lid: .2 }, 300); meSay(CONFIG.reply.bye, true); });   // "Byee." with a big wave
       meAt(4800, function () { meSay(""); vanish(); });
     }, EASE.away);
@@ -4455,6 +4457,38 @@ var reel = $("reel"), stage = $("reelStage");
 var polas = [], idx = -1, mode = "off", paused = false, elapsed = 0, lastT = 0, focused = -1;
 var BASE_DUR = (CONFIG.photoSeconds || 4.5) * 1000, DUR = BASE_DUR;
 // Time each photo so the last one finishes just as the song ends, and the wall forms on its last notes
+// The ending: once the bus has gone, "Next eppo meet pannalam" comes back from the start, softly.
+// It grows through his goodbye and the new star, is fullest as the ticket is stamped, then plays on to its last note.
+// (The notebook part before it stays quiet, so she can write.)
+var END_VOL = { soft: .28, star: .42, stamp: .6 };
+function songRamp(to, ms) {
+  clearInterval(songFadeId);
+  var v0 = song.volume, steps = Math.max(1, Math.round(ms / 90)), n = 0;
+  songFadeId = setInterval(function () {
+    n++;
+    try { song.volume = Math.max(0, Math.min(1, v0 + (to - v0) * n / steps)); } catch (e) {}
+    if (n >= steps) clearInterval(songFadeId);
+  }, 90);
+}
+var ENDSONG = { on: false, fading: false };
+function endingSong() {
+  if (songState === "failed" || !CONFIG.song || ENDSONG.on) return;
+  clearInterval(songFadeId);
+  try { song.pause(); song.currentTime = CONFIG.songStart || 0; song.volume = 0; } catch (e) { return; }
+  var p = song.play();
+  var go = function () {
+    songState = "playing"; ENDSONG.on = true; ENDSONG.fading = false;
+    songRamp(END_VOL.soft, 3000);
+    var watch = setInterval(function () {             // a gentle fade over the last seconds, ending on the last sung note
+      if (!isFinite(song.duration) || !song.duration) return;
+      var left = song.duration - SONG_SILENT_END - song.currentTime;
+      if (left < 3 && left > 0 && !ENDSONG.fading) { ENDSONG.fading = true; songRamp(0, left * 1000); }
+      if (song.paused || left <= 0) { clearInterval(watch); try { song.pause(); } catch (e) {} songState = "paused"; ENDSONG.on = false; }
+    }, 200);
+  };
+  if (p && p.then) p.then(go).catch(function () {}); else go();
+}
+function endingSongTo(v, ms) { if (ENDSONG.on && !ENDSONG.fading) songRamp(v, ms); }
 var SONG_SILENT_END = 3;                 // the song file ends with about 3 seconds of silence
 var SONG_TAIL = 13;                      // seconds of singing replayed softly after the candles
 function fitPhotosToSong(fromBox, n) {
@@ -4794,7 +4828,7 @@ function bgm2Stop() { BGM2.stop(); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
 var BGM3 = makeBgm(CONFIG.poemSong, CONFIG.poemSongFrom);
-var BGM3_VOL = { read: .42, swell: .62, after: .42 };
+var BGM3_VOL = { read: .26, swell: .4, after: .28 };   // gentle: soft while she reads, a little lift at your message
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
