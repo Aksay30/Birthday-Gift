@@ -1121,9 +1121,40 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   padding: calc(env(safe-area-inset-top, 0px) + 56px) 16px calc(env(safe-area-inset-bottom, 0px) + 28px); background: rgba(8,6,20,.96);
   opacity: 0; transition: opacity .45s ease; cursor: pointer; }
 .gphoto.on { opacity: 1; }
-.gphoto img { display: block; max-width: 100%; max-height: 68%; border-radius: 12px; object-fit: contain; box-shadow: 0 18px 50px rgba(0,0,0,.6);
+.gphoto .gp-view { position: relative; width: 100%; max-width: 620px; overflow: hidden; touch-action: pan-y; }
+.gphoto .gp-track { display: flex; transition: transform .45s cubic-bezier(.3,1,.4,1); }
+.gphoto .gp-slide { flex: 0 0 100%; display: flex; align-items: center; justify-content: center; height: min(60vh, 520px); padding: 0 4px; }
+.gphoto img { display: block; max-width: 100%; max-height: 100%; border-radius: 12px; object-fit: contain; box-shadow: 0 18px 50px rgba(0,0,0,.6);
   transform: scale(.86); transition: transform .8s cubic-bezier(.3,1.2,.5,1); }
-.gphoto.on img { transform: scale(1); animation: gpZoom 10s ease-out .8s forwards; }
+.gphoto.on img { transform: scale(1); }
+.gphoto.on .gp-slide.cur img { animation: gpZoom 10s ease-out .8s forwards; }
+.gphoto .gp-count { margin: -6px 0 0; min-height: 1em; font: 600 13px var(--body); letter-spacing: .1em; color: rgba(233,228,255,.7); }
+.gphoto .gp-nav { position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.12);
+  color: #fff; font: 400 30px/1 var(--body); cursor: pointer; }
+.gphoto .gp-nav.prev { left: max(12px, env(safe-area-inset-left, 0px)); } .gphoto .gp-nav.next { right: max(12px, env(safe-area-inset-right, 0px)); }
+.gphoto .gp-nav[disabled] { opacity: .25; cursor: default; }
+@media (hover: none) { .gphoto .gp-nav { display: none; } }   /* on a phone she swipes */
+/* the photos in the chat bubble: two polaroids, tossed in slightly tilted, loading then coming into focus */
+.bubble.pics-b { padding: 6px 6px 4px; }
+.pics { display: flex; justify-content: center; align-items: flex-start; padding: 12px 16px 6px; }
+.cpola { --r: -2deg; position: relative; flex: none; width: min(38vw, 150px); padding: 6px 6px 20px; border: 0; border-radius: 3px; background: #fffdf6;
+  box-shadow: 0 6px 16px rgba(0,0,0,.45); cursor: pointer; transform: rotate(var(--r)); transition: transform .3s ease; -webkit-tap-highlight-color: transparent; }
+.pics.n2 .cpola:first-child { --r: -6deg; margin-right: -16px; z-index: 1; }
+.pics.n2 .cpola:last-child { --r: 5deg; margin-top: 16px; }
+.pics.n1 .cpola { width: min(56vw, 210px); }
+.cpola:active { transform: rotate(var(--r)) scale(.97); }
+.cpola:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.cpola .pf { position: relative; display: block; height: 0; padding-top: 100%; overflow: hidden; background: #2a2147; }
+.cpola .pf img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; transition: filter 1s ease, transform 1s ease; }
+.cpola.loading .pf img { filter: blur(9px) brightness(.8); transform: scale(1.12); }
+.cpola .ring { position: absolute; left: 50%; top: 50%; width: 42px; height: 42px; margin: -21px 0 0 -21px; transform: rotate(-90deg); opacity: 0; transition: opacity .4s ease; }
+.cpola.loading .ring { opacity: 1; }
+.cpola .ring circle { fill: rgba(0,0,0,.35); stroke: rgba(255,255,255,.3); stroke-width: 2.5; }
+.cpola .ring .fill { fill: none; stroke: #fff; stroke-linecap: round; stroke-dasharray: 94.25; stroke-dashoffset: 94.25; }
+.cpola.loading .ring .fill { animation: ringFill 1.4s ease-in-out var(--rd, .3s) forwards; }
+@keyframes ringFill { to { stroke-dashoffset: 0; } }
+.cpola.drop { animation: cpolaDrop .7s cubic-bezier(.3,1.4,.5,1) var(--d, 0s) both; }
+@keyframes cpolaDrop { from { opacity: 0; transform: translateY(-60px) rotate(calc(var(--r) * -2.5)) scale(1.1); } }
 @keyframes gpZoom { from { transform: scale(1); } to { transform: scale(1.045); } }
 .gphoto .gp-cap { margin: 0; font-family: var(--hand); font-weight: 700; font-size: clamp(26px, 7vw, 34px); color: #ffe2a8; text-align: center;
   text-shadow: 0 0 14px rgba(255,214,120,.45); opacity: 0; transform: translateY(8px); transition: opacity .8s ease 1s, transform .8s ease 1s; }
@@ -1446,7 +1477,10 @@ var CONFIG = {
   ],
   // After she has read every friend's chat, one more arrives: the group photo. Tapping it opens the photo
   // full screen with the caption. Your own message comes after it. Leave photo "" to skip.
-  groupPhoto: { photo: "wishes/group.jpg", name: "All of us", preview: "Sent you a photo", caption: "From all of us" },
+  // "All of us": the group photos, sent in the chat as two polaroids. A caption per photo is optional ("" = none).
+  groupPhoto: { name: "All of us", caption: "From all of us",
+    photos: [ { src: "Photos/group1.jpg", caption: "Some friendships just fit" },
+              { src: "Photos/group2.jpg", caption: "And this one is ours" } ] },
 
   // The quiz that unlocks box 3. Answers ignore capitals, spaces and punctuation.
   quiz: [
@@ -4702,6 +4736,13 @@ document.addEventListener("visibilitychange", function () {
   if (document.hidden && mode === "reel" && !paused) $("reelPause").click();   // pauses the photos and the song together
 });
 addEventListener("keydown", function (e) {
+  var gpv = $("chat").hidden ? null : $("chat").querySelector(".gphoto.on");
+  if (gpv) {                                            // the group photos: arrows between them, Escape back to the chat
+    if (e.key === "Escape") gpv.gpClose();
+    else if (e.key === "ArrowRight") gpv.gpGo(1);
+    else if (e.key === "ArrowLeft") gpv.gpGo(-1);
+    return;
+  }
   if (!reel.hidden) {
     if (e.key === "Escape") closeReel();
     else if (mode === "reel" && e.key === "ArrowRight") go(idx + 1);
@@ -4796,17 +4837,25 @@ function openChat(i) {
   var F = items.length, GP = CONFIG.groupPhoto;
   // After the friends' chats come the "late" ones, each arriving once everything before it is read:
   // the group photo, then your own message.
-  if (GP && GP.photo) items.push({ name: GP.name, text: GP.preview, color: "#c4b5fd", group: true, src: GP.photo, caption: GP.caption });
+  var gpItem = null;
+  if (GP && GP.photos && GP.photos.length) {
+    gpItem = { name: GP.name, color: "#c4b5fd", group: true, caption: GP.caption, pics: GP.photos.map(function (p) { return { src: p.src, cap: p.caption || "" }; }) };
+    gpItem.text = gpText(gpItem); items.push(gpItem);
+  }
   if (g.closing) items.push({ name: CONFIG.fromName, text: g.closing, color: "#f4c55a", me: true });
   items.forEach(function (m, k) { m.time = "12:" + (k < 10 ? "0" + k : k) + " am"; m.read = false; });
   chat = { g: g, run: run, items: items, F: F, arrived: 0, lateIn: 0, lateTimer: null, view: "list" };
-  if (GP && GP.photo) {                               // no photo file yet: quietly drop the group-photo chat
+  if (gpItem) gpItem.pics.slice().forEach(function (p) {   // a photo that isn't there is quietly left out; with none, so is the chat
     var pre = new Image();
     pre.onerror = function () {
-      if (chat && chat.run === run && !chat.lateIn && chat.items[F] && chat.items[F].group) chat.items.splice(F, 1);
+      if (!chat || chat.run !== run) return;
+      var j = gpItem.pics.indexOf(p); if (j >= 0) gpItem.pics.splice(j, 1);
+      gpItem.text = gpText(gpItem);
+      var k = chat.items.indexOf(gpItem);
+      if (!gpItem.pics.length && k >= 0 && k - chat.F >= chat.lateIn) chat.items.splice(k, 1);
     };
-    pre.src = GP.photo;
-  }
+    pre.src = p.src;
+  });
   $("chat").hidden = false;
   document.body.classList.add("no-scroll", "overlay-open");
   chatList();
@@ -4823,6 +4872,7 @@ function openChat(i) {
   })(k);
   if (F === 0) chatLateSoon(800);
 }
+function gpText(m) { return m.pics.length > 1 ? "Sent you " + m.pics.length + " photos" : "Sent you a photo"; }
 function chatVisible(k) { return k < chat.F ? k < chat.arrived : k - chat.F < chat.lateIn; }
 function unreadCount() {
   var n = 0;
@@ -4852,6 +4902,7 @@ function chatLateSoon(delay) {
     if (!chat || run !== chat.run) return;
     chat.lateTimer = null;
     if (chat.F + chat.lateIn >= chat.items.length) return;
+    if ($("chat").querySelector(".gphoto.on")) { chatLateSoon(1500); return; }   // she's looking at the photos: wait
     var k = chat.F + chat.lateIn++;
     chatPop();
     if (chat.items[k].me) bgm2To(BGM2_VOL.mine, 2500);   // your message: the music rises a little
@@ -4942,31 +4993,62 @@ function chatList() {
   chatHeader(); chatFooter();
   if (allReadSoFar()) chatLateSoon(1200);
 }
-// "All of us": the group photo opens full screen with a slow zoom and the caption; a tap anywhere goes back
-function groupPhoto(m) {
-  var v = document.createElement("div"); v.className = "gphoto"; v.setAttribute("role", "dialog"); v.setAttribute("aria-label", m.caption || m.name);
-  v.innerHTML = '<button class="gp-x" type="button" aria-label="Back to chats">×</button><img alt=""><p class="gp-cap"></p><p class="gp-back">Tap anywhere to go back</p>';
-  var img = v.querySelector("img"); img.alt = m.caption || "Group photo"; img.onerror = function () { img.remove(); }; img.src = m.src;
-  v.querySelector(".gp-cap").textContent = fillName(m.caption || "");
+// "All of us": a photo opens full screen; with two, she swipes (or taps the sides / arrows) between them
+function groupPhoto(m, start) {
+  var pics = m.pics, n = pics.length, at = -1;
+  if (!n) return;
+  var v = document.createElement("div"); v.className = "gphoto"; v.setAttribute("role", "dialog"); v.setAttribute("aria-label", fillName(m.caption || m.name));
+  var slides = pics.map(function () { return '<div class="gp-slide"><img alt=""></div>'; }).join("");
+  v.innerHTML = '<button class="gp-x" type="button" aria-label="Back to the chat">×</button>' +
+    '<div class="gp-view"><div class="gp-track">' + slides + '</div></div>' +
+    (n > 1 ? '<button class="gp-nav prev" type="button" aria-label="Previous photo">‹</button><button class="gp-nav next" type="button" aria-label="Next photo">›</button>' : '') +
+    '<p class="gp-cap"></p><p class="gp-count"></p><p class="gp-back">' + (n > 1 ? "Swipe to see the other photo" : "Tap anywhere to go back") + '</p>';
+  var track = v.querySelector(".gp-track"), sl = v.querySelectorAll(".gp-slide");
+  pics.forEach(function (p, j) { var im = sl[j].querySelector("img"); im.alt = p.cap || "Photo " + (j + 1); im.src = p.src; });
+  var cap = v.querySelector(".gp-cap"), cnt = v.querySelector(".gp-count");
+  function go(j) {
+    if (j < 0 || j >= n || j === at) return;
+    at = j;
+    track.style.transform = "translateX(" + (-100 * at) + "%)";
+    Array.prototype.forEach.call(sl, function (s, i) { s.classList.toggle("cur", i === at); });
+    cap.textContent = fillName(pics[at].cap || m.caption || "");
+    cnt.textContent = n > 1 ? (at + 1) + " / " + n : "";
+    if (n > 1) { v.querySelector(".prev").disabled = at === 0; v.querySelector(".next").disabled = at === n - 1; }
+  }
   var closed = false;
   function close() {
     if (closed) return; closed = true;
     v.classList.remove("on"); setTimeout(function () { v.remove(); }, 450);
-    chatList();                                         // back to the list; your message follows shortly
+    if (chat && allReadSoFar()) chatLateSoon(2500);     // back in the chat; your message follows shortly
   }
-  v.addEventListener("click", close);
+  v.gpClose = close; v.gpGo = function (d) { go(at + d); };
+  var sx = null, swiped = 0;
+  v.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+  v.addEventListener("touchend", function (e) {
+    if (sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 40 && n > 1) { swiped = Date.now(); go(at + (dx < 0 ? 1 : -1)); }
+  });
+  v.addEventListener("click", function (e) {
+    if (Date.now() - swiped < 500) return;
+    if (e.target.closest(".gp-x")) close();
+    else if (e.target.closest(".prev")) go(at - 1);
+    else if (e.target.closest(".next")) go(at + 1);
+    else if (n > 1 && e.target.closest(".gp-view")) { var r = v.getBoundingClientRect(); go(at + (e.clientX > r.left + r.width / 2 ? 1 : -1)); }
+    else close();
+  });
   $("chat").appendChild(v);
-  void v.offsetWidth; v.classList.add("on");
+  track.style.transition = "none"; go(start || 0); void v.offsetWidth; track.style.transition = "";
+  v.classList.add("on");
   v.querySelector(".gp-x").focus();
-  bgm2To(BGM2_VOL.mine, 2000);                          // the music lifts a little for the photo
+  bgm2To(BGM2_VOL.mine, 2000);                          // the music lifts a little for the photos
 }
 function chatConvo(k) {
   var m = chat.items[k], firstTime = !m.read;
   hideNotif();
   m.read = true;
-  if (m.group) { groupPhoto(m); return; }
   chat.view = k;
-  if (!m.me && allReadSoFar()) chatLateSoon(2000);      // the next one, 2 s after the last chat opens
+  if (!m.me && allReadSoFar()) chatLateSoon(m.group ? 9000 : 2000);   // the next one, 2 s after the last chat opens (longer for the photos)
   var body = $("chatBody");
   body.className = "chat-body"; void body.offsetWidth; body.classList.add("convo");
   body.innerHTML = '<p class="chat-day">Today</p>';
@@ -4991,12 +5073,27 @@ function chatShowMsg(k, fresh) {
   var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " me" : "");
   r.appendChild(avaFor(m));
   var b = document.createElement("div"); b.className = "bubble"; b.style.setProperty("--c", m.color);
+  if (m.group) {                                      // two polaroids drop in, blurred with a loading ring, then come into focus
+    var pw = document.createElement("div"); pw.className = "pics n" + Math.min(2, m.pics.length);
+    m.pics.forEach(function (p, j) {
+      var f = document.createElement("button"); f.type = "button"; f.className = "cpola" + (fresh ? " drop loading" : "");
+      f.style.setProperty("--d", (j * .35).toFixed(2) + "s"); f.style.setProperty("--rd", (.3 + j * .7).toFixed(2) + "s");
+      f.setAttribute("aria-label", "Open photo " + (j + 1) + " of " + m.pics.length);
+      f.innerHTML = '<span class="pf"><img alt=""><svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><circle class="fill" cx="18" cy="18" r="15"/></svg></span>';
+      var im = f.querySelector("img"); im.alt = p.cap || "Photo " + (j + 1); im.src = p.src;
+      f.addEventListener("click", function () { groupPhoto(m, j); });
+      pw.appendChild(f);
+      if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) f.classList.remove("loading"); }, 1800 + j * 700);
+    });
+    b.classList.add("pics-b"); b.appendChild(pw);
+  }
   if (m.photo) {
     var img = new Image(); img.className = "att"; img.alt = "Photo from " + m.name;
     img.onerror = function () { img.remove(); };
     img.src = m.photo; b.appendChild(img);
   }
-  var tx = document.createElement("div"); tx.className = "txt"; tx.textContent = m.text; b.appendChild(tx);
+  var tx = document.createElement("div"); tx.className = "txt"; tx.textContent = m.group ? fillName(m.caption || "") : m.text;
+  if (tx.textContent) b.appendChild(tx);
   var tm = document.createElement("div"); tm.className = "time"; tm.textContent = m.time; b.appendChild(tm);
   var tk = document.createElement("span"); tk.className = "ticks" + (fresh ? "" : " seen"); tk.setAttribute("aria-hidden", "true");
   tk.innerHTML = '<svg viewBox="0 0 17 11"><path d="M1 6l3 3 6-7M7 8.2l1 .8 6-7"/></svg>';
@@ -5120,7 +5217,7 @@ function backPush() {
 }
 function backCloseTop() {                                // closes the topmost open screen; true if Back was used up
   var gp = $("chat").hidden ? null : $("chat").querySelector(".gphoto.on");
-  if (gp) { gp.click(); return true; }
+  if (gp) { gp.gpClose(); return true; }
   if (typeof NB !== "undefined" && NB.ov && !NB.ov.hidden) { if (!NB.busy) nbClose(); return true; }
   if (!reel.hidden) { if (mode === "wall" && focused >= 0) { focused = -1; layoutWall(); } else closeReel(); return true; }
   if (!$("chat").hidden) { if (chat && chat.view !== "list") chatList(); else closeChat(); return true; }
