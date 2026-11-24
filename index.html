@@ -1087,6 +1087,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .bubble .time { text-align: right; font-size: 11px; color: #a79cc9; padding: 0 6px 1px; }
 .cmsg.mine .bubble { background: linear-gradient(160deg, #3a2a63, #2a2147); border: 1px solid rgba(244,197,90,.45); }
 .cmsg.mine .bubble .who { color: var(--gold); }
+.bubble .who + .txt { padding-top: 1px; }           /* the message sits right under the sender's name */
 .dots { display: flex; gap: 5px; padding: 12px 14px; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: #b9afd8; animation: dot 1s ease-in-out infinite; }
 .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
@@ -5154,6 +5155,9 @@ function chatShowMsg(k, fresh, mo) {
   var r = document.createElement("div"); r.className = "cmsg" + (m.me ? " mine" : "");
   r.appendChild(avaFor(m));
   var b = document.createElement("div"); b.className = "bubble"; b.style.setProperty("--c", m.color);
+  if (mo) {                                           // in the group chat: the sender's name on top, in their icon's colour
+    var who = document.createElement("div"); who.className = "who"; who.textContent = m.name; b.appendChild(who);
+  }
   if (m.group) {                                      // two polaroids drop in, blurred with a loading ring, then come into focus
     var pw = document.createElement("div"); pw.className = "pics n" + Math.min(3, m.pics.length);
     m.pics.forEach(function (p, j) {
