@@ -1163,10 +1163,15 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   animation: ovIn .8s ease both;
 }
 #poemClose { position: fixed; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 14px); right: max(16px, env(safe-area-inset-right, 0px)); }
-.poem-heart { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 2; transition: opacity .8s ease, transform .8s ease; }
-.poem-heart svg { width: 96px; height: 96px; fill: #fff; filter: drop-shadow(0 0 22px rgba(255,255,255,.55)); animation: heartBeat 1.1s ease-in-out 2; }
-.poem-heart.gone { opacity: 0; transform: scale(.6); }
-@keyframes heartBeat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+/* the whole kavidhai fades in together; your message waits below until she reaches it */
+#poem .reveal-line { opacity: 0; transform: none; filter: none; transition: opacity 2s ease; }
+#poem .reveal-line.on { opacity: 1; }
+#poem .poem-wish.reveal-line, #poem .poem-actions.reveal-line { transform: translateY(14px); transition: opacity 1.4s ease, transform 1.4s ease; }
+#poem .poem-wish.reveal-line.on, #poem .poem-actions.reveal-line.on { transform: none; }
+.poem-more { position: fixed; z-index: 3; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); width: 40px; height: 40px; margin-left: -20px;
+  display: grid; place-items: center; color: var(--gold); font-size: 22px; line-height: 1; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+.poem-more.on { opacity: .85; animation: poemMore 1.8s ease-in-out infinite; }
+@keyframes poemMore { 50% { transform: translateY(5px); } }
 .poem-inner {
   max-width: 560px; margin: 0 auto; text-align: center;
   padding: calc(env(safe-area-inset-top, 0px) + 84px) 24px calc(env(safe-area-inset-bottom, 0px) + 64px);
@@ -1321,7 +1326,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 <!-- Gift three: the kavidhai -->
 <div id="poem" hidden role="dialog" aria-modal="true" aria-label="A poem for you">
   <button class="icon-btn" type="button" id="poemClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4 17.6 5 12 10.6z"/></svg></button>
-  <div class="poem-heart" id="poemHeart"></div>
+  <div class="poem-more" id="poemMore" aria-hidden="true">▾</div>
   <div class="poem-inner" id="poemInner"></div>
 </div>
 
@@ -1347,7 +1352,7 @@ var CONFIG = {
   // Background song. Put the mp3 next to index.html. It starts when box 1 is opened and keeps playing.
   song: "sounds/next-eppo-meet-pannalam.mp3",   // plays once with the photo story (box 1)
   chatSong: "sounds/gift2-bgm.mp3",   // soft background music for box 2 (the friends' wishes); loops quietly while she reads
-  poemSong: "sounds/gift3-bgm.mp3",   // slow instrumental for box 3 (the kavidhai): low under the lines, swells at the birthday wish
+  poemSong: "sounds/gift3-bgm.mp3",   // music for box 3 (the kavidhai): starts when the box is tapped, swells at your birthday message
   songStart: 0,                  // start the song at this many seconds (e.g. 42 to jump to the chorus)
 
   // Gift one: the photo story. Photos go in the "photos" folder as photo1, photo2 … photo8, in the order they appear.
@@ -4119,6 +4124,7 @@ function unwrap(i, holdDimEl) {
   busy[i] = true;
   hints[i].textContent = "";
   if (CONFIG.gifts[i].kind === "photos") startSong();
+  if (CONFIG.gifts[i].kind === "poem") BGM3.start(BGM3_VOL.read, 500);   // box 3's music starts the moment the box is tapped
   document.body.classList.add("no-scroll");
 
   // Build the stage: dim backdrop, spotlight cone, floor glow, a copy of the box, and the light beam
@@ -4163,7 +4169,6 @@ function unwrap(i, holdDimEl) {
     chime();
     sparkles(copy, 30);
     if (CONFIG.gifts[i].kind === "chat") bgm2Start();   // box 2's music starts with the burst of sparkles
-    if (CONFIG.gifts[i].kind === "poem") BGM3.start(BGM3_VOL.low);   // and box 3's too
   }, 80);
   setTimeout(function () {
     beam.classList.add("up");
@@ -4735,12 +4740,12 @@ function makeBgm(src) {
       if (n >= steps) { clearInterval(B.fadeT); if (stop) { a.pause(); try { a.currentTime = 0; } catch (e) {} } }
     }, 80);
   };
-  B.start = function (vol) {                         // already playing: carry on
+  B.start = function (vol, fadeMs) {                 // already playing: carry on
     var a = B.a; if (!a || B.on) return;
     B.on = true;
     try { a.volume = 0; a.currentTime = 0; } catch (e) {}
     var p = a.play(); if (p && p.catch) p.catch(function () {});
-    B.to(vol, 2200);
+    B.to(vol, fadeMs || 2200);
   };
   B.stop = function () { if (!B.a || !B.on) return; B.on = false; B.to(0, 2000, true); };
   return B;
@@ -4754,7 +4759,7 @@ function bgm2Stop() { BGM2.stop(); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
 var BGM3 = makeBgm(CONFIG.poemSong);
-var BGM3_VOL = { low: .26, sign: .38, swell: .6, after: .34 };
+var BGM3_VOL = { read: .42, swell: .62, after: .42 };
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
@@ -5014,10 +5019,12 @@ $("chatClose").addEventListener("click", closeChat);
 $("chatBack").addEventListener("click", chatList);
 
 /* ---------- Gift three: the kavidhai, then a birthday message ---------- */
-var poemRun = 0, poemShowAll = null;
-function openPoem(i, withHeart) {
-  var g = CONFIG.gifts[i], run = ++poemRun;
-  var inner = $("poemInner"), heart = $("poemHeart");
+// Gift three: the whole kavidhai fades in at once and she reads it at her own pace.
+// Your birthday message waits below and comes in (with the music swell and confetti) when she scrolls down to it.
+var POEM = { run: 0, wait: null };
+function openPoem(i, again) {
+  var g = CONFIG.gifts[i], run = ++POEM.run;
+  var inner = $("poemInner"), box = $("poem"), more = $("poemMore");
   var lines = String(g.poem || "").split("\n");
   var html = '<p class="poem-eyebrow reveal-line">' + esc(g.eyebrow || "") + '</p><div class="poem-lines">';
   lines.forEach(function (l) {
@@ -5029,61 +5036,46 @@ function openPoem(i, withHeart) {
     '<div class="poem-actions reveal-line" id="poemActions"><button class="btn-ghost" type="button" id="poemAgain">Read again</button>' +
     '<button class="btn-gold" type="button" id="poemDone">Back to the boxes</button></div>';
   inner.innerHTML = html;
-  $("poemAgain").addEventListener("click", function () { $("poem").scrollTop = 0; openPoem(i, false); });
+  $("poemAgain").addEventListener("click", function () { box.scrollTop = 0; openPoem(i, true); });
   $("poemDone").addEventListener("click", closePoem);
-  $("poem").hidden = false; $("poem").scrollTop = 0;
+  box.hidden = false; box.scrollTop = 0;
   document.body.classList.add("no-scroll", "overlay-open");
   $("poemClose").focus();
-
-  var items = inner.querySelectorAll(".reveal-line");
-  var signIdx = items.length - 3, wishIdx = items.length - 2;
-  var shown = 0, celebrated = false;
-  BGM3.start(BGM3_VOL.low);                          // usually already playing from the box burst
-  function celebrate() {
-    if (celebrated) return; celebrated = true;
+  BGM3.start(BGM3_VOL.read);                          // already playing from the moment the box was tapped
+  var wish = $("poemWish"), acts = $("poemActions"), t0 = Date.now(), done = false;
+  more.classList.remove("on");
+  // the kavidhai, the heading and your name: all together
+  setTimeout(function () {
+    if (run !== POEM.run) return;
+    Array.prototype.forEach.call(inner.querySelectorAll(".reveal-line"), function (el) {
+      if (el !== wish && el !== acts) el.classList.add("on");
+    });
+  }, again ? 0 : 300);
+  function reveal(quiet) {
+    if (done || run !== POEM.run) return; done = true; POEM.wait = null;
+    more.classList.remove("on");
+    wish.classList.add("on");
+    setTimeout(function () { if (run === POEM.run) acts.classList.add("on"); }, quiet ? 0 : 1600);
+    if (quiet) return;
     confetti(innerWidth / 2, innerHeight * .4, 170);
-    BGM3.to(BGM3_VOL.swell, 1500);                     // the music swells with the birthday wish…
+    BGM3.to(BGM3_VOL.swell, 1500);                    // the music swells with your message…
     setTimeout(function () { if (BGM3.on) BGM3.to(BGM3_VOL.after, 4000); }, 5000);   // …then settles
   }
-  function follow(el) {
-    var r = el.getBoundingClientRect();
-    if (r.bottom > innerHeight * .78) $("poem").scrollTo({ top: $("poem").scrollTop + r.bottom - innerHeight * .6, behavior: "smooth" });
-  }
-  function next() {
-    if (run !== poemRun || shown >= items.length) { poemShowAll = null; return; }
-    var el = items[shown++];
-    el.classList.add("on");
-    follow(el);
-    if (shown - 1 === wishIdx) celebrate();
-    else if (shown - 1 === signIdx - 1) BGM3.to(BGM3_VOL.sign, 1400);   // a little rise in the pause before the signature
-    var d;
-    if (shown - 1 === signIdx - 1) d = 1400;                     // pause before the signature
-    else if (shown - 1 === signIdx) d = 1800;                    // pause before the birthday message
-    else if (shown - 1 === wishIdx) d = 1500;
-    else if (el.classList.contains("gap")) d = 500;
-    else d = Math.max(1100, Math.min(2600, 700 + el.textContent.length * 40));
-    if (reducedMotion) d = 150;
-    setTimeout(next, d);
-  }
-  poemShowAll = function () {
-    if (run !== poemRun) return;
-    poemRun++; poemShowAll = null;
-    heart.classList.add("gone");
-    Array.prototype.forEach.call(items, function (el) { el.classList.add("on"); });
-    celebrate();
+  if (again) { reveal(true); return; }               // "Read again": everything is there, nothing to wait for
+  // has she reached your message? (checked as she scrolls)
+  POEM.wait = function () {
+    if (wish.getBoundingClientRect().top < box.clientHeight * .82)
+      setTimeout(reveal, Math.max(0, 3000 - (Date.now() - t0)));   // never in the first few seconds of a quick fling
   };
-  heart.innerHTML = "";
-  heart.classList.remove("gone");
-  if (withHeart && !reducedMotion) {
-    heart.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + HEART + '"/></svg>';
-    setTimeout(function () { if (run === poemRun) heart.classList.add("gone"); }, 2300);
-    setTimeout(next, 2900);
-  } else {
-    setTimeout(next, 400);
-  }
+  setTimeout(function () {
+    if (run !== POEM.run || done) return;
+    if (wish.getBoundingClientRect().top < box.clientHeight * .82) {
+      POEM.wait = null; setTimeout(reveal, 15000 - 600);          // it all fits on the screen (laptop): give her time to read first
+    } else more.classList.add("on");                               // there's more below: a soft ▾
+  }, 600);
 }
 function closePoem() {
-  poemRun++; poemShowAll = null;
+  POEM.run++; POEM.wait = null; $("poemMore").classList.remove("on");
   BGM3.stop();                                        // fades out over 2 seconds
   $("poem").hidden = true;
   document.body.classList.remove("no-scroll", "overlay-open");
@@ -5091,8 +5083,9 @@ function closePoem() {
   maybeFinale();
 }
 $("poemClose").addEventListener("click", closePoem);
-$("poem").addEventListener("click", function (e) {
-  if (poemShowAll && !e.target.closest("button")) poemShowAll();
+$("poem").addEventListener("scroll", function () {
+  if ($("poem").scrollTop > 30) $("poemMore").classList.remove("on");
+  if (POEM.wait) POEM.wait();
 });
 
 /* ---------- Candles ---------- */
