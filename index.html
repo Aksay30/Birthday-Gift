@@ -947,6 +947,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   background: radial-gradient(ellipse at 50% 45%, rgba(10,6,24,.55) 0%, rgba(10,6,24,.3) 45%, rgba(10,6,24,0) 72%); pointer-events: none; }
 .ride-say.big #rideLine, .ride-say.big .ride-hint { text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 18px rgba(10,6,24,.7); }
 .ride-say.big #rideLine { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8.5vw, 60px); line-height: 1; letter-spacing: -.02em; max-width: 14ch; }
+.ride-say.big #rideLine { color: var(--gold); text-shadow: 0 2px 4px rgba(10,6,24,.8), 0 2px 18px rgba(10,6,24,.7), 0 0 26px rgba(244,197,90,.35); }   /* the birthday title in warm gold, with a faint glow */
 /* the closing line: gold handwriting that appears word by word, with a soft glow */
 .far-line { margin: 14px 0 0; font-family: var(--hand); font-weight: 700; font-size: clamp(24px, 6.2vw, 34px); line-height: 1.15; color: #ffd98a; max-width: 22ch; text-wrap: balance;
   text-shadow: 0 2px 4px rgba(10,6,24,.85), 0 0 22px rgba(255,200,110,.45); }
@@ -4910,7 +4911,7 @@ function bgm2Stop() { BGM2.stop(3000); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
 var BGM3 = makeBgm(CONFIG.poemSong, true);   // a short clip: it fades out at its end and gently starts again
-var BGM3_VOL = { read: .26, swell: .4, after: .28 };   // gentle: soft while she reads, a little lift at your message
+var BGM3_VOL = { read: .13, swell: .2, after: .15 };   // very gentle: barely there while she reads, a small lift at your message
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
