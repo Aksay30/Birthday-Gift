@@ -271,18 +271,6 @@ button { font: inherit; cursor: pointer; }
 .hint { margin: 12px 0 0; font-family: var(--hand); font-size: 22px; color: var(--ink-soft); line-height: 1.2; }
 .envelope.opening { animation: liftAway .8s cubic-bezier(.6,-0.2,.7,.4) forwards; }
 @keyframes liftAway { to { transform: translateY(-40px) scale(.92); opacity: 0; } }
-/* the right date: the wax seal trembles, cracks in two, and a warm glow spills out before the envelope lifts away */
-.seal.crack { animation: sealShake .22s ease-in-out; }
-@keyframes sealShake { 25% { transform: rotate(-6deg) scale(1.06); } 50% { transform: rotate(5deg) scale(1.08); } 75% { transform: rotate(-3deg) scale(1.05); } }
-.seal-half { position: fixed; z-index: 3; margin: 0; pointer-events: none; transition: transform .9s cubic-bezier(.4,.1,.7,1), opacity .9s ease-in; }
-.seal-half.l { clip-path: polygon(0 0, 53% 0, 45% 28%, 57% 50%, 46% 73%, 54% 100%, 0 100%); }
-.seal-half.r { clip-path: polygon(53% 0, 100% 0, 100% 100%, 54% 100%, 46% 73%, 57% 50%, 45% 28%); }
-.seal-half.l.go { transform: translate(-30px, 46px) rotate(-32deg); opacity: 0; }
-.seal-half.r.go { transform: translate(30px, 46px) rotate(30deg); opacity: 0; }
-.seal-glow { position: fixed; z-index: 2; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255,240,200,.95) 0%, rgba(255,205,130,.55) 38%, rgba(255,190,110,0) 70%);
-  transform: scale(.2); opacity: 0; animation: sealGlow 1.1s ease-out forwards; }
-@keyframes sealGlow { 25% { opacity: 1; } 100% { transform: scale(5); opacity: 0; } }
 /* now and then a shooting star crosses the night sky behind the envelope */
 .lock-shoot { position: fixed; z-index: 0; width: 130px; height: 2px; border-radius: 2px; pointer-events: none; transform-origin: 100% 50%;
   background: linear-gradient(90deg, rgba(255,255,255,0), rgba(220,230,255,.55) 70%, #fff);
@@ -1517,6 +1505,7 @@ var CONFIG = {
     placeholder: "Write anything you'd like to tell me…",
     button: "Give it to him",
     thanks: "Thank you. This means so much to me.",     // what he says after reading it
+    later: "Okay. Maybe next time.",                  // what he says if she taps "Not now" (then the journey ends as usual)
     bye: "Byee."                                      // …then this with a big wave, and fades away in sparkles
   },
 
@@ -1762,39 +1751,6 @@ function lockShoot(wait) {
     lockShoot(rand(8000, 12000));
   }, wait);
 }
-// the right date: the wax seal cracks in two with a soft snap, a warm glow spills out, then the envelope lifts away
-function sealBreak(then) {
-  var seal = $("sealInitial");
-  if (reducedMotion || !seal) { then(); return; }
-  seal.classList.add("crack");
-  setTimeout(function () {
-    var r = seal.getBoundingClientRect();
-    ["l", "r"].forEach(function (side) {
-      var h = seal.cloneNode(true); h.removeAttribute("id"); h.className = "seal seal-half " + side;
-      h.style.left = r.left + "px"; h.style.top = r.top + "px"; h.style.width = r.width + "px"; h.style.height = r.height + "px";
-      document.body.appendChild(h);
-      void h.offsetWidth; h.classList.add("go");
-      setTimeout(function () { h.remove(); }, 1000);
-    });
-    seal.style.visibility = "hidden";
-    var g = document.createElement("span"); g.className = "seal-glow";
-    g.style.left = (r.left + r.width / 2) + "px"; g.style.top = (r.top + r.height / 2) + "px";
-    document.body.appendChild(g); setTimeout(function () { g.remove(); }, 1200);
-    sealSnap();
-    setTimeout(chime, 180);
-  }, 230);
-  setTimeout(then, 230 + 650);
-}
-function sealSnap() {                                   // a short, dry crack
-  try {
-    if (!sfxOK()) return;
-    var t = audioCtx.currentTime, n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
-    n.buffer = noiseBuf(.14); f.type = "bandpass"; f.frequency.value = 2300; f.Q.value = 1.1;
-    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(.32, t + .004); g.gain.exponentialRampToValueAtTime(.001, t + .12);
-    n.connect(f); f.connect(g); g.connect(audioCtx.destination); n.start(t);
-  } catch (e) {}
-}
-
 /* ---------- Lock screen ---------- */
 var dd = $("dd"), mm = $("mm"), yyyy = $("yyyy"), fields = [dd, mm, yyyy];
 fields.forEach(function (f, i) {
@@ -1818,7 +1774,8 @@ $("lockForm").addEventListener("submit", function (e) {
   if (!dd.value || !mm.value || yyyy.value.length !== 4) { $("msg").textContent = "Fill in the day, month and a four-digit year."; return; }
   if (cyrb53(pad(+dd.value) + pad(+mm.value) + yyyy.value) === PASS_HASH) {
     $("msg").textContent = "";
-    sealBreak(function () { env.classList.add("opening"); setTimeout(openParty, 750); });
+    env.classList.add("opening");
+    setTimeout(openParty, 750);
   } else {
     $("msg").textContent = wrongLines[Math.min(tries, wrongLines.length - 1)];
     tries++;
@@ -3809,7 +3766,7 @@ var NB = { spot: null, hint: null, ov: null, page: null, ta: null, give: null, s
     try { localStorage.setItem("bdayReplyDraft", NB.ta.value); } catch (e) {}      // her words are kept if she closes it
   });
   spot.addEventListener("click", nbOpen);
-  ov.querySelector(".nb-later").addEventListener("click", nbClose);
+  ov.querySelector(".nb-later").addEventListener("click", nbLater);
   ov.addEventListener("keydown", function (e) { if (e.key === "Escape") nbClose(); });
   NB.give.addEventListener("click", nbGive);
   var fin = document.createElement("div"); fin.className = "sky-final"; fin.hidden = true; R.el.appendChild(fin); NB.final = fin;
@@ -3947,6 +3904,20 @@ function nbClose() {
     meTo({ note: 2.3, noteBack: 1, hLx: 19, hLy: 57.5, hRx: 41, hRy: 57.5, gy: 0 }, 260);   // he holds it up again
     ME.el.classList.add("nb-glow"); NB.spot.classList.add("on");
     meSay(CONFIG.reply.ask, false); nbTapLine();
+  });
+}
+// "Not now": he takes the notebook back with a smile, tucks it in his pocket, and the journey ends as usual
+function nbLater() {
+  if (NB.busy || !NB.open) return;
+  NB.open = false; NB.done = true; clearInterval(NB.bounceT);
+  nbShrink(function () {
+    NB.spot.hidden = true; NB.hint.hidden = true; ME.el.classList.remove("nb-glow");
+    meTo({ note: 1.4, noteBack: 1, hLx: 26.6, hLy: 51, hRx: 33.4, hRy: 51, gy: 0, tilt: 3, smile: .8 }, 300);   // takes it back
+    meAt(400, function () { meSay(CONFIG.reply.later, false); });
+    meAt(2900, function () { meSay(""); meTo({ hLx: 34, hLy: 53.4, hRx: 37.2, hRy: 52.6, note: .7, tilt: 0 }, 380); });   // into his shirt pocket
+    meAt(3320, function () { meTo({ note: 0, hLx: 17.6, hLy: 67.4 }, 260); });
+    meAt(3800, function () { meTo({ hRx: 42.4, hRy: 67.4, noteBack: 0, smile: 1 }, 300); });
+    meAt(4300, busLeaves);
   });
 }
 function nbGive() {
@@ -4089,9 +4060,7 @@ function endTicket() {
   R.el.appendChild(t);
   whoosh();
   endingSongTo(END_VOL.stamp, 3800);                  // fullest as the ticket is stamped
-  setTimeout(function () {                            // once the song has played to its end, a faint "Ride again" appears
-    var w = setInterval(function () { if (!ENDSONG.on) { clearInterval(w); setTimeout(rideAgain, 3000); } }, 500);
-  }, 3900 + 4000);
+  setTimeout(rideAgain, 3900 + 3000);                 // a faint "Ride again" 3s after the stamp, while the song plays on
   setTimeout(function () { t.querySelector(".stamp").classList.add("on"); boxDrop(.5); }, 3200 + 700);   // the conductor's stamp, one last time
 }
 function rideAgain() {
@@ -4247,7 +4216,6 @@ function unwrap(i, holdDimEl) {
   busy[i] = true;
   hints[i].textContent = "";
   if (CONFIG.gifts[i].kind === "photos") startSong();
-  if (CONFIG.gifts[i].kind === "poem") BGM3.start(BGM3_VOL.read, 500);   // box 3's music starts the moment the box is tapped
   document.body.classList.add("no-scroll");
 
   // Build the stage: dim backdrop, spotlight cone, floor glow, a copy of the box, and the light beam
@@ -4291,7 +4259,6 @@ function unwrap(i, holdDimEl) {
     copy.classList.add("burst");
     chime();
     sparkles(copy, 30);
-    if (CONFIG.gifts[i].kind === "chat") bgm2Start();   // box 2's music starts with the burst of sparkles
   }, 80);
   setTimeout(function () {
     beam.classList.add("up");
@@ -4868,8 +4835,6 @@ addEventListener("keydown", function (e) {
 });
 
 /* ---------- Gift two: friends' group chat ---------- */
-/* Gift two's background music: fades in as the box opens, plays fully while the wishes arrive,
-   drops very soft while she reads, rises a little when your own message arrives, fades out when she closes it */
 /* A looping background song with gentle volume glides. Missing file = simply stays quiet. */
 function makeBgm(src, breath) {
   // breath: instead of a hard loop, the song fades out over its last 2 s, rests half a second,
@@ -4931,13 +4896,16 @@ function makeBgm(src, breath) {
   return B;
 }
 var BGM2 = makeBgm(CONFIG.chatSong);
-// Box 2's music: fades in as the box bursts open and stays while the wishes pop in; fades to silence once she
-// opens a friend's chat (she reads them in quiet); starts again from the beginning when she opens "All of us",
-// playing through the photos and your message; fades out gently when she closes the chat
-var BGM2_VOL = { full: .5 };
+// Box 2's music: silent while the wishes arrive; begins very softly when she opens her first friend's chat and
+// stays soft under every chat; rises gently (never loud) for "All of us"; fades out when she closes the chat
+var BGM2_VOL = { read: .14, all: .28 };   // read: barely there under her friends' words; all: a gentle lift, never loud
 function bgm2Prime() { BGM2.prime(); }
 function bgm2To(vol, ms) { BGM2.to(vol, ms); }
-function bgm2Start() { BGM2.start(BGM2_VOL.full, 1000); }
+function bgm2For(group) {
+  var v = group ? BGM2_VOL.all : BGM2_VOL.read;
+  if (!BGM2.on) BGM2.start(v, 4000);                  // the first chat she opens: the music begins, very slowly
+  else BGM2.to(v, group ? 5000 : 3000);               // then it only glides between the two levels
+}
 function bgm2Stop() { BGM2.stop(3000); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
@@ -5007,7 +4975,6 @@ function openChat(i) {
   document.body.classList.add("no-scroll", "overlay-open");
   chatList();
   $("chatClose").focus();
-  bgm2Start();                                        // usually already playing from the box burst; starts here if not
   for (var k = 0; k < F; k++) (function (k) {
     setTimeout(function () {
       if (run !== chatRun) return;
@@ -5205,8 +5172,7 @@ function chatConvo(k) {
   m.read = !(m.group && m.after && !m.afterShown);      // "All of us" stays unread until she has seen your message in it
   chat.view = k;
   liftStop();
-  if (m.group) { chat.gpOpened = true; BGM2.start(BGM2_VOL.full, 2000); }   // "All of us": the song starts again from the beginning
-  else if (!chat.gpOpened) BGM2.stop(2000);             // a friend's chat: the music fades to silence while she reads
+  bgm2For(m.group);                                   // soft under a friend's words, a gentle lift for "All of us"
   if (!m.me && allReadSoFar()) chatLateSoon(m.group ? 20000 : 2000);   // the next one, 2 s after the last chat opens (after the photos for "All of us")
   var body = $("chatBody");
   body.className = "chat-body"; void body.offsetWidth; body.classList.add("convo");
@@ -5324,7 +5290,7 @@ function openPoem(i, again) {
   box.hidden = false; box.scrollTop = 0;
   document.body.classList.add("no-scroll", "overlay-open");
   $("poemClose").focus();
-  BGM3.start(BGM3_VOL.read);                          // already playing from the moment the box was tapped
+  setTimeout(function () { if (run === POEM.run) BGM3.start(BGM3_VOL.read, 4000); }, again ? 0 : 2300);   // once the kavidhai has faded in, the music rises slowly
   var wish = $("poemWish"), acts = $("poemActions"), t0 = Date.now(), done = false;
   more.classList.remove("on");
   // the kavidhai, the heading and your name: all together
