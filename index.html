@@ -1430,7 +1430,7 @@ var CONFIG = {
     finalTitle: "Happy Birthday, {name}!",
     // The very end: his sparkles become a new star, the scene dims, and a Bus 28 ticket floats down
     endTicket: { from: "15.09.2023", to: "02.12.2026", stamp: "Journey complete" },
-    farLine: "Even from far away, I'm celebrating you today.",   // writes itself in while the song's last lines play
+    farLine: "Even from far away, I'm celebrating you today.",   // writes itself in after the candles; the birthday tune fades once it is complete
   },
 
   gifts: [
@@ -3637,7 +3637,11 @@ function allOut() {
     var ended = false;
     function fwDone() { if (ended) return; ended = true; BDAY.finish(quiet); }   // the tune ends with the fireworks, then all goes quiet
     BDAY.start(); BDAY.brighter();           // (started with the instruction; a little brighter now)
-    setTimeout(showFarLine, 3200);           // the closing line writes itself in…
+    setTimeout(function () {                 // the closing line writes itself in…
+      showFarLine();
+      var words = String(RC.farLine || "").split(/\s+/).length;
+      setTimeout(function () { BDAY.finish(); }, (reducedMotion ? 0 : (words - 1) * 320) + 900 + 300);   // …and once it is all there, the tune fades away
+    }, 3200);
     setTimeout(function () { fireworksShow(fwDone); }, 5600);   // …then the fireworks
     setTimeout(fwDone, 45000);               // in case the fireworks' end is never reported
   }, 1300);
