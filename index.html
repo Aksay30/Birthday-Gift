@@ -2239,7 +2239,7 @@ function skyMoonStart(fromEl) {
   el.style.left = "0"; el.style.top = "0";
   shape.setAttribute("d", MOON.shapeAt(0)); shape.setAttribute("fill", "#ffffff"); detail.setAttribute("opacity", "0");
   el.classList.remove("formed"); el.classList.add("front"); el.hidden = false;
-  var POP = 520, RISE = reducedMotion ? 10 : 3400, MORPH = reducedMotion ? 10 : 2600, t0 = null, lastSpark = 0, ringed = false;
+  var POP = 520, RISE = reducedMotion ? 10 : 3400, MORPH = reducedMotion ? 10 : 2600, t0 = null, lastSpark = 0, ringed = false, shimmered = false;
   function ease(k) { return k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
   function bez(a, b, c, d, k) { var u = 1 - k; return u * u * u * a + 3 * u * u * k * b + 3 * u * k * k * c + k * k * k * d; }
   function mix(c1, c2, k) { return "rgb(" + [0, 1, 2].map(function (i) { return Math.round(c1[i] + (c2[i] - c1[i]) * k); }).join(",") + ")"; }
@@ -2262,10 +2262,11 @@ function skyMoonStart(fromEl) {
       }
     } else {                                                           // 3. in place: it glows, its outline rounds into a circle, the moon's face appears
       var m = Math.min(1, (e - POP - RISE) / MORPH);
+      if (!shimmered) { shimmered = true; if (!reducedMotion) moonShimmer(MORPH * .66 / 1000); }   // the shimmer grows as it rounds…
       x = end.x; y = end.y; sc = 1 + .06 * Math.sin(Math.min(1, m / .35) * Math.PI);   // one soft breath before it changes
       hk = ease(Math.max(0, Math.min(1, (m - .12) / .58)));
       glow = .45 + .25 * Math.sin(Math.min(1, m / .7) * Math.PI / 2);
-      if (hk >= .98 && !ringed) { ringed = true; var ring = el.querySelector(".sm-ring"); ring.classList.remove("go"); void ring.offsetWidth; ring.classList.add("go"); }
+      if (hk >= .98 && !ringed) { ringed = true; moonChime(); var ring = el.querySelector(".sm-ring"); ring.classList.remove("go"); void ring.offsetWidth; ring.classList.add("go"); }
       var dk = Math.max(0, Math.min(1, (m - .55) / .45));
       detail.setAttribute("opacity", dk.toFixed(3));
       shape.setAttribute("fill", mix([255, 255, 255], [243, 236, 212], hk));
@@ -3035,7 +3036,7 @@ function ticketCheck(done) {
     }
     // the right heart stays its own colour, just lifted like a hover
     if (el.classList.contains("tkt-spot")) el.classList.add("picked");
-    sfxPlay("drop", .45, 2.1);
+    else sfxPlay("drop", .45, 2.1);                    // (no thud when she picks the white heart: just the chime as it rises)
     qn++; wrong = 0; picking = true;
     if (qn < CONFIG.quiz.length) { comic("Correct! One more 😊"); setTimeout(function () { picking = false; render(); }, 1200); return; }
     quizPassed = true;
@@ -3223,6 +3224,35 @@ function dust(slot) {
 }
 /* Soft, natural sound effects (made in the browser, kept quiet so they sit under the song) */
 function sfxOK() { return audioCtx && audioCtx.state === "running"; }
+// The heart becoming the moon: a faint airy shimmer that grows with the glow (dur seconds), then melts away
+function moonShimmer(dur) {
+  try {
+    if (!sfxOK()) return;
+    var t = audioCtx.currentTime, n = audioCtx.createBufferSource(), f = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    var lfo = audioCtx.createOscillator(), lg = audioCtx.createGain(), tw = audioCtx.createGain();
+    n.buffer = noiseBuf(dur + .8); f.type = "bandpass"; f.frequency.setValueAtTime(3800, t); f.frequency.linearRampToValueAtTime(6500, t + dur); f.Q.value = .8;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.009, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + .6);
+    lfo.frequency.value = 7; lg.gain.value = .35; tw.gain.value = .65;              // a soft twinkling flutter
+    lfo.connect(lg); lg.connect(tw.gain);
+    n.connect(f); f.connect(tw); tw.connect(g); g.connect(audioCtx.destination);
+    n.start(t); lfo.start(t); n.stop(t + dur + .7); lfo.stop(t + dur + .7);
+  } catch (e) {}
+}
+// …and the moment it is the moon: one soft, sparkly "tiiing" (a small glass bell) with a gentle echo
+function moonChime() {
+  try {
+    if (!sfxOK()) return;
+    var t0 = audioCtx.currentTime, parts = [[1, 1, 1.6], [2, .3, .9], [2.76, .18, .6], [4.07, .08, .35]];
+    [[0, 1], [.28, .32], [.56, .13], [.84, .05]].forEach(function (echo) {
+      parts.forEach(function (p) {
+        var t = t0 + echo[0], o = audioCtx.createOscillator(), g = audioCtx.createGain(), peak = .02 * p[1] * echo[1];
+        o.type = "sine"; o.frequency.value = 1568 * p[0];
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + .006); g.gain.exponentialRampToValueAtTime(.00001, t + p[2] * 2.2);
+        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + p[2] * 2.2 + .05);
+      });
+    });
+  } catch (e) {}
+}
 function noiseBuf(sec) {
   var len = Math.round(audioCtx.sampleRate * sec), b = audioCtx.createBuffer(1, len, audioCtx.sampleRate), d = b.getChannelData(0);
   for (var q = 0; q < len; q++) d[q] = Math.random() * 2 - 1;
@@ -4911,7 +4941,7 @@ function bgm2Stop() { BGM2.stop(3000); }
 /* Gift three's music: starts with the sparkles, stays low under the lines, rises a little before
    the signature, swells at the birthday wish, then settles; fades out when she leaves the poem */
 var BGM3 = makeBgm(CONFIG.poemSong, true);   // a short clip: it fades out at its end and gently starts again
-var BGM3_VOL = { read: .13, swell: .2, after: .15 };   // very gentle: barely there while she reads, a small lift at your message
+var BGM3_VOL = { read: .07, swell: .11, after: .08 };   // very gentle: a whisper while she reads, the smallest lift at your message
 var chatRun = 0;
 var CHAT_COLORS = ["#ff8fa3", "#7dd3fc", "#fcd34d", "#86efac", "#c4b5fd", "#fdba74", "#f9a8d4", "#5eead4"];
 function fillName(t) { return String(t || "").replace(/\{name\}/g, CONFIG.friendName); }
