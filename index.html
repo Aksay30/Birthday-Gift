@@ -1667,7 +1667,6 @@ function restartSong() {                 // "Watch again": the song starts over 
   startSong();
 }
 var SONG_VOL = .75;                      // song loudness with the photos (0..1)
-var SONG_TAIL_VOL = .38;                 // song loudness after the candles: soft, under the birthday message
 function fadeSongIn() {
   var v = 0;
   try { song.volume = 0; } catch (e) {}
@@ -3530,6 +3529,7 @@ function sceneFinale() {
         if (F.done) return;
         countdown.classList.remove("pop", "fade");
         countdown.textContent = "And… blow out the candles!";         // …and the instruction appears in its place
+        BDAY.start();                                                     // the Happy Birthday tune begins
         countdown.classList.add("word");
       }, 450);
       setTimeout(function () { if (!F.done) blowAll(); }, 450 + 2300);    // a short pause to read it, then the candles go out
@@ -3558,27 +3558,63 @@ function blowOut(k) {
   F.out++;
   if (F.out >= F.candles.length) allOut();
 }
-// The last lines of the song, played once more, softly, under the birthday message
-function playSongTail(onEnd) {
-  if (songState === "failed" || !CONFIG.song || !isFinite(song.duration) || !song.duration) return false;
-  clearInterval(songFadeId);
-  var end = song.duration - SONG_SILENT_END;
-  try { song.pause(); song.currentTime = Math.max(0, end - SONG_TAIL); song.volume = 0; } catch (e) { return false; }
-  var p = song.play();
-  var go = function () {
-    songState = "playing"; FW_DUCK = .45;              // fireworks stay soft and distant while it plays
-    var v = 0;
-    songFadeId = setInterval(function () { v = Math.min(SONG_TAIL_VOL, v + .012); try { song.volume = v; } catch (e) {} if (v >= SONG_TAIL_VOL) clearInterval(songFadeId); }, 90);
-    var stopAt = setInterval(function () {             // ease out over the last 2 seconds, stop on the last sung note
-      var left = end - song.currentTime;
-      if (left < 2 && left > 0) { clearInterval(songFadeId); try { song.volume = SONG_TAIL_VOL * Math.max(0, left / 2); } catch (e) {} }
-      if (song.paused || left <= 0) { clearInterval(stopAt); try { song.pause(); } catch (e) {} songState = "paused"; FW_DUCK = 1; if (onEnd) onEnd(); }
-    }, 100);
+// After "And… blow out the candles!": a soft music-box Happy Birthday that repeats gently until the fireworks are over
+var BDAY_VOL = { soft: .55, full: .8 };   // overall loudness: soft while she blows, a little brighter with the fireworks
+var BDAY = (function () {
+  var N = { G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+  var MEL = [["G4",.75],["G4",.25],["A4",1],["G4",1],["C5",1],["B4",2],["G4",.75],["G4",.25],["A4",1],["G4",1],["D5",1],["C5",2],
+    ["G4",.75],["G4",.25],["G5",1],["E5",1],["C5",1],["B4",1],["A4",2],["F5",.75],["F5",.25],["E5",1],["C5",1],["D5",1],["C5",3]];
+  var BASS = { 0: "C", 6: "G", 12: "C", 19: "F", 21: "C", 23: "G", 24: "C" };   // a soft low note under the start of each phrase
+  var LOW = { C: 130.81, F: 174.61, G: 196 };
+  var BEAT = .46, B = { on: false, last: false, idx: 0, next: 0, timer: 0, master: null, bus: null };
+  function tine(f, t, v) {                           // one plucked music-box note: a bright sine that rings and fades
+    [[1, 1, 1.5], [2, .26, .6], [3, .07, .3]].forEach(function (p) {
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = f * p[0];
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * p[1], t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + p[2]);
+      o.connect(g); g.connect(B.bus); o.start(t); o.stop(t + p[2] + .05);
+    });
+  }
+  function pump() {                                  // schedules the next notes a little ahead, so they stay perfectly in time
+    var ahead = audioCtx.currentTime + .6;
+    while (B.next < ahead) {
+      if (B.idx >= MEL.length) { if (B.last) { clearInterval(B.timer); return; } B.idx = 0; B.next += BEAT * 1.5; }   // a breath, then again
+      var k = B.idx, n = MEL[B.idx++];
+      tine(N[n[0]] * 2, B.next, .07);                // an octave up: music-box bright
+      if (BASS[k]) tine(LOW[BASS[k]] * 2, B.next, .035);
+      B.next += n[1] * BEAT;
+    }
+  }
+  function left() {                                  // seconds until the current round's last note
+    var t = B.next - audioCtx.currentTime;
+    for (var i = B.idx; i < MEL.length; i++) t += MEL[i][1] * BEAT;
+    return Math.max(0, t - MEL[MEL.length - 1][1] * BEAT);
+  }
+  return {
+    get on() { return B.on; },
+    start: function () {
+      if (B.on || !sfxOK()) return;
+      try {
+        var m = audioCtx.createGain(), bus = audioCtx.createGain(), d = audioCtx.createDelay(1), fb = audioCtx.createGain(), wet = audioCtx.createGain();
+        m.gain.setValueAtTime(0, audioCtx.currentTime); m.gain.linearRampToValueAtTime(BDAY_VOL.soft, audioCtx.currentTime + 1.5);
+        d.delayTime.value = .31; fb.gain.value = .22; wet.gain.value = .28;   // a soft echo, for sparkle
+        bus.connect(m); bus.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(m); m.connect(audioCtx.destination);
+        B.master = m; B.bus = bus; B.on = true; B.last = false; B.idx = 0; B.next = audioCtx.currentTime + .15;
+        FW_DUCK = .45;                                 // fireworks stay soft and distant under the tune
+        pump(); B.timer = setInterval(pump, 120);
+      } catch (e) { B.on = false; }
+    },
+    brighter: function () { if (B.on) B.master.gain.setTargetAtTime(BDAY_VOL.full, audioCtx.currentTime, .7); },
+    finish: function (onEnd) {                       // the fireworks are over: end on the last note of this round, or fade if that is far away
+      if (!B.on) { if (onEnd) onEnd(); return; }
+      B.on = false;
+      var m = B.master, now = audioCtx.currentTime, rest = left(), ms;
+      if (rest <= 6) { B.last = true; ms = (rest + 2.2) * 1000; }
+      else { m.gain.setTargetAtTime(0, now, .9); ms = 3500; }
+      setTimeout(function () { clearInterval(B.timer); try { m.disconnect(); } catch (e) {} FW_DUCK = 1; if (onEnd) onEnd(); }, ms);
+    }
   };
-  if (p && p.then) p.then(go).catch(function () { synthTune(); });
-  else go();
-  return true;
-}
+})();
 // "Even from far away, I'm celebrating you today." appears word by word, like it's being written
 function showFarLine() {
   var el = $("farLine"), text = RC.farLine;
@@ -3609,11 +3645,12 @@ function allOut() {
     setTimeout(function () { var h = $("rideHint"); h.textContent = CONFIG.finaleWish; h.hidden = false; }, 400);
     var quietOnce = false;
     function quiet() { if (quietOnce) return; quietOnce = true; fireworksStop(); sceneQuiet(); }   // the song has ended: all goes quiet
-    var tail = playSongTail(quiet);          // the song's last lines come back softly…
-    if (!tail && songState !== "playing") synthTune();
-    setTimeout(showFarLine, tail ? 3200 : 2400);   // …and the closing line writes itself in
-    setTimeout(function () { fireworksShow(quiet); }, tail ? 5600 : 4200);  // fireworks once the line has been read
-    setTimeout(quiet, tail ? (SONG_TAIL + 6) * 1000 : 14000);           // in case the song's end is never reported
+    var ended = false;
+    function fwDone() { if (ended) return; ended = true; BDAY.finish(quiet); }   // the tune ends with the fireworks, then all goes quiet
+    BDAY.start(); BDAY.brighter();           // (started with the instruction; a little brighter now)
+    setTimeout(showFarLine, 3200);           // the closing line writes itself in…
+    setTimeout(function () { fireworksShow(fwDone); }, 5600);   // …then the fireworks
+    setTimeout(fwDone, 45000);               // in case the fireworks' end is never reported
   }, 1300);
 }
 
@@ -4580,7 +4617,6 @@ function endingSong() {
 }
 function endingSongTo(v, ms) { if (ENDSONG.on && !ENDSONG.fading) songRamp(v, ms); }
 var SONG_SILENT_END = 3;                 // the song file ends with about 3 seconds of silence
-var SONG_TAIL = 13;                      // seconds of singing replayed softly after the candles
 function fitPhotosToSong(fromBox, n) {
   var full = isFinite(song.duration) && song.duration > 0 && songState !== "failed" ? song.duration : 0;
   if (!full || !n) return BASE_DUR;
