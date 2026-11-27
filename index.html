@@ -1145,6 +1145,12 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .pics.n3 .cpola:nth-child(1) { --r: -9deg; margin-top: 14px; }
 .pics.n3 .cpola:nth-child(2) { --r: 1deg; z-index: 1; }
 .pics.n3 .cpola:nth-child(3) { --r: 8deg; margin-top: 16px; }
+.pics.n4 { padding: 12px 22px 8px; }
+.pics.n4 .cpola { width: min(20vw, 100px); margin: 0 -10px; }       /* four: a wider fan */
+.pics.n4 .cpola:nth-child(1) { --r: -11deg; margin-top: 18px; }
+.pics.n4 .cpola:nth-child(2) { --r: -3deg; margin-top: 4px; z-index: 1; }
+.pics.n4 .cpola:nth-child(3) { --r: 4deg; z-index: 2; }
+.pics.n4 .cpola:nth-child(4) { --r: 11deg; margin-top: 16px; }
 .cpola:active { transform: rotate(var(--r)) scale(.97); }
 .cpola:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .cpola .pf { position: relative; display: block; height: 0; padding-top: 100%; overflow: hidden; background: #2a2147; }
@@ -1159,6 +1165,29 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
 .cpola.drop { animation: cpolaDrop .7s cubic-bezier(.3,1.4,.5,1) var(--d, 0s) both; }
 @keyframes cpolaDrop { from { opacity: 0; transform: translateY(-60px) rotate(calc(var(--r) * -2.5)) scale(1.1); } }
 /* one by one, each polaroid lifts out of the fan, grows, and its caption writes itself on the strip; then it drops back */
+/* your funny photos: a little scrapbook strip, each photo taped on; they load and lift one after another */
+.pics.scrap { position: relative; padding: 16px 12px 10px; margin: 2px 0 0; border-radius: 4px; justify-content: center;
+  background: #fbf5e6 repeating-linear-gradient(to bottom, transparent 0, transparent 19px, rgba(120,150,200,.22) 19px, rgba(120,150,200,.22) 20px);
+  box-shadow: inset 0 0 18px rgba(160,120,60,.18); }
+.pics.scrap::before { content: ""; position: absolute; left: 12px; top: 0; bottom: 0; width: 1px; background: rgba(220,110,110,.35); }
+.pics.scrap .cpola { width: min(16vw, 72px); margin: 0 -3px; padding: 3px 3px 13px; border-radius: 1px; box-shadow: 0 3px 7px rgba(60,40,20,.3); }
+.pics.scrap .cpola:nth-child(1) { --r: -8deg; margin-top: 8px; }
+.pics.scrap .cpola:nth-child(2) { --r: 4deg; margin-top: 0; z-index: 1; }
+.pics.scrap .cpola:nth-child(3) { --r: -3deg; margin-top: 9px; z-index: 2; }
+.pics.scrap .cpola:nth-child(4) { --r: 7deg; margin-top: 2px; }
+.pics.scrap .ring { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+.tape { position: absolute; z-index: 1; left: 50%; top: -6px; width: 34px; height: 11px; margin-left: -17px; opacity: .9; pointer-events: none;
+  transform: rotate(var(--t, -4deg)); box-shadow: 0 1px 2px rgba(0,0,0,.12); clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 50%); }
+.tape.t1 { --t: -5deg; background: repeating-radial-gradient(circle at 4px 4px, #fff 0 1.4px, transparent 1.8px 7px), #f6a5c0; }
+.tape.t2 { --t: 4deg; background: repeating-linear-gradient(45deg, #a8e6cf 0 5px, #c9f2e0 5px 10px); }
+.tape.t3 { --t: -3deg; background: #ffe08a linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px) 0 0 / 6px 100%; }
+.tape.t4 { --t: 6deg; background: repeating-linear-gradient(-45deg, #cdb8ff 0 4px, #e2d6ff 4px 8px); }
+.cpola.wait .ring .fill { animation: none; stroke-dashoffset: 70; }          /* still waiting its turn: a small spinning arc */
+.cpola.wait .ring { animation: ringSpin 1s linear infinite; }
+@keyframes ringSpin { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }
+.clift .tape { top: -12px; width: 92px; height: 26px; margin-left: -46px; transform-origin: 0 50%;
+  animation: tapePeel .7s ease .15s both; }                                   /* as the photo lifts, its tape peels up */
+@keyframes tapePeel { from { transform: rotate(var(--t)); } to { transform: rotate(calc(var(--t) - 12deg)) translateY(-6px); } }
 .clift-dim { position: absolute; inset: 0; z-index: 5; background: rgba(8,6,20,.55); opacity: 0; transition: opacity .5s ease; pointer-events: none; }
 .clift-dim.on { opacity: 1; }
 .clift { position: absolute; z-index: 6; left: 0; top: 0; width: min(78vw, 330px); padding: 12px 12px 0; border-radius: 4px; background: #fffdf6;
@@ -1448,6 +1477,11 @@ var CONFIG = {
       groupName: "Birthday wishes for {name} 🎉",
       // Your own message. It arrives as a new chat only after all the friends' chats are read. Leave "" to skip it.
       closing: "All these people, all this love, all for you.\nOne more surprise left.",
+      // Your funny photos, sent by you in "All of us" after the group photos and before your closing line.
+      // A caption per photo is optional ("" = none); it writes itself on the polaroid as the photo lifts.
+      funny: { text: "Evidence that you're not always this pretty 😂\nYour other side, the one I love just as much.",
+        photos: [ { src: "Photos/funny1.jpg", caption: "Caught in 4K 📸" }, { src: "Photos/funny2.jpg", caption: "No filter" },
+                  { src: "Photos/funny3.jpg", caption: "Rare footage" }, { src: "Photos/funny4.jpg", caption: "Unedited 😂" } ] },
     },
     {
       tag: "For your heart",
@@ -3558,26 +3592,32 @@ function blowOut(k) {
   F.out++;
   if (F.out >= F.candles.length) allOut();
 }
-// After "And… blow out the candles!": the simple Happy Birthday tune (the one gift 1 had before your song), softly,
-// repeating gently until the fireworks are over
+// After "And… blow out the candles!": Happy Birthday on a soft piano, with gentle chords and a light echo;
+// it fades away once "Even from far away…" has written itself in
 var BDAY_VOL = { soft: .55, full: .8 };   // overall loudness: soft while she blows, a little brighter with the fireworks
 var BDAY = (function () {
-  var N = { G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+  var N = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+  var CH = { 0: [["C4","E4","G4"],3], 2: [["G4","B4","D5"],3], 6: [["G4","B4","D5"],3], 8: [["C4","E4","G4"],3], 12: [["C4","E4","G4"],3],
+    15: [["F4","A4","C5"],3], 19: [["C4","E4","G4"],3], 22: [["G4","B4","D5"],1.5], 24: [["C4","E4","G4"],3] };   // soft chords, an octave lower
   var MEL = [["G4",.75],["G4",.25],["A4",1],["G4",1],["C5",1],["B4",2],["G4",.75],["G4",.25],["A4",1],["G4",1],["D5",1],["C5",2],
     ["G4",.75],["G4",.25],["G5",1],["E5",1],["C5",1],["B4",1],["A4",2],["F5",.75],["F5",.25],["E5",1],["C5",1],["D5",1],["C5",3]];
-  var BEAT = .42, B = { on: false, last: false, idx: 0, next: 0, timer: 0, master: null };
-  function tone(f, t, len) {                         // one soft, slightly hollow note (triangle wave), as before
-    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = "triangle"; o.frequency.value = f;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.1, t + .03); g.gain.exponentialRampToValueAtTime(.001, t + len * .95);
-    o.connect(g); g.connect(B.master); o.start(t); o.stop(t + len);
+  var BEAT = .5, B = { on: false, last: false, idx: 0, next: 0, timer: 0, master: null, bus: null };
+  function key(f, t, len, v) {                       // one soft piano note: a quick touch, a ringing fade, let go at its end
+    [[1, 1, .9], [2, .4, .3], [3, .15, .2]].forEach(function (p) {
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = f * p[0];
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * p[1], t + .006);
+      g.gain.setTargetAtTime(0, t + .006, p[2]); g.gain.setTargetAtTime(0, t + len, .15);
+      o.connect(g); g.connect(B.bus); o.start(t); o.stop(t + len + 1);
+    });
   }
   function pump() {                                  // schedules the next notes a little ahead, so they stay perfectly in time
     var ahead = audioCtx.currentTime + .6;
     while (B.next < ahead) {
       if (B.idx >= MEL.length) { if (B.last) { clearInterval(B.timer); return; } B.idx = 0; B.next += BEAT * 1.5; }   // a breath, then again
-      var n = MEL[B.idx++];
-      tone(N[n[0]], B.next, n[1] * BEAT);
+      var k = B.idx, n = MEL[B.idx++];
+      key(N[n[0]], B.next, n[1] * BEAT, .12);
+      if (CH[k]) CH[k][0].forEach(function (c) { key(N[c] / 2, B.next, CH[k][1] * BEAT, .034); });
       B.next += n[1] * BEAT;
     }
   }
@@ -3586,10 +3626,11 @@ var BDAY = (function () {
     start: function () {
       if (B.on || !sfxOK()) return;
       try {
-        var m = audioCtx.createGain();
+        var m = audioCtx.createGain(), bus = audioCtx.createGain(), d = audioCtx.createDelay(1), fb = audioCtx.createGain();
         m.gain.setValueAtTime(0, audioCtx.currentTime); m.gain.linearRampToValueAtTime(BDAY_VOL.soft, audioCtx.currentTime + 1.5);
-        m.connect(audioCtx.destination);
-        B.master = m; B.on = true; B.last = false; B.idx = 0; B.next = audioCtx.currentTime + .15;
+        d.delayTime.value = .3; fb.gain.value = .18;   // a light echo, like a piano in a quiet room
+        bus.connect(m); bus.connect(d); d.connect(fb); fb.connect(d); fb.connect(m); m.connect(audioCtx.destination);
+        B.master = m; B.bus = bus; B.on = true; B.last = false; B.idx = 0; B.next = audioCtx.currentTime + .15;
         FW_DUCK = .45;                                 // fireworks stay soft and distant under the tune
         pump(); B.timer = setInterval(pump, 120);
       } catch (e) { B.on = false; }
@@ -5014,9 +5055,18 @@ function openChat(i) {
   }
   // your own message: the last bubble in the "All of us" chat, right after the photos (its own chat only if there are no photos)
   var mine = g.closing ? { name: CONFIG.fromName, text: g.closing, color: "#f4c55a", me: true, read: false } : null;
-  if (mine && gpItem) gpItem.after = mine; else if (mine) items.push(mine);
+  var FN = g.funny, funny = FN && FN.photos && FN.photos.length ? { name: CONFIG.fromName, color: "#f4c55a", me: true, group: true, scrap: true, caption: "",
+    pics: FN.photos.map(function (p) { return { src: p.src, cap: p.caption || "" }; }) } : null;
+  var funnyLine = funny && FN.text ? { name: CONFIG.fromName, text: FN.text, color: "#f4c55a", me: true, read: false } : null;   // your line comes first, then the photos
+  if (gpItem) {                                       // in "All of us", after the group photos: your funny photos, then your closing line
+    gpItem.afters = []; gpItem.shown = 0;
+    if (funnyLine) gpItem.afters.push(funnyLine);
+    if (funny) gpItem.afters.push(funny);
+    if (mine) gpItem.afters.push(mine);
+    if (!gpItem.afters.length) gpItem.afters = null;
+  } else if (mine) items.push(mine);
   items.forEach(function (m, k) { m.time = "12:" + (k < 10 ? "0" + k : k) + " am"; m.read = false; });
-  if (mine && gpItem) mine.time = "12:" + (items.length < 10 ? "0" : "") + items.length + " am";
+  if (gpItem && gpItem.afters) gpItem.afters.forEach(function (a) { a.time = "12:" + (items.length < 10 ? "0" : "") + items.length + " am"; });
   chat = { g: g, run: run, items: items, F: F, arrived: 0, lateIn: 0, lateTimer: null, view: "list" };
   if (gpItem) gpItem.pics.slice().forEach(function (p) {   // a photo that isn't there is quietly left out; with none, so is the chat
     var pre = new Image();
@@ -5026,7 +5076,21 @@ function openChat(i) {
       gpItem.text = gpText(gpItem);
       var k = chat.items.indexOf(gpItem);
       if (!gpItem.pics.length && k >= 0 && k - chat.F >= chat.lateIn) {
-        if (gpItem.after) chat.items.splice(k, 1, gpItem.after); else chat.items.splice(k, 1);   // no photos: your message comes as its own chat
+        if (mine) chat.items.splice(k, 1, mine); else chat.items.splice(k, 1);   // no photos: your message comes as its own chat
+      }
+    };
+    pre.src = p.src;
+  });
+  if (funny) funny.pics.slice().forEach(function (p) {   // a funny photo that isn't there is left out too (and with none, that message)
+    var pre = new Image();
+    pre.onerror = function () {
+      if (!chat || chat.run !== run || !gpItem || !gpItem.afters) return;
+      var j = funny.pics.indexOf(p), a = gpItem.afters.indexOf(funny);
+      if (j >= 0) funny.pics.splice(j, 1);
+      if (!funny.pics.length && a >= gpItem.shown) {
+        gpItem.afters.splice(a, 1);
+        var b = gpItem.afters.indexOf(funnyLine);
+        if (b >= gpItem.shown) gpItem.afters.splice(b, 1);   // no funny photos at all: their line goes too
       }
     };
     pre.src = p.src;
@@ -5083,7 +5147,7 @@ function chatLateSoon(delay) {
   }, delay);
 }
 function avaFor(m) {
-  if (!m.group) return avatarEl(m.name, m.photo, m.color);
+  if (!m.group || m.me) return avatarEl(m.name, m.photo, m.color);   // your funny photos still show your own icon
   var d = document.createElement("div"); d.className = "ava grp"; d.style.setProperty("--c", m.color);
   d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><circle cx="16" cy="8" r="3.2"/>' +
     '<path d="M2 19c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6z"/><path d="M14.6 13.6c.4-.1.9-.2 1.4-.2 3.3 0 6 2.3 6 5.6h-6.4c0-2.1-.4-3.9-1-5.4z"/></svg>';
@@ -5173,24 +5237,32 @@ function liftStop() {
   Array.prototype.forEach.call($("chat").querySelectorAll(".clift, .clift-dim"), function (e) { e.remove(); });
   Array.prototype.forEach.call($("chat").querySelectorAll(".cpola"), function (e) { e.style.visibility = ""; });
 }
-function liftSeq(pw, m) {
+function liftSeq(pw, m, staged) {   // staged: each photo finishes loading just before it lifts (the backdrop dims only while one is up)
   if (!chat || chat.lifting || !document.body.contains(pw)) return;
   var fr = pw.querySelectorAll(".cpola"), j = 0, run = chat.liftRun = (chat.liftRun || 0) + 1;
   chat.lifting = true;
   var dim = document.createElement("div"); dim.className = "clift-dim"; $("chat").appendChild(dim);
-  void dim.offsetWidth; dim.classList.add("on");
+  void dim.offsetWidth; if (!staged) dim.classList.add("on");
   function alive() { return chat && chat.liftRun === run && document.body.contains(pw); }
   function one() {
     if (!alive()) return;
     if (j >= fr.length) {
       chat.lifting = false;
       dim.classList.remove("on"); setTimeout(function () { dim.remove(); }, 500);
-      var k = chat.items.indexOf(m);
-      setTimeout(function () { if (chat && k >= 0) chatAfter(k); }, 1200);   // all the photos seen: your message follows in this chat
+      var k = chat.view;
+      setTimeout(function () { if (chat && typeof k === "number") chatAfter(k); }, 1200);   // all the photos seen: your next message follows in this chat
       return;
     }
-    var src = fr[j], p = m.pics[j]; j++;
-    liftOne(src, p, j % 2 ? -2 : 2, alive, function () { setTimeout(one, 350); });
+    var src = fr[j], p = m.pics[j], tilt = j % 2 ? 2 : -2; j++;
+    function up() {
+      if (!alive()) return;
+      dim.classList.add("on");
+      liftOne(src, p, tilt, alive, function () { if (staged) dim.classList.remove("on"); setTimeout(one, staged ? 600 : 350); });
+    }
+    if (staged && src.classList.contains("loading")) {          // this one's turn: its ring fills, it comes into focus, then lifts
+      src.style.setProperty("--rd", "0s"); src.classList.remove("wait");
+      setTimeout(function () { if (!alive()) return; src.classList.remove("loading"); setTimeout(up, 800); }, 1450);
+    } else up();
   }
   one();
 }
@@ -5198,6 +5270,7 @@ function liftOne(src, p, tilt, alive, done) {
   var host = $("chat"), big = document.createElement("div"); big.className = "clift"; big.setAttribute("aria-hidden", "true");
   big.innerHTML = '<span class="pf"><img alt=""></span><p class="cap"></p>';
   big.querySelector("img").src = p.src;
+  var tp = src.querySelector(".tape"); if (tp) big.appendChild(tp.cloneNode(true));   // a taped photo keeps its tape as it lifts
   var t = fillName(p.cap || ""), html = "", d = .75;      // the caption starts writing once it has lifted
   for (var i = 0; i < t.length; i++) {
     var c = t.charAt(i);
@@ -5229,7 +5302,7 @@ function chatConvo(k) {
   var m = chat.items[k], firstTime = m.group ? !m.opened : !m.read;
   hideNotif();
   m.opened = true;
-  m.read = !(m.group && m.after && !m.afterShown);      // "All of us" stays unread until she has seen your message in it
+  m.read = !(m.group && m.afters && m.shown < m.afters.length);   // "All of us" stays unread until she has seen your messages in it
   chat.view = k;
   liftStop();
   bgm2For(m.group);                                   // soft under a friend's words, a gentle lift for "All of us"
@@ -5262,19 +5335,21 @@ function chatShowMsg(k, fresh, mo) {
     var who = document.createElement("div"); who.className = "who"; who.textContent = m.name; b.appendChild(who);
   }
   if (m.group) {                                      // two polaroids drop in, blurred with a loading ring, then come into focus
-    var pw = document.createElement("div"); pw.className = "pics n" + Math.min(3, m.pics.length);
+    var pw = document.createElement("div"); pw.className = "pics n" + Math.min(4, m.pics.length) + (m.scrap ? " scrap" : "");
     m.pics.forEach(function (p, j) {
-      var f = document.createElement("button"); f.type = "button"; f.className = "cpola" + (fresh ? " drop loading" : "");
+      var f = document.createElement("button"); f.type = "button"; f.className = "cpola" + (fresh ? " drop loading" : "") + (fresh && m.scrap ? " wait" : "");
       f.style.setProperty("--d", (j * .35).toFixed(2) + "s"); f.style.setProperty("--rd", (.3 + j * .7).toFixed(2) + "s");
       f.setAttribute("aria-label", "Open photo " + (j + 1) + " of " + m.pics.length);
       f.innerHTML = '<span class="pf"><img alt=""><svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><circle class="fill" cx="18" cy="18" r="15"/></svg></span>';
       var im = f.querySelector("img"); im.alt = p.cap || "Photo " + (j + 1); im.src = p.src;
+      if (m.scrap) f.insertAdjacentHTML("afterbegin", '<span class="tape t' + (j % 4 + 1) + '"></span>');
       f.addEventListener("click", function () { liftSeq(pw, m); });   // a tap plays the photos again
       pw.appendChild(f);
-      if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) f.classList.remove("loading"); }, 1800 + j * 700);
+      if (fresh && !m.scrap) setTimeout(function () { if (chat && chat.convoTok === tok) f.classList.remove("loading"); }, 1800 + j * 700);
     });
     b.classList.add("pics-b"); b.appendChild(pw);
-    if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) liftSeq(pw, m); }, 1800 + (m.pics.length - 1) * 700 + 900);
+    if (fresh && m.scrap) setTimeout(function () { if (chat && chat.convoTok === tok) liftSeq(pw, m, true); }, 1200);   // one at a time: loads, lifts, then the next
+    else if (fresh) setTimeout(function () { if (chat && chat.convoTok === tok) liftSeq(pw, m); }, 1800 + (m.pics.length - 1) * 700 + 900);
   }
   if (m.photo) {
     var img = new Image(); img.className = "att"; img.alt = "Photo from " + m.name;
@@ -5287,16 +5362,16 @@ function chatShowMsg(k, fresh, mo) {
   r.appendChild(b); body.appendChild(r);
   if (mo) { try { r.scrollIntoView({ block: "end", behavior: "smooth" }); } catch (e) { body.scrollTop = body.scrollHeight; } }
   else body.scrollTop = 0;
-  if (m.group && m.after) {
-    if (m.afterShown) chatShowMsg(k, false, m.after);                 // seen before: it's simply there
-    else if (!fresh) setTimeout(function () { if (chat && chat.convoTok === tok) chatAfter(k); }, 1500);   // photos already seen: it comes now
+  if (!mo && m.group && m.afters) {
+    for (var q = 0; q < m.shown; q++) chatShowMsg(k, false, m.afters[q]);   // seen before: they're simply there
+    if (m.shown < m.afters.length && !fresh) setTimeout(function () { if (chat && chat.convoTok === tok) chatAfter(k); }, 1500);   // photos already seen: the next comes now
   }
 }
 // your message arrives in the "All of us" chat once the photos are done: "Aksay is typing…", then the bubble
 function chatAfter(k) {
   var m = chat && chat.items[k];
-  if (!m || !m.after || m.afterShown || m.afterComing || chat.view !== k) return;
-  var a = m.after, body = $("chatBody"), tok = chat.convoTok;
+  if (!m || !m.afters || m.shown >= m.afters.length || m.afterComing || chat.view !== k) return;
+  var a = m.afters[m.shown], body = $("chatBody"), tok = chat.convoTok;
   m.afterComing = true;
   var ty = document.createElement("div"); ty.className = "cmsg mine";
   ty.appendChild(avaFor(a));
@@ -5308,10 +5383,13 @@ function chatAfter(k) {
     m.afterComing = false;
     if (!chat || chat.convoTok !== tok || chat.view !== k) return;
     ty.remove(); $("chatSub").textContent = "online";
-    m.afterShown = true; m.read = true; a.read = true;
-    m.text = a.name + ": " + String(a.text).replace(/\s+/g, " ");   // the chat list now shows your line as the last message
+    m.shown++; a.read = true;
+    var last = m.shown >= m.afters.length;
+    if (last) m.read = true;
+    m.text = a.name + ": " + (a.group ? String(a.caption || gpText(a)) : String(a.text)).replace(/\s+/g, " ");   // the chat list shows your latest line
     chatPop();
-    chatShowMsg(k, true, a);
+    chatShowMsg(k, true, a);                          // funny photos: they drop in and lift one by one, then the next message follows
+    if (!last && !a.group) setTimeout(function () { if (chat && chat.convoTok === tok) chatAfter(k); }, 2500);
   }, reducedMotion ? 200 : 1600);
 }
 function closeChat() {
