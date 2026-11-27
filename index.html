@@ -1101,6 +1101,7 @@ body.reel-open .sound, body.overlay-open .sound { display: none; }
   padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
 }
 .chat-foot p { margin: 0; font-size: 13px; color: #b9afd8; }
+.chat-foot[hidden] { display: none; }                 /* inside a chat: no footer (the back arrow at the top returns to the list) */
 #chatBack[hidden] { display: none; }
 /* List of chats, like a phone's chat list */
 .chat-body.list { padding: 0; gap: 0; background: #0f0b1d; }
@@ -5190,9 +5191,9 @@ function chatHeader() {
 function chatFooter() {
   var foot = $("chatFoot");
   var allDone = allReadSoFar() && chat.F + chat.lateIn >= chat.items.length;
+  foot.hidden = chat.view !== "list";
   if (chat.view !== "list") {
-    foot.innerHTML = '<button class="btn-ghost" type="button" id="chatToList">Back to chats</button>';
-    $("chatToList").addEventListener("click", chatList);
+    foot.innerHTML = "";
   } else if (allDone) {
     foot.innerHTML = '<button class="btn-gold" type="button" id="chatDone">Back to the boxes</button>';
     $("chatDone").addEventListener("click", closeChat);
